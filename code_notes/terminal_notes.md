@@ -14,7 +14,8 @@ go back to home folder
 + **touch** : create file
 + **mkdir**: make directory
 + **rm** : **** PERMANENT DELETE****
-+ **mv**: move (and rename)
++ **mv**: move (and rename: mv “giveoldname” “new_name”)
+ + go to the destination of the file you want to move (ex. desktop). Then, type the file name + the file path. The "." stands for the current directory (desktop in this case) **(terminal_ notes ./Workspace/code_notes)**
 + **cp** : copy files/directories/directories+files
 	+ **cp (file-name) (destination directory)** = copy single file to destination directory
 	+ **cp (file-1) (file-2) (/home/usr/rapid/)** = copy 2 files to destination absolute path directory /home/usr/rapid/
@@ -27,8 +28,6 @@ go back to home folder
 + **rmdir**: remove directory
 + **pushd**: push directory
 + **popd**: pop directory
-+ **cp**: copy a file or directory
-+ **mv**: move a file or directory (mv “give_old_name” “new_name”)
 + **less**: page through a file
 + **cat**: print the whole file (concatenates the whole file(s) to the screen with no paging or stopping)
 + **xargs**: execute arguments

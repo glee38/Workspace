@@ -1,0 +1,79 @@
+# Learn.co
+
+## Three commands to know how to work on Learn:
+###**learn open** 
+
+ + to fork and clone your lab locally so you can work on it
+ + After typing learn open, the learn application did the following:
+
+	+ Checked what your current lesson on Learn is.
+		
+	+ Forked that lesson on GitHub (notice the Fork light turned green on the right in Learn).
+	+ Cloned your fork lesson locally, generally into a directory ~/Development/code/ (which is your home directory, the Development folder, and then a folder code).
+	+ Prepared the lesson bundle, which isn't something you need to worry about at all yet, but it did it for you just in case.
+	+ cd changed directory into the cloned lesson's directory.
+	+ Opened your favorite text editor, probably Sublime Text.
+
+If you type learn open you'll always end up in the right setup to work on a lab, terminal navigated into the lab's directory and the lab's directory opened in a text editor.
+
+###**learn test** 
+
+ + to run your local tests
+
+TEST DRIVEN WORKFLOW
+
+When you work on a lab, we recommend the following workflow:
+
+**1. READING THE README**
+Read the lab's README on Learn and get a sense of what the lab is about and what it is asking you to build. Read the entire README and then work on the lab and as you hit hurdles you'll have a context for where to look for clues and hints in the README.
+
+**2. RUN THE TESTS WITH LEARN**
+Before doing any work, run the test suite from your local clone with the learn CLI command. From your terminal, in a lab's directory, run learn, you'll see something similar to: (example of a screenshot from terminal)
+
+**3. READ THE TESTS**
+Read the test suite in spec/. Open up the lab in your text editor, open the files in the spec directory that are not named spec_helper.rb. spec_helper.rb is a helper file to configure your tests which you can ignore. Any file in spec that ends in _spec.rb though is a test file and while testing code and RSpec are advanced, we believe the semantics are easy to understand, the meaning of the test is comprehensible, even if the code is not.
+
+**4. WRITE YOUR CODE**
+After forking and cloning the lab, opening the lab in a text editor, reading the README, running the test suite, reading the errors, and reading the tests themselves in spec, you're ready to code. You've armed yourself with every weapon available in the arsenal of your intellect and we know you can program triumphantly.
+
+You should understand the point of the lab.
+
+You should be able to identify the objectives and topics the lab is exercising so you can google for more information.
+
+You should know the expected behavior or outcome of the solution.
+
+You should know what files you need to create or edit.
+
+You should know what those files and code should define, provide, and do.
+
+You should constantly save and test your code with every significant change.
+
+You should read error messages and glean insight into the solution with every new failure.
+
+You should keep on trying until you get it working. It doesn't matter how many times you fail as long as it is one less than the times you tried.
+
+You should ask for help on Learn.
+
+**5. PASS YOUR LOCAL TESTS WITH LEARN**
+Follow this workflow, running tests, reading errors, writing code, saving code, running tests, reading errors, consulting the README, googling for more context on a topic, writing more code, saving the code, running the tests again, reading errors, and repeat. You'll get it, you'll surprise yourself and find a confidence within you. And if you're just stuck or tired and just need some help, Ask a Question and the Learn community is here for you.
+
+Eventually your local tests will pass and Learn will indicate your success.
+
+###**learn submit** 
+
+ + to submit your solution
+
+**WHAT DOES LEARN SUBMIT DO?**
+
+The learn submit and the Learn CLI automate all the low-level git interactions. When you type learn submit, here's what happens:
+
++ Your local changes are staged via git add . and committed via git commit -am.
+
++ Your local commits are pushed to your fork on GitHub with git push
+
++ A Pull Request from your fork is opened.
+
+
+## Opening a lab on Learn
+1. You can Fork it and **git clone** it via Github and **git**
+2. You can use the Open button or **learn open** via the Learn CLI. **This is the preferred way to work**

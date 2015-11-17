@@ -1,0 +1,34 @@
+
+#Ruby
+##String Methods 
+1. Puts
+ + a. .to_s, .to_i, .to_f
+ + b. .reverse : reverses order
+ + c. .length : # of characters (not letters, so counts spaces too)
+ + d. .upcase : changes every lowercase to uppercase
+ + e. .downcase : change every uppercase to lowercase
+ + f. .swapcase : swaps cases
+ + g. .capitalize : capitalized first character!! not first letter. Downcases everything else. 
+ + h. str.center(how wide you want the centered string to be)
+ + Ex: line_width= 50 (so that you can easily go back and change one variable instead of all the lines) 
+     str.center(line_width)
+ i. str.ljust( line_width), str.rjust(line_width)
+
+2. gets(.chomp)
+
+##Math
+ + a. ' ** ' : exponent
+   
+   + 5 ** 2= 25
+   + 5 ** 0.5= 5^0.5
+   
+ + b. **'%'** : modulus (gets you the remainder of operation)
+    
+    + 7%3= 1 (7/3= 2 r1)
+    
+ + c. **'.abs'** : absolute value
+ + d. **'rand( )'** : random number generator  
+     + srand : seed. To repeat the same random numbers. 
+ + e. **'Math ::'** : like a scientific calc. Treat like a variable. 
+     + 'Math :: PI' : constant, doesn't vary. 
+    + 'puts (Math.cos(Math::PI/3))': 0.5
