@@ -1,5 +1,732 @@
 
 #Ruby
+##About Ruby
+###WORDS IN A PROGRAM
+Every word and character in a program has to be valid code for the ruby language. Basically, every word can be one of three possible things:
+
++ A Ruby keyword, something that's part of the ruby language.
++ Literal data, things like "Strings" and Numbers 1,2.
++ Barewords you define and create, things like variables and methods.
+
+**Anything that isn't one of those is invalid and the Ruby interpreter will throw an error.**
+
+##WHAT IS IRB?
+
+IRB stands for "interactive ruby", it's a ruby shell or REPL. REPL stands for read–eval–print loop. It is a simple, interactive computer programming environment that takes user inputs (such as, in our case, snippets of Ruby code), evaluates them, and returns the result to the user. IRB is run by your computer's terminal. You can think of it as your Ruby playground or execution environment. You can open it up, insert code and execute it to see that code's return value.
+
+**How to run IRB:**
+
++ type **"irb"** into Terminal and press return
++ to leave irb, type the **"exit"** command
+
+##Reading Error Messages
+Error messages have 3 parts:
+
+```lib/a_name_error.rb:3:in `<main>': undefined local variable or method `hello_world' for main:Object (NameError)```
+
+1) The location of the error, the "where".
+
+```lib/a_name_error.rb:3:in `<main>':```
+
++ `lib/a_name_error.rb` is the file the error occurred in.
+
++ 3 is the line of code the error.
+
++ `<main>` is the scope of the error.
+
+2) The description, the "why".
+
+```undefined local variable or method `hello_world' for main:Object```
+
++ The interpreter does the best job it can to tell you what it thinks went wrong.
+
+3) The type of error, the "who".
+
+`(NameError)`
+
+This is a Ruby Error Type
+
+###NAME ERRORS
+NameErrors are caused when a given name is invalid or undefined. Whenever the Ruby interpreter encounters a word it doesn't recognize, it assumes that word is the name of a variable or a method. If that word was never defined as either a variable or a method, it will result in a name error.
+
+
+###SYNTAX ERRORS
+Syntax errors are pretty self-explanatory: they're the result of incorrect syntax. Thankfully, they're usually followed by a guess about the location of the error.
+
+###TYPE ERRORS
+When you try and do a mathematical operation on two objects of a different type, you will receive a TypeError. For example if you try and add a string to an integer, Ruby will complain.
+
+###DIVISION ERRORS
+DivisionErrors are caused when a given number is divided by 0.
+
+##Ruby Data Types
+Ruby has **six** data types, which are also known as *classes*: booleans, symbols, numbers, strings, arrays, and hashes.
+
+##STRINGS
+###CREATING STRINGS
+There are two ways to create a string. In fact, we've already created a string just by typing "hello".
+
+Try it out by opening up IRB, and typing "hello".class
+
+You should see a return value of => String. You can actually call .class on any object to find out what type of data, i.e. what class, it is.
+
+**The Literal Constructor**: This is the method through which we created our "hello" string.
+
+**The Class Constructor**: You can also create a string with String.new. This will create an empty string.
+
+String.new("hello") on the other hand, will create this string: "hello". For the most part, you will create strings using the first method discussed here––simply by enclosing whatever text you want in quotes.
+
+##BOOLEANS
+
+There are only two values of the Boolean data type: **true and false**. In Ruby, however, there is no such thing as a Boolean class. Instead, every appearance, or instance, of true and false in your program are instances of TrueClass and FalseClass respectively.
+
+###NUMBERS
+
+You probably already know from the real world (as opposed to the Ruby world) that integers are numbers. **In Ruby, there are two types of numbers: Fixnums and Floats.**
+
++ **Fixnums** are *whole numbers*, like 7.
+
++ **Floats** are *decimal numbers*, like 7.3.
+
+###CREATING INTEGERS
+
+Once again, there is no special magic to creating integers. Simply declare them by typing 9000123 or 2.
+OPERATING ON FIXNUMS AND FLOATS
+There are a number of methods available to you for operating on or manipulating integers. You can read more about Fixnums here and more about Floats here For now, we'll just check out a few examples:
+
+~~~
+7.5.floor
+  => this method will round the float down to the nearest fixnum. Here it will return 7
+
+7.5.ceil
+  => 8
+10.next
+  => 11
+~~~
+
+##SYMBOLS
+
+A symbol is a representation of a piece of data. 
+
+Symbols look like this:
+
+~~~
+:my_symbol
+~~~ 
+
+If I make a symbol, :my_symbol, and then use that symbol later on in my code, my program will refer to the same area of memory in both cases. This is different from, for example, strings, which take up new areas of memory every time they are used.
+
+###CREATING SYMBOLS
+You write symbols by placing a : in front of the symbol name.
+
+~~~
+:this_is_a_symbol
+~~~
+
+##ARRAYS
+
+Arrays are collections of Ruby objects. You can store any type of data in an array.
+
+###WHAT IS AN ARRAY?
+
+So far, we've used variables to store information. For example, I could create a variable called `my_name` and set it equal to my name: `my_name ="Severus Snape"`. However, variables only allow us to store one piece of information at a time.
+
+What if my boss, Headmaster Dumbledore, asks me to deliver the names of all of my students? I could create a bunch of variables like this:
+
+~~~
+student_1 = "Harry Potter"
+student_2 = "Ron Weasley"
+student_3 = "Hermione Granger"
+student_4 = "Draco Malfoy"
+
+# etc...
+~~~
+I could write a program that passes around these variables one at a time. This seems messy though. I could easily forget about a student, for example. Or need to create a new student and then have to hunt through my program for every place I ever passed around all of these individual variables.
+
+If this was real life, Professor Snape would probably just write down all the students in list form and hand that list to Dumbledore. Well, in Ruby, we can do the same thing using an array.
+
+**An array is like a list but in code form.** It is a way for your program to store pieces of data as a collection. *Arrays can contain any data types in any combination––strings, integers, other arrays, hashes, etc.*
+
+Arrays are declared by listing variable names or literals separated by commas (`,`) and wrapped in square brackets `[ ]`. To save our four students from above into an array, we write that in our code like this:
+
+~~~
+students = ["Harry Potter", "Ron Weasley", "Hermione 
+Granger", "Draco Malfoy"]
+~~~
+
+
+###CREATING ARRAYS
+There are a number of ways to create an array. Just like with creating strings, you can use the *literal constructor* or the *class constructor*.
+
++ **The Literal Constructor**:`[1, 3, 400, 7]` is an array of integers. Any set of comma separated data enclosed in brackets is an array. So, by simply writing something like the above, you can create an array.
+
+	+ `my_array = []`
+
++ **The Class Constructor**: You can also create an array with the `Array.new` syntax. Just typing `Array.new` will create an empty array (`=> []`).
+	+ `my_array = Array.new #=> []`
+
+**Advanced**: A class is like a template, or blueprint, for creating objects in Ruby. An **"object"** is simply a bundle of information and behaviors. 
+
++ For example, a string is an object, because it contains information (i.e. the text inside the " ") and because it has behaviors––it can do things/have things done to it. 
+
+For example:
+
+	+ `"hi".reverse #=> "ih"`
+
+	
+There is an Array class that serves as the blueprint for every array that you will make. This means that all arrays are capable of certain shared behaviors and are responsive to certain methods.
+
+To create a new array object from the Array class, you can call `.new` on `Array` – the name of the class. This creates a brand new, empty array. Don't worry about understanding objects and classes, or the `.new` method, just yet. They are all part of something called Object Oriented Programming, which is a big topic. We'll be building up to it through this and the next few units.
+
+To make an array that isn't empty, you can separate each item, known as an element, by a `,` ("comma") and wrap all the elements inside `[ ]` ("square brackets").
+
+```
+puppies = ["bulldog", "terrier", "poodle"]
+# => ["bulldog", "terrier", "poodle"]
+
+random_numbers = [ 2, 5, 6, 8, 30050]
+# => [ 2, 5, 6, 8, 30050]
+
+mixed = ["this", "array", 7, 20, "has", 45, "integers",
+ "&", "strings", 309]
+# => ["this", "array", 7, 20, "has", 45, "integers",
+ "&", "strings", 309]
+```
+It is possible to create an array that contains disparate data types, but that is generally discouraged. It's best to keep your arrays populated with only one kind of element.
+
+
+###OPERATING ON ARRAYS
+There are many ways to operate on arrays and on each individual item, or element, within an array. Later on in the course, we'll learn about iteration––the process of operating on each successive item in an array. For now, we'll preview a few array methods:
+
+~~~
+[5, 100, 234, 7, 2].sort
+
+  => [2, 5, 7, 100, 234]
+
+[1, 2, 3].reverse
+  => [3, 2, 1]
+~~~
+
+###RETRIEVING ITEMS FROM ARRAY
+
+When you write out a list on a notepad, you typically write each item on its own line. Whether or not the list is explicitly numbered, the list has a numerical order to it based on the sequence of the lines that the items are listed upon.
+
+Just like the items in our notepad lists, elements in an array are associated with a number that represents their order. In programming, this number is called an **index**. While humans typically start their lists at "1.", arrays begin their indexes at `0` (zero). So, the first item in array will always be "at index `0`". If we have an array of famous (fictional) cats:
+
+`famous_cats = ["Cheshire Cat", "Puss in Boots", "Garfield"]`
+
+The `"Cheshire Cat"` is at index `0` in the array, `"Puss in Boots"` is at index `1`, and `"Garfield"` is at index `2`. **Indexes will always be one less than the count.**
+
+To access one of these items in the `famous_cats` array, we can type the name of the array immediately followed by the relevant index number wrapped in square brackets (`[ ]`).
+
+~~~
+famous_cats =  ["Cheshire Cat", "Puss in Boots",
+ "Garfield"]
+
+famous_cats[1]  #=> "Puss in Boots"
+
+famous_cats[0] #=> "Cheshire Cat"
+
+famous_cats[2] #=> "Garfield"
+
+famous_cats[20] #=> nil
+~~~
+
+###ASSIGNING NEW VALUES TO AN ARRAY
+
+Now that we know how to create an array with literal constructors `[ ]` and read values out of an array via the index of the element like `["Red", "Yellow", "Green"][0]` for `"Red"`, we should learn how to re-assign a value to an index in an array.
+
+`speed_dial = ["Ada", "Kay", "Matz", "DHH", "Borg"]`
+
+We have five of our favorite friends in an array referenced by the local variable `speed_dial`. If we wanted to get the name of the person in the third position of our speed dial, we would call `speed_dial[2]` and it would return `"Matz"`.
+
+But what about replacing someone in our speed dial? How could we replace `"Kay"` in index `1` of `speed_dial` with our new second favorite friend, `"Chipps"`?
+
+To re-assign a value to an index in an array we use the `[ ]=` syntax. We must supply an index we want to re-assign and then a value for that index. For example:
+
+```
+speed_dial = ["Ada", "Kay", "Matz", "DHH", "Borg"]
+speed_dial[1] #=> "Kay"
+
+speed_dial[1] = "Chipps"
+speed_dial[1] #=> "Chipps"
+```
+
+Re-assigning a value to an index of an array looks a lot like variable definition and that is by design. Just indicate which index you want to write to with `[ ]`, and then assign it a new value with `=`. The old value is totally forgotten and replaced by the new value.
+
+###MANIPULATING ARRAYS
+
+If an array is a storage container for a list of data, then we can add and remove individual items from it. There are several ways to accomplish either.
+
+###ADDING ITEMS TO AN ARRAY
+
+**SHOVEL METHOD**
+
+The shovel method employs the "shovel" operator `<<` and allows you to **add ("shovel") items onto the end** of an array:
+
+```
+famous_cats = ["lil' bub", "grumpy cat", "Maru"]
+
+famous_cats << "nala cat"
+
+famous_cats #=> ["lil' bub", "grumpy cat", "Maru", 
+"nala cat"]
+```
+
+The shovel method `<<` is the preferred syntax for adding elements to an array, however you might see other methods used in examples online:
+
+**THE .PUSH METHOD**
+
+Calling `.push` on an array with an argument of the element you wish to add to that array, will also add that element to the end of the array. It has the same effect as the shovel method explained above:
+
+```
+famous_cats = ["lil' bub", "grumpy cat", "Maru"]
+
+famous_cats.push("nala cat")
+
+famous_cats #=> ["lil' bub", "grumpy cat", "Maru", 
+"nala cat"]
+```
+
+**THE .UNSHIFT METHOD**
+
+To **add an element to the front** of an array, you can call the `.unshift` method on it with an argument of the element you wish to add:
+
+```
+famous_cats = ["lil' bub", "grumpy cat", "Maru"]
+
+famous_cats.unshift("nala cat")
+
+famous_cats.inspect #=> ["nala cat", "lil' bub", "grumpy 
+cat", "Maru"]
+```
+
+###REMOVING ITEMS FROM AN ARRAY
+
+**THE .POP METHOD**
+
+Calling `.pop` on an array will **remove the last item from the end of the array**. The `.pop` method will also supply the removed element as its return:
+
+```
+famous_cats = ["lil' bub", "grumpy cat", "Maru"]
+maru_cat = famous_cats.pop
+
+famous_cats #=> ["lil' bub", "grumpy cat"]
+maru_cat #=> Maru
+```
+
+**THE .SHIFT METHOD**
+
+Calling `.shift` on an array will **remove the first item from the front of the array**. The `.shift` method will also supply the removed element as a return:
+
+```
+famous_cats = ["lil' bub", "grumpy cat", "Maru"]
+lil_bub = famous_cats.shift
+
+famous_cats #=> ["grumpy cat", "Maru"]
+lil_bub #=> lil' bub
+```
+
+###OPERATING ON ARRAYS
+
+There are a number of other methods available for manipulating arrays. You can learn more about them here, but we'll look at just a few examples together.
+
+**THE .REVERSE METHOD**
+
+This method **reverses an array**.
+
+```
+famous_wizards = ["Dumbledore", "Gandalf", "Merlin"]
+
+famous_wizards.reverse #=> ["Merlin", "Gandalf", 
+"Dumbledore"]
+```
+
+**THE .INCLUDE? METHOD**
+
+This method will **return a boolean of whether or not the array contains (or includes) the element submitted to it inside the parentheses**:
+
+```
+famous_cats = ["lil' bub", "grumpy cat", "Maru"]
+
+famous_cats.include?("Garfield") #=> false
+
+famous_cats.include?("Maru") #=> true
+```
+
+##METHODS
+
+###WHY USE METHODS
+**Methods define a new thing that your program can do.** Variables are a mechanism to teach your Ruby program about data; methods teach your Ruby program about a new routine or behavior it can use. **Variables are like nouns, methods are like verbs.**
+
+For example, imagine needing to say "Hello World!" ten times. The method would look like this:
+
+```
+def say_hello_world_ten_times
+  phrase = "Hello World!"
+  puts phrase
+  puts phrase
+  puts phrase
+  puts phrase
+  puts phrase
+  puts phrase
+  puts phrase
+  puts phrase
+  puts phrase
+  puts phrase
+end
+```
+Now, when we use the bareword `say_hello_world_ten_times` in our program, it will invoke the method, running the code within the method. 
+
+###DEFINING A METHOD
+You can define a method in Ruby with the `def` keyword. A method's name can begin with any lowercase letter. Here's a quick example:
+
+```
+def greeting # Method Signature
+  puts "Hello World" # Method Body
+end # Method Closing
+```
+
++ That first line, `def greeting`, is called the **method signature**, it defines the basic properties of the method including the name of the method, `greeting`.
+
++ Once you open a method definition with the `def` keyword, all subsequent lines in your program are considered the **method's body**, the actual procedure or code that your method will run every time it's called.
+
++ You must terminate every opening `def` of a method with a corresponding `end` in order to close the method body.
+
++ It's also a great practice to indent methods correctly. **The body of a method should be indented two (2) spaces**, placing it visually within the method. When you `end` the method, go back to the same indentation of the `def`, aligning the opening and closing of the method visually.
+
+**NOTE**: Programmers love conventions, or agreed upon rules that help them talk to each other about code. A common convention for Ruby methods is to preface them with a `#`, and in subsequent lessons, you might see methods written with a `#` in front of the method name. This is so that other rubyists can instantly recognize it as a method, as opposed to a variable or a bareword or a class. For example, if a method is named '`greeting`', rubyists will often refer to it as '`#greeting`'. But remember that when you write it in your code, it should be `greeting` and not `#greeting`.
+
+**ANOTHER WAY TO DEFINE METHODS**
+
+Now that we've specified a name for our new method, we may need to declare some parameters. These are simply a list of local variable names in parentheses. Some sample method declarations are
+
+```
+def myNewMethod(arg1, arg2, arg3)     # 3 arguments
+  # Code for the method would go here
+end
+
+def myOtherNewMethod                  # No arguments
+  # Code for the method would go here
+end
+```
+
+Ruby lets you specify default values for a method's arguments---values that will be used if the caller doesn't pass them explicitly. This is done using the assignment operator.
+
+```
+def coolDude(arg1="Miles", arg2="Coltrane", arg3="Roach")
+  "#{arg1}, #{arg2}, #{arg3}."
+end
+coolDude	»	"Miles, Coltrane, Roach."
+coolDude("Bart")	»	"Bart, Coltrane, Roach."
+coolDude("Bart", "Elwood")	»	"Bart, Elwood, Roach."
+coolDude("Bart", "Elwood", "Linus")	»	"Bart, Elwood, Linus."
+```
+
+The body of a method contains normal Ruby expressions, except that you may not define an instance method, class, or module within a method. The return value of a method is the value of the last expression executed, or the result of an explicit return expression.
+
+##METHODS AND ARGUMENTS
+
+###UNDERSTANDING ARGUMENTS
+
+Imagine needing to build a method that greets a person. We could code something like this:
+
+```
+def greeting
+    puts "Hi, Ruby programmer!"
+end
+```
+
+This method, when called, will print out to the terminal, the string `"Hi, Ruby programmer!"`. 
+
+You should see:
+
+```
+Hi, Ruby programmer!
+ => nil 
+```
+ 
+As amazing as this method is, it's still pretty literal. It hard-codes, or directly specifies, name of the person we are greeting as `"Ruby programmer"`. If we wanted to build a method that can greet anyone, even Python programmers, we'd have to re-implement the majority of the original logic from greeting:
+
+```
+def greeting_python
+  puts "Hello, Python programmer!"
+end
+```
+
+Notice the only things that changed are the method name and the language name `"Python"` in the body of the method. It's as though that information should be specifiable or configurable when you call the method, otherwise we'd have to build every permutation of the method. In other words, we'd have to re-write the method for every single person we want to greet. We want our method to be more dynamic, more abstract, more re-usable. It should maintain the elements that will always be the same, no matter who we greet, and allow us to change, or swap out, the name of the person we are greeting. **This is dynamic, as opposed to "hard-coded"**.
+
+**Good news, that's exactly what method arguments (also called parameters) are for**:
+
+```
+def greeting(name)
+  puts "Hello, #{name}!"
+end
+```
+
+Above, we define our method to take in an argument by following the method name with parentheses enclosing a variable name: `greeting(name)`.
+
+Then, we use **string interpolation** inside the method body to `puts` out a greeting using whatever `name` was passed into the argument when the method is called. String interpolation allows users to use a Ruby variable to render a value inside of a string. In other words, if we have a variable, `name`, that points to a value of `"Sophie"`, string interpolation will let us use that `name` variable inside a string to render, or `puts` out, a string that contains the word `"Sophie"`.
+
+To interpolate a variable into a string, wrap that variable name inside curly braces, preceded by a pound sign: `#{variable_name}`.
+
+Let's call our method and see it in action:
+
+```
+greeting("Sophie")
+# > Hello, Sophie!
+```
+
+###DEFINING METHOD ARGUMENTS
+
+To add arguments to a method, you specify them in the method signature––the line that starts with `def`. Simply add parentheses after the name of the method and create a placeholder name for your argument.
+
+For example, if I want to write a method called `greeting` that accepts an argument of a person's name, I would do it like this:
+
+```
+    #method name      #argument
+def greeting_a_person(name)
+  "Hello #{name}"
+end
+```
+
+Arguments create new local variables that can be used within the method. When you name an argument, you are defining what bare word you want to use to access that data, just like when you create a variable. **Arguments follow the same rules as local variables: they can be any word that starts with a lowercase letter and they should be as descriptive of the data as possible.**
+
+In our `#greeting` method example, we are saying: When you call the `#greeting` method with an argument of `"Sophie"`, set a variable `name` equal to the value of `"Sophie"`.
+
+###DEFINING METHODS WITH MULTIPLE ARGUMENTS
+
+You can define a method to accept as many arguments as you want. Let's try creating a method that accepts two arguments: a person's name and their programming language of choice.
+
+```
+  # method name      first_argument, second_argument
+def greeting_programmer(name, language)
+  puts "Hello, #{name}. We heard you are a great #{language} programmer."
+end
+
+
+greeting_programmer("Sophie", "Ruby")
+# > Hello, Sophie. We heard you are a great Ruby programmer. 
+
+greeting_programmer("Steve", "Elixir")
+# > Hello, Steven. We heard you are a great Elixir programmer.
+```
+
+**To accept multiple arguments, simply separate the bare words in the argument list with commas.**
+
+###REQUIRED ARGUMENTS
+
+Once you define arguments for a method, they become required when you invoke or call the method. If you define a method that accepts a singular argument, when you call that method, you must supply a value for that argument, otherwise, you get an `ArgumentError`. Here's an example:
+
+```
+def greeting(name)
+  puts "Hello, #{name}!"
+end
+
+greeting # I explicitly call the method without a value for 
+the argument `name`
+# > ArgumentError: wrong number of arguments (0 for 1)
+```
+
+In Ruby, all arguments are required when you invoke the method. You can't define a method to accept an argument and call the method without that argument. Additionally, a method defined to accept one argument will raise an error if called with more than one argument.
+
+```
+def greeting(name)
+  puts "Hello, #{name}!"
+end
+
+hello("Sophie", "Ruby") # The method accepts 1 argument and 
+I supplied 2.
+# > ArgumentError: wrong number of arguments (2 for 1)
+```
+
+By default, all arguments defined in a method are required in order to correctly invoke (or "call", or "execute") that method.
+
+###USING ARGUMENTS IN METHODS
+
+Now that we know how to define a method with arguments, let's take a closer look at using those arguments, that data, within the method. Once again, our greeting method:
+
+```
+def greeting(name)
+  puts "Hello, #{name}"
+end
+```
+
+When we define a method with arguments we are defining a bareword that we can use to reference the actual value supplied to the method upon invocation. We built a method that will greet a specified person. In order to write code in our method to actually greet any given person, we need a placeholder––a way to refer to a generic person's name. This is an argument.
+
+When we build that method we might ask ourselves, "who is this method designed to greet?". The answer is "anyone, it doesn't matter." That's what makes the method abstract, the detail of who it greets is hidden until the method is actually invoked: greeting("Sophie"). Only then do we know that the method greets Sophie. The value of name is only supplied upon invocation.
+
+The bareword, in this case name, that we use as the argument's name in the method signature becomes a local variable within the method. Through that variable we can reference the value of the argument supplied at invocation.
+
+With the code above, when we say: greeting("Sophie"), the value of the argument name is "Sophie". During the particular runtime invoked by greeting("Sophie"), any reference to name will have the value of "Sophie", allowing the method to behave as intended.
+
+Similarly, when we say: greeting("Ann"), the value of the argument name is "Ann".
+
+Method arguments simply create local variables for you to refer to the value used when the method is actually invoked.
+
+##VARIABLES
+
+###HOW YOU INTERPOLATE VARIABLES INTO STRINGS
+
+To interpolate, you wrap the variable like `#{this}`.
+
+Let's try:
+
+```
+puts "There are #{num_of_attendees} people coming to
+ Beyonce's birthday party."
+```
+This prints `There are 547 people coming to Beyonce's birthday party.`
+
+###ANOTHER WAY TO INTERPOLATE VARIABLES INTO STRINGS
+
+Some Rubyists write this another way, like this:
+
+```
+answer = "Flamboyance"
+puts "A group of flamingos is called a " + answer + "."
+```
+
+
+##HASHES
+
+Hashes also store objects in Ruby. However, they differ from arrays in that they function like dictionaries. Instead of a simple comma separated list, hashes are composed of key/value pairs. Each key points to a specific value––just like a word and a definition in a regular dictionary.
+
+Hashes look like this:
+
+~~~
+{"i'm a key" => "i'm a value!", "key2" => "value2"}
+~~~
+
+The curly brackets denote the hash and this particular hash has two key/value pairs.
+
+###CREATING HASHES
+Hashes can be created with **literal constructors** and **class constructors**.
+
++ **The Literal Constructor**: You can create a hash by simply writing key/value pairs enclosed in curly braces.
+
++ **The Class Constructor**: Or, you can use the `Hash.new` syntax, which would create an empty hash, `{}`.
+
+##Puts & Print
+
+The puts (short for "out*put s*tring") and print commands are both used to display in the console the results of evaluating Ruby code. The primary difference between them is that puts adds a newline after executing, and print does not.
+
+```
+3.times { print "Hello!" }
+# > Hello!Hello!Hello!
+
+3.times { puts "Hello!" }
+# > Hello!
+# > Hello!
+# > Hello!
+```
+
+By default, Ruby doesn't display any output. The methods puts and print are a great way to explicitly tell the program to display specific information. Without these printing methods, Ruby will read the line, but not print anything out.
+
+###RETURNING VALUES
+
+What methods like puts and print allows us to output to the console are different from Ruby's concept of a return value.
+
+A return value is the data returned to the program by the execution of a method, the assignment of a variable, actually...
+
+Everything in Ruby has a return value!
+
+For instance:
+
+
+Code  |   Return Value
+------|---------------
+`"Hello world"` |	`"Hello world"`
+`6 + 3`	| `9`
+`president = "Obama"`	| `"Obama"`
+`total = 6 + 3` | 	`9`
+`puts "hello world"`	| `nil`
+`print "hello world"`	| `nil`
+
+
+You may notice that the `puts` and `print` methods, when run in IRB, print values on the screen and then display a line like this: `=> nil`. This is because `puts` and `print` may print the value you want, but instead of returning that value, they return `nil`.
+
+###RETURN VALUES OF METHODS
+Methods are like vending machines. When you use a vending machine you just put in two arguments, the number (C7) and your money. We already know how to use arguments, but then your vending machine might do two things. One, it will make a noise saying that everything worked, beep beep. Then it gives you the soda. The soda is the return type. But those beeps? Are you able to do anything with them? Nope! That's like puts: it just tells you stuff and then goes into the ether! Gone forever.
+
+Every method in Ruby returns a value by default, even custom ones. This returned value will be the value of the last statement.
+
+For example, let's look at this method called `restaurant`:
+
+```
+def restaurant
+  restaurant_name = "Guy's American Kitchen & Bar"
+  cuisine = "american"
+  motto = "Welcome to Flavor Town!"
+end
+```
+The return value of the restaurant method is `"Welcome to Flavor Town!"` because that was the last statement evaluated.
+
+Say you're the best chef in the world, Guy Fieri. To make a method that just prints your name and returns `nil`, you could write:
+
+```
+def print_name
+  puts "Guy Fieri"
+end
+```
+
+To write a method that returns your name but doesn't print anything, you could write:
+
+```
+def return_name
+  "Guy Fieri"
+end
+```
+
+To both print and return your name, you could write:
+
+```
+def print_and_return_name
+  puts "Guy Fieri"
+  "Guy Fieri"
+end
+```
+
+If you accidentally switched the order of the lines inside the method:
+
+```
+def broken_print_and_return_name
+  "Guy Fieri"
+  puts "Guy Fieri"
+end
+```
+
+The method would instead print `"Guy Fieri"` and return `nil`. This is because the last line that was evaluated was `puts ...` and the return value of a `puts`, as seen in the table above is always `nil`.
+
+###THE RETURN KEYWORD
+
+There is one other way to return a value from a method and that is to use the `return` keyword.
+
+Let's take a look:
+
+```
+def stylish_chef
+  best_hairstyle = "Guy Fieri"
+  return "Martha Stewart"
+  "Guy Fieri"
+end
+```
+
+You may have expected the return value to be "Guy Fieri". However, the return value of the above method is actually `=> Martha Stewart`!
+
+The return keyword will disrupt the execution of your method. If you employ it, your method will return whatever you have explicitly told it to (in this case, `"Martha Stewart"`), and terminate.
+
+The explicit use of the `return` keyword is generally avoided by many Rubyists.
+
+###WHY RETURN VALUES MATTER
+Return values are how different parts of your program communicate with one another. You don't have to worry too much about this for now, but as you start to build more complicated programs, you'll find that the return value of one method might be operated on by a subsequent method.
+
+Let's look at a very basic example. Earlier, in IRB, we set a variable `total` equal to the return value of adding `6 + 3`. If you've left IRB, drop back in and re-create your `total` variable as the sum of `6 + 3`.
+
+On the next line, execute `total + 17`. You should see a return value of `=> 26`. Thus, the return value of one operation (`6 + 3`) was used to execute further operations (the addition of `17`).
+
+As we've just done, you'll find that we will often store return values in variables so that we can use them later.
+
 ##String Methods 
 1. Puts
  + a. .to_s, .to_i, .to_f
