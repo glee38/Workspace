@@ -59,6 +59,364 @@ When you try and do a mathematical operation on two objects of a different type,
 ###DIVISION ERRORS
 DivisionErrors are caused when a given number is divided by 0.
 
+##CLI Applications in Ruby
+
+###CLI FILE STRUCTURE
+
+As our applications increase in complexity we'll have to keep our project files well organized. There's a pretty standard convention for where to put code in a project based on what the code does.
+
+We're going to learn a simplified pattern for organizing code in a Ruby application. We'll build on this structure.
+
+###A SIMPLE RUBY CLI APPLICATION
+From the root directory of a Ruby application, you should see a folder structure similar to the following:
+
+```
+├── bin
+│   └── tictactoe
+├── config
+│   └── environment.rb
+├── lib
+│   └── tic_tac_toe.rb
+└── spec
+    ├── tic_tac_toe_spec.rb
+    └── spec_helper.rb
+├── Gemfile    
+├── ttt.rb   
+```
+ 
+You might not have all those folders or those exact files, but you'll have a similar structure.
+
+You'll see top-level directories (the top most folders within your project) such as: `bin`, `lib`, `config`, `spec` and sometimes `app`.
+
+You also might see some top-level files (files located directly within your project) such as: `.learn`, `.rspec`, `Gemfile`, or` Rakefile`. On some labs you might see an actual program file on the top level, like `ttt.rb`.
+
+We try to always tell you where the files you need to read or edit are located in a particular lab. This is just in general.
+
+`cd` into the directory of a lab you recently solved in terminal. **Within that directory type `ls -lah` to list all the files in the current directory, including hidden files, in a human order**. You should see something similar.
+
+Let's talk about what kind of code goes where.
+
+###BIN/
+
+Within the `bin/` directory we generally put code that relates to running our actual program. Our executable files that we put in bin are described below, running CLI applications.
+
+###CONFIG/
+
+A complex program might require 100s of individual files containing source code, method definitions, classes, and more that together constitute all the code required to run the application. We call this code the application's environment. We generally put all the code required to initialize the environment within `config/`. We might see that in an `config/environment.rb` file or even an entire `config/environments` directory.
+
+What does it mean to "initialize a program's environment"? Establishing the environment for your program can involve a number of things, but on the most basic level, the config file or directory is responsible for things like file requirements (i.e. making sure your different files have access to one another), establishing connections to your database (if you have one) and ensuring that your test suite has access to the files that contain the code it is testing.
+
+###LIB/ (APP/)
+
+The `lib/` or Library directory in most Ruby programs and the `app/` directory in Rails projects or complex Ruby programs, is where the majority of our code lives. Within this directory are all the files that define what our program can do. All of the methods and classes our program needs are defined within the files in this directory. One file might define a group of methods that can search for a song by an artist, another file might define a group of methods that can search for a song by a genre. Together these methods might interact to create a Music Search application. **We spend the majority of our time building code in this directory.**
+
+###SPEC/ (TEST/)
+
+Great developers write tests for their code. Whether through the practice of Test-Driven Development or not, it's important to be able to write tests that make sure your code behaves as expected. It's also crucial to be able to read tests and understand the requirements they define for your code. All of our tests go into the `test/` or `spec/` directory.
+
+###.RSPEC, .LEARN, GEMFILE, GEMFILE.LOCK, RAKEFILE
+
+There are a collection of files in most Ruby applications that provide tooling and support for your application. A common such file is `Gemfile`, used by Bundler to manage gem dependencies. Another is a `Rakefile` for defining application tasks. Don't worry too much about these files for now.
+
+**Advanced**: A gem is a library of code that you can include in your Ruby program to lend it the capabilities of that library.
+
+###RUNNING CLI APPLICATIONS
+
+In order to run our program from the command line and allow our user to interact with our program as described above, we need to set up a few things.
+
+First, your program needs a `bin` directory. "Bin" is short for "binary" and is just another way to refer to executable files. Accordingly, your executable files belong in this directory.
+
+**Executable files are any files that contain instructions in a form that a computer's operating system or application can understand and follow**. 
+
+Any executable files we place in our bin directory need to begin with the following line:
+
+`#!/usr/bin/env ruby`
+
+This is often referred to as a "shebang line" and it tells the shell which interpreter to use to execute the remainder of the file.
+
+Using the above setup, you can run your program by typing `ruby bin/< your file name >` into the command line.
+
+Alternatively, you can execute your program by simply typing `./bin/< your file name >` into the command line, since the shebang line at the top of your executable file is already telling the shell to use Ruby to interpret the rest of the file.
+
+Generally our executable file is responsible for running our program. That might include loading required libraries and starting off an execution flow, like telling Ruby to start a game of Tic Tac Toe.
+
+###FILE PERMISSIONS AND CHMOD
+
+For security purposes, a shell environment, including BASH, running within your terminal, requires that executable files are given explicit permission to execute.
+
+When we execute code through the ruby interpreter with the `ruby` command, your shell or terminal has already given the `ruby` command permission to execute code.
+
+But in order for your shell to execute a file via a command like `./bin/<file name>`, you have to grant it execute permissions. We do this using the `chmod` command. You can grant a file execute permissions with:
+
+```
+$ chmod +x <file_name>
+```
+
+So to grant a file `bin/tictactoe` permissions to execute, you would run: `chmod +x bin/tictactoe`. Depending on your shell environment and user, you might need to run `chmod` with `sudo` (`sudo chmod +x bin/tictactoe`).
+
+All the files provided by Learn already have the correct permissions and this should never cause you a problem. But in the event you need to ever create your own executable, we thought we'd tell you.
+
+###THE CLI INTERFACE
+
+CLI Applications generally follow a similar interface or user experience pattern. Imagine a CLI version of Tic Tac Toe. From a player's perspective, they would start the game by executing the bin for the game.
+
+```
+$ bin/tictactoe
+```
+
+The program will execute and generally greet the user with some text output:
+
+```
+$ bin/tictactoe
+
+Hi! Welcome to Command Line Tic Tac Toe! Would you like to
+ play? (Y/n)
+```
+
+The CLI will prompt the user for input and will hang until the user types something and presses enter. The CLI generally gives instructions for the expected input at a given prompt. In the example above, the greeting ends by asking the user if they would like to play.
+
+###USER INPUT
+The `(Y/n)` at the end is a common convention for telling the user that the following prompt is looking for a "Yes" or "No" input as an answer. It is also saying it expects that input as a single character, either `y` or `n`. The capital `Y` is suggesting the default input if the user types nothing and simply presses enter. Generally CLIs will accept "Yes"/"No" in many forms (`yes`, `no`, `N`, `n`) and still use the `y/n` convention.
+
+```
+$ bin/tictactoe
+
+Hi! Welcome to Command Line Tic Tac Toe! Would you like to
+ play? (Y/n)
+y ↵
+Great! Starting a new game...
+
+   |   |   
+-----------
+   |   |   
+-----------
+   |   |   
+
+Please select a square by entering 1-9, 1 for the top left 
+and 9 for the bottom right:
+
+
+```
+
+*↵ is a Carriage Return symbol and simply means the "Enter" key was pressed. It is not literal. In the line above it is used to mean that the user entered in the y character at an input prompt and then pressed enter.*
+
+For more complex interactions, the CLI must inform the user about the custom input prompt, just like in the example above: 
+
+```
+Please select a square by entering 1-9, 1 for the top left 
+and 9 for the bottom right:
+``` 
+
+We just tell the player to enter a number, 1 through 9, to represent the square.
+
+```
+$ bin/tictactoe
+
+Hi! Welcome to Command Line Tic Tac Toe! Would you like to play? (Y/n)
+y ↵
+Great! Starting a new game...
+
+   |   |   
+-----------
+   |   |   
+-----------
+   |   |   
+
+Please select a square by entering 1-9, 1 for the top left and 9 for the bottom right:
+5↵
+
+ O |   |   
+-----------
+   | X |   
+-----------
+   |   |   
+
+Please select a square by entering 1-9, 1 for the top left and 9 for the bottom right:
+7↵
+
+ O |   |   
+-----------
+   | X |   
+-----------
+ X |   |   
+```
+
+*Etc...*
+
+That is a simple CLI interface pattern. Whenever you ask the user for input, you will need to:
+
++ Prompt the user for input: `Would you like to play? (Y/n)`
++ Define the input interface: 
+
+```
+Please select a square by entering 1-9, 1 for the top left
+ and 9 for the bottom right:
+```
+
++ Accept user input by yielding to a prompt and waiting patiently for the user to press enter. *If the user never enters anything, the program will wait at this state forever until the process is otherwise terminated.*
+
++ Take the user input and execute the appropriate sub-routine or procedure that represents that feature.
+
+Another pattern is to provide your CLI with a main **program loop** so that it can provide a bigger set of menus and features.
+
+###Program Loop
+
+CLI programs have to continue running and accepting input from the user until they are explicitly exited through sending a termination signal to the program by pressing `CTRL+C` (on OS X, on Windows and other environments it might be `ALT+C` or `COMMAND+C`), or by telling the program to quit or exit through some sort of input.
+
+Imagine a Command Line Jukebox application to browse and play music through the Command Line (like Spotify or iTunes). It might look like this when run:
+
+```
+$ bin/jukebox
+
+Hi! Welcome to Command Line Music.
+
+What would you like to do?
+I accept: list, play, help, and quit.
+help↵
+
+Main Menu Commands:
+  help - Brings up this dialog.
+  list - Will list all the songs in my collection.
+  play - Will prompt for a song to play and play that song.
+  quit - Will exit this program
+
+What would you like to do?
+I accept: list, play, help, and quit.
+list↵
+
+My songs are:
+1. Shake It Off, by Taylor Swift
+2. In An Aeroplane Over the Sea, by Neautral Milk Hotel
+3. Reality Check, by Binary Star
+4. Hey boy, hey girl, by the Chemical Brothers
+
+What would you like to do?
+I accept: list, play, help, and quit.
+play↵
+
+Please enter the song number you would like to play:
+3↵
+
+Reality Check, by Binary Star is currently open in your browser.
+
+What would you like to do?
+I accept: list, play, help, and quit.
+```
+
+Within the transcript of this program you can see the structure of the main application loop.
+
+After the initial greeting, the application begins its main loop, which consists of:
+
++ Prompting the user for input: What would you like to do?
+
++ Defining the input interface: `I accept: list, play, help, and quit.`
++ Accepting user input by yielding to a prompt and waiting patiently for the user to press enter. *If the user never enters anything, the program will wait at this state forever until the process is otherwise terminated.*
++ Taking the user input and executing the appropriate sub-routine or procedure that represents that feature. If a user enters 'help', the program should print the help instructions.
++ Once that feature terminates, the program is back at the start of the main loop.
+
+Any CLI application you build that neccesitates a non-binary interface ("Do you want to play Tic Tac Toe?" vs "What game would you like to play?") will have a main loop interface as described above.
+
+##PROJECT STRUCTURE
+
+Check out the file structure below.
+
+```
+bin
+   |–– greeting
+lib
+   |–– hello_ruby_programmer.rb
+...
+```
+
+Let's take a moment to review:
+
+###THE BIN DIRECTORY
+The `bin` directory holds our executable file. **This file is responsible for running the program. It contains code that actually enacts the command line interaction––i.e. greeting the user, asking the user for input, storing that input and then acting on it.**
+
+Open up `bin/greeting`. Notice that we are requiring the `lib/hello_ruby_programmer.rb` file.
+
+###THE LIB DIRECTORY
+The `lib` directory is where we place the code that our program relies on to run. It is the meat of our CLI application. Our executable file requires the files in the `lib` directory and uses the code (for example, calling on any methods we might define) to to enact the CLI.
+
+Open up `lib/hello_ruby_programmer.rb` file. Notice that it defines a `#greeting` method that is called in the `bin/greeting` file. This is the pattern you'll become familiar with for CLI applications––defining methods in a `lib` directory and calling those methods in `bin` executable files to actually run the program.
+
+Now, let's take a closer look at our code.
+
+###THE CLI PATTERN
+
+In `bin/greeting` you should see the following code:
+
+```
+puts "Hi! Welcome to the wonderful world of Ruby programming."
+puts "Please enter your name so that we can greet you more
+ personally:"
+name = gets.strip
+greeting(name)
+```
+
+Here, we have all of the CLI flow steps outlined above. Let's break it down:
+
+1 . Greet the user:
+
+`puts "Hi! Welcome to the wonderful world of Ruby programming."`
+
+2 . Ask the user for input:
+
+`puts "Please enter your name so that we can greet you more personally:"`
+
+3 . Capture that input using `#gets`
+
+`name = gets.strip`
+
+4 . Use that input to do something else:
+
+`greeting(name)`
+
+In this case, we are passing the user's input into the `#greeting` method as an argument. The greeting method then uses string interpolation to `#puts` out a personalized message.
+
+###THE GETS METHOD
+
+We've talked a lot about capturing and storing a user's input to the terminal and using it in our Ruby program. Now we'll take a closer look at exactly how that happens.
+
+Let's take another look at our code from `bin/greeting`
+
+```
+puts "Hi! Welcome to the wonderful world of Ruby programming."
+puts "Please enter your name so that we can greet you more personally:"
+name = gets.strip
+greeting(name)
+```
+
+On the third line, the `gets` method is being called. Calling the `gets` method captures the last thing the user typed into the terminal. Whenever your program makes a call to `gets`, it will freeze and wait for user input.
+
+###WAITING FOR THE USER INPUT
+If the user never types anything in, your program will wait forever until it is otherwise exited. If you find your tests and your program stalling for long periods of time (anything over 5-10 seconds generally), you might be trapped in a `gets`.
+
+From executing a program, a gets will look like:
+
+![gets in program] (https://dl.dropboxusercontent.com/s/ezddrtyotw5ahow/2015-09-10%20at%2012.12%20PM.png)
+
+From a test run, a stalled gets will look like:
+
+![gets in test] (https://dl.dropboxusercontent.com/s/tijh1wyuvdfz11a/2015-09-10%20at%2012.13%20PM.png)
+
+###RETURN VALUE FOR GETS
+The return value of `gets` is the text typed into the terminal. So, setting a variable, `name`, equal to invoking the `gets` method sets that variable equal to the return value of `gets`––the last thing typed into the terminal. Then, the following line uses that `name` variable in string interpolation.
+
+Once we store the return value of `gets` in a variable, we can treat that variable as we would any variable pointing to a string––interpolate with it, convert it to an integer, add it to an array, you name it.
+
+###ADVANCED: HOW GETS GETS INPUT FROM THE TERMINAL
+We already know, in general terms, how the puts method outputs text to the terminal, but here's a reminder from an earlier lesson, "Puts, Print and Return":
+
+How do the puts and print methods actually output text to your console? They use the `$stdout` global variable provided to us by Ruby.
+
+The gets method wraps the `$stdin` variable, reading text from the standard input and allowing you to store that text in a variable, so that you can operate on it later.
+
+###SANITIZING USER INPUT: THE STRIP AND CHOMP METHODS
+One thing to know about the `#gets` method is that it captures a new line character at the end of whatever input it is storing. We don't want extra whitespace or new lines to be appended to the user input we are trying to store. So, we can chain a call to the `#stripmethod` to remove any new lines or trailing whitespace.
+
+The `#chomp` method works similarly, and you are likely to see `#gets.chomp` used in some examples online. The `#chomp` method removes any new lines at the end of a string while the `#strip` method removes both trailing whitespace and new lines.
+
 ##Ruby Data Types
 Ruby has **six** data types, which are also known as *classes*: booleans, symbols, numbers, strings, arrays, and hashes.
 
@@ -564,6 +922,129 @@ Similarly, when we say: greeting("Ann"), the value of the argument name is "Ann"
 
 Method arguments simply create local variables for you to refer to the value used when the method is actually invoked.
 
+###A NOTE ON METHODS ENDING IN A ?
+
+Conventionally, we name methods that return either `true` or `false` with a question, ending in a literal question mark. One of the most appealing features of Ruby, especially from the point of view of beginner programmers, is it's readability. Ruby lends itself especially well to elegant and sensical statements. So, if our method is meant to answer the question: "is this position taken?", we will phrase our method definition just like that.
+
+##WHY OPTIONAL ARGUMENTS?
+
+We should constantly strive for our code to be dynamic and flexible. As programmers, we are lazy (which is a virtue). Consequently, we want the code we write to be re-usable.
+
+If we define a method, `#greeting`, like this:
+
+```
+def greeting
+  puts "Hello, Ruby programmer!"
+end
+```
+
+We have to re-define or re-write that method every time we'd like to use it to greet someone else who might not be a Ruby programmer. Since that's way too much work for us, we'll define our method to take in an argument of someone's name:
+
+```
+def greeting(name)
+  puts "Hello, #{name}"
+end
+```
+
+Now our method is flexible and dynamic, it can be used again and again to greet different people.
+
+But what if we don't know the name of the person we are trying to greet? We can make this method even more flexible by making the name argument optional. We do this by using optional, or default, arguments.
+
+###DEFAULT ARGUMENTS
+
+In order to define a method that optionally takes in an argument, we define our method to take in an argument with a default value. By defining our method with default arguments, we make it possible to call the method with optional arguments, i.e. with or without arguments.
+
+```
+
+#             assigning a default value
+def greeting(name = "Ruby programmer")
+  puts "Hello, #{name}"
+end
+```
+
+In our argument list, `(name = "Ruby programmer")`, we simply assign the argument name a default value of `"Ruby programmer"`. By doing so, we are really saying:
+
+If the method is invoked without any arguments, i.e. like this: `greeting`, Ruby will assume the value of the `name` variable inside the method to be `"Ruby programmer"`.
+
+However, if the method is invoked with an argument, `greeting("Sophie")`, Ruby will assign the variable `name` to the string `"Sophie"` inside the method.
+
+```
+greeting
+# > Hello, Ruby programmer!
+
+greeting("Sophie")
+# > "Hello, Sophie!"
+```
+
+With default arguments, our once simple machine becomes profoundly useful and abstract.
+
+###ADDING DEFAULT ARGUMENTS
+
+Default arguments are easy to add, you simply assign them a default value with = ("equals") in the argument list. There's no limit to the amount of arguments that you can make default.
+
+```
+def greeting(name="Ruby programmer", language="Ruby")
+  puts "Hello, #{name}. We heard you are a great #{language} programmer."
+end
+```
+
+Let's take a look at the different ways we can call this method:
+
+```
+greeting
+# > Hello, Ruby programmer. We heard you are a great Ruby programmer. 
+
+greeting("Sophie")
+# > Hello, Sophie. We heard you are a great Ruby programmer. 
+
+greeting("Steven", "Elixir")
+# > Hello Steven. We heard you are a great Elixir programmer.
+```
+
+###USING DEFAULT ARGUMENT AND REQUIRED ARGUMENTS
+
+It is possible to define a method that takes in both required and default arguments. To do so, however, we must place the default argument at the end of the argument list in the method definition.
+
+Take a look:
+
+```
+def greeting(name, language="Ruby")
+  puts "Hello, #{name}. We heard you are a great #{language} programmer."
+end
+```
+
+Let's call our `#greeting` method with and without an explicit `language` argument:
+
+```
+greeting("Sophie", "Ember.js")
+# > Hello, Sophie. We heard you are a great Ember.js programmer. 
+
+greeting("Dan")
+# > Hello, Dan. We heard you are a great Ruby programmer.
+```
+
+It works! Why must we place the default argument at the end of the argument list?
+
+Let's take a look at what would happen if we didn't:
+
+```
+def greeting(language="Ruby", name)
+  puts "Hello, #{name}. We heard you are a great #{language} programmer."
+end
+```
+
+Now, what happens when we try to call our method without an explicit `language` argument?
+
+```
+greeting("Sophie")
+```
+
+You might expect it to break. Or you might expect it think that the `language` variable is being set equal to `"Sophie"` in this method call.
+
+Neither of those things will happen. The method will work as we intended because Ruby is smart and has a few tricks up its sleeve to help determine what method arguments are being used where in a method's body.
+
+However, defining the default argument first is confusing. We can understand this from our very reasonable expectations that the above method invocation would break. For this reason, it is conventional to place any default arguments at the end of an argument list when defining a method that takes in both required and default arguments.
+
 ##VARIABLES
 
 ###HOW YOU INTERPOLATE VARIABLES INTO STRINGS
@@ -586,7 +1067,325 @@ Some Rubyists write this another way, like this:
 answer = "Flamboyance"
 puts "A group of flamingos is called a " + answer + "."
 ```
+##BOOLEANS AND FLOW CONTROL
 
+Many programming languages, including Ruby, have native **boolean (true or false)** data types. In Ruby they're expressed directly as `true` and `false`.
+
+These boolean values come in handy in programming when we want to implement control flow. **Control flow** is the idea that we can tell our program to execute certain lines of code based upon certain conditions.
+
++ **For example**, *if* I am tired, then I will take a nap. Otherwise, I will keep reading this insightful and informative readme. You could also invert the perspective like in this example:
+
+	+ If it is *true* that I am tired, then I will take a nap. If it is *false* that I am tired, then I won't take a nap.
+
+Flow control is predicated on these true-or-false boolean values. The adjectives "truthy" and "falsey" are a programming convention for describing the *state* of being true and the state of being false.
+
+What this example amounts to is this: we want to be able to use non-boolean values (like strings or integers) in a boolean context; we want to be able to say, "*if* a certain statement *evaluates* to true (or is "truthy"), then execute these certain lines of code."
+
+Consequently, Ruby must have a way of determining what counts as true at a given moment—or what is "truthy" versus what is "falsey".
+
+###WHAT IS 'TRUTHY' AND 'FALSEY' IN RUBY?
+
+Programming languages are software, too! That means the people who built Ruby had to decide what is truthy and what is falsey. Different languages make different decisions.
+
+**In Ruby only `false` and `nil` are falsey. Everything else is truthy (yes, even `0` is truthy).**
+
+Become familiar with the following chart:
+
+Value |	Truthy?
+------|---------------
+0	| yes
+" " |	yes
+"hello" |	yes
+nil	| no
+6.7 |	yes
+true |	yes
+false |	no
+[1,2]	| yes
+{:hi=>"there"}	| yes
+
+**Top-Tip**: Even an empty string, `" "`, is truthy! This might seem kind of strange, but it will make more sense once we learn more about object orientation. For now, keep in mind that even an empty string is an instance of the String class. 
+
+###BONUS: DETERMINING TRUTHINESS
+If you forget to memorize this handy chart, there is a trick you can use to determine if a value is truthy or falsey.
+A **single bang operator**, `!`, will negate the boolean value it is placed in front of. For example:
+
+```
+!true  #=> false
+```
+
+and
+
+```
+!false #=> true
+```
+
+**The double bang operator**: A "double-bang operator" (`!!`) will return `true` or `false` based on whether a value is truthy or falsey to begin with.
+
+For example:
+
+```
+!!"hello" #=> true
+
+!!nil #=> false
+```
+
+##BOOLEANS
+We've already learned a bit about the boolean (true-or-false) data type. In Ruby, a boolean refers to a value of either `true` or `false`, both of which are defined as their very own data types. Every appearance, or instance, of `true` in a Ruby program is an instance of `TrueClass`, while every appearance of `false` is an instance of `FalseClass`.
+
+For now, we don't need to understand the concept of classes in depth. Just know that classes serve as templates for Ruby objects. Think of `TrueClass` and `FalseClass` like cookie cutters––there is a `TrueClass` cookie cutter and a `FalseClass` cookie cutter and every appearance of `true` or `false` is like a cookie made with its respective cookie cutter.
+
+##BOOLEAN OPERATORS
+
+###WHAT ARE BOOLEAN OPERATORS?
+Boolean operators are really methods which means that they have return values. What do they return? `true` or `false` of course!
+
+**In Ruby there are three main boolean operators**:
+
++ `!` ("single-bang") which represents **"NOT"**
+
++ `&&` ("double-ampersand") which represents **"AND"**
+
++ `||` ("double-pipe") which represents **"OR"**.
+
+For an `&&` ("and") to evaluate to `true`, both values of either side of the symbol must evaluate to `true`. 
+
++ For example:
+
+```
+true && true #=> true
+
+true && false #=> false
+```
+
+For an `||` ("or") to evaluate to `true`, only **one** value on either side of the symbol must evaluate to true. 
+
++ For example:
+
+```
+false || true #=> true
+```
+
+Finally, a `!` ("not") reverses the logical state of its operand: if a condition is `true`, then `!` will make it `false`; if it is `false`, then `!` will make it `true`. 
+
++ For example:
+
+```
+!true #=> false
+
+!false #=> true
+```
+
+##COMPARISON OPERATORS
+
+To check if two values are equal, we use the comparison operator represented with `==` ("double-equal-sign"). If two values are equal, then the statement will return `true`. If they are not equal, then it will return `false`. 
+
++ For example:
+
+```
+1 == 1 #=> true
+
+1 == 7 #=> false
+```
+
+**Top-tip**: The *comparison* operator `==` is distinct from the *assignment* operator `=` that is used to set a variable equal to a value. Mistaking these for each other is a common cause of unexpected behavior.
+
+###MORE COMPARISON OPERATORS
+
+Ruby is good at comparing things. For instance, it knows that `14` is larger than `3`. Let's see that in action.
+
+```
+14 > 3 #=> true
+```
+
+Here, `14` is larger than `3`, so Ruby evaluates this to `true`. Comparisons in Ruby always evaluate to `true` or `false`.
+
+**The commonly used comparison operators are:**
+
+Operator |	Operation
+---------|-------------
+`==`	| If the values of the two operands are *equal*, then the evaluation is `true`.
+`!=	`| If the values of the two operands are *not equal*, then the evaluation is `true`.
+`>`	| If the value of the left operand is *greater than* the value of the right operand, then the evaluation is `true`.
+`<`	| If the value of the left operand is *less than* the value of the right operand, then the evaluation is `true`.
+`>=`	| If the value of the left operand is *greater than or equal to* the value of the right operand, then the evaluation is `true`.
+`<=`	| If the left operand is *less than or equal to* the value of the right operand, then the evaluation is `true`.
+
++ Ruby can compare a lot more than just numbers. It can also compare strings:
+
+```
+"yellow" == "yellow" #=>true
+```
+
++ And variables with known values:
+
+```
+my_mood = "happy"
+
+my_mood == "happy" #=> true
+```
+
++ It can also compare variables against other variables:
+
+```
+easter_eggs = 16
+ducklings = 3
+
+easter_eggs > ducklings #=> true
+
+ducklings >= easter_eggs #=> false
+
+ducklings == easter_eggs #=> false
+
+# if you call class on a variable, you can see if it's a
+ string, an integer, etc.
+
+ducklings.class #=> Integer
+easter_eggs.class #=> Integer
+ducklings.class == easter_eggs.class #=> true
+```
+
+Comparison operators are essential to developing logical flow.
+
+##WHAT IS FLOW CONTROL?
+
+**A control flow construct is a language feature which disrupts the normal progression to the next statement and conditionally or unconditionally branches to another location in source code. –– Robert Klemme**
+
+**In other words, control flow lets you tell your program what code to execute conditionally.** As humans, we actually enact flow control every day. For instance, if you are hungry, you will go and get a snack. Otherwise, you'll stay put and continue to read this awesome readme.
+
+Control flow is an important part of Ruby programming and web development. In the context of a web application, for example, you can easily think of content or functionality on a website you've visited that is only available to a user if that user is logged in.
+
+###IMPLEMENTING CONTROL FLOW
+
+There are a number of ways to tell your program to conditionally execute certain code, the basic forms of which are:
+
++ `if`, `else`, and `elsif` statements,
++ `case` statements,
++ loops.
+
+In this reading, we're going to discuss the first group of these "conditional" statements: `if`, `else`, and `elsif`.
+
+###IF STATEMENTS
+One of the most common ways to enact control flow is the `if` statement. Whatever block of code that follows the `if` statement will get evaluated—i.e. read and enacted by the computer. If this evaluation of the `if` statement results in `true`, then the code through to the associated end statement will run.
+
+Let's look at a few examples:
+
+```
+if 5 > 2
+  print "5 is greater than 2"
+end
+```
+
+The code above will print `"5 is greater than 2"` because the if statement evaluates as `true`.
+
+Meanwhile:
+
+```
+if 2 > 5
+  puts "2 is greater than 5"
+end
+```
+
+The code above will not print anything because the `if` statement evaluates as `false`.
+
+So what if we want our program to print something else when the `if` condition evaluates as `false`?
+
+###THE ELSE KEYWORD
+To accomplish this, we can follow an `if` statement with an `else` statement. Take a look:
+
+```
+if false
+   puts "This will never get printed because the above
+     statement evaluates to false."
+else
+   puts "This will get printed!"
+end
+```
+
+An `else` statement sets a "default" condition for when your `if` statement's conditional evaluates as `false`. Every condition that doesn't evaluate as `true` will instead pass through the `else` statement.
+
+###FURTHER EXAMPLES
+
+So far, we've seen if statements that rely on the explicit use of the `true` and `false` booleans. Let's look at some examples that require a little more thought.
+
+**EXAMPLE 1**
+
+```
+if 6 + 3 == 9
+  puts "Giraffes have no vocal cords."
+end
+# └── "Giraffes have no vocal cords."
+```
+
+The code above will print `Giraffes have no vocal cords`. Since `6 + 3` equals `9` (i.e. `9` is equal to `9`), the `if` statement's conditional evaluates as `true`.
+
+**Top-tip**: Remember that the comparative operator `==` ("double-equals") is used to check equality. This is distinct from the assignment operator `=` ("single-equals"), which is used to set the value of a variable.
+
+**EXAMPLE 2**
+
+```
+if 6 + 3 < 5
+  puts "The hummingbird is the only animal that can fly
+   backwards"
+end
+```
+
+The code above will not print anything because `6 + 3`, which is equivalent to `9`, is not less than `5`, making the `if` statement's conditional evaluate as `false`.
+
+**EXAMPLE 3**
+
+```
+dog = "satisfied"
+
+if dog == "hungry"
+  puts "Refilling food bowl."
+else
+  puts "Reading newspaper."
+end
+
+#  └── "Reading newspaper."
+```
+
+###ELSIF STATEMENTS
+
+Sometimes, we want to control the flow of our program based on more than one condition. For example, if I am hungry, then I will get a snack. If I am thirsty, then I will get a drink of water. Otherwise, I will stay here and continue learning more about control flow.
+
+We can add additional layers of complexity to our `if` and `else` statements by using the `elsif` keyword.
+
+Let's add an `elsif` statement to Example 3 from above:
+
+```
+dog = "thirsty"
+
+if dog == "hungry"
+  puts "Refilling food bowl."
+elsif dog == "thirsty"
+  puts "Refilling water bowl."
+else
+  puts "Reading newspaper."
+end
+
+#  └── "Refilling water bowl."
+```
+
+We can cascade as many elsif statements as we wish, however `elsif` statements can only be used following an `if` statement, and must precede the associated `else` statement (if used).
+
+```
+dog = "cuddly"
+
+if dog == "hungry"
+  puts "Refilling food bowl."
+elsif dog == "thirsty"
+  puts "Refilling water bowl."
+elsif dog == "playful"
+  puts "Playing tug-of-war."
+elsif dog == "cuddly"
+  puts "Snuggling."
+else
+  puts "Reading newspaper."
+end
+
+#  └── "Snuggling."
+```
 
 ##HASHES
 
