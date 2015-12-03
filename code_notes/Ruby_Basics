@@ -449,7 +449,9 @@ You probably already know from the real world (as opposed to the Ruby world) tha
 ###CREATING INTEGERS
 
 Once again, there is no special magic to creating integers. Simply declare them by typing 9000123 or 2.
-OPERATING ON FIXNUMS AND FLOATS
+
+###OPERATING ON FIXNUMS AND FLOATS
+
 There are a number of methods available to you for operating on or manipulating integers. You can read more about Fixnums here and more about Floats here For now, we'll just check out a few examples:
 
 ~~~
@@ -1824,20 +1826,30 @@ NOTE: detect and find are two names for the same method. For every example below
 
 Whereas #select will return all elements from the original collection that cause the block to evaluate to true, #detect will only return the first element that makes the block true.
 
+```
 [1,2,3].detect{|i| i.odd?} #=> 1
-As you can see, even though both 1 and 3 would cause the block to evaluate to true, because 1 is first in the array, it alone is returned.
+```
 
+As you can see, even though both `1` and `3` would cause the block to evaluate to `true`, because `1` is first in the array, it alone is returned.
+
+```
 [1,2,3,4].detect{|i| i.even?} #=> 2
 [1,2,3,4].detect{|i| i.is_a?(String)} #=> nil
-Notice also that #detect will always return a single object where #select will always return an array.
-#reject
+```
 
-#reject will return an array with the elements for which the block is false.
+Notice also that `#detect` will always return a single object where `#select` will always return an array.
 
+###`#reject`
+
+`#reject` will return an array with the elements for which the block is `false`.
+
+```
 [1,2].reject{|i| i.even?} #=> [1]
-Conclusion
+```
 
-#select, #detect, and #reject are part of a family of search and filter type enumerators whose purpose is to help you refine a collection to only matching elements. They are way easier to manage then using lower-level methods like #each and create meaningful return values based on expressions in a block.
+###Conclusion
+
+`#select`, `#detect`, and `#reject` are part of a family of search and filter type enumerators whose purpose is to help you refine a collection to only matching elements. They are way easier to manage then using lower-level methods like `#each` and create meaningful return values based on expressions in a block.
 
 ##WHAT IS FLOW CONTROL?
 
