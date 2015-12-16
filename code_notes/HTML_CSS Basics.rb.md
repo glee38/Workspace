@@ -83,3 +83,6 @@ Here's an example of CSS styling:
 + A class selector beats any number of element selectors.
 + The universal selector and inherited selectors have a specificity of 0, 0, 0, 0.
 + You can calculate CSS specificity with CSS Specificity Calculator.
+
+##Bootstrap
+
