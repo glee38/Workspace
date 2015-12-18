@@ -2375,6 +2375,101 @@ loop do
   end
 end
 ```
+###times
+
+**Introduction**
+
+The next construct in our list is `times`. There are two important distinctions to be mindful of when using `times`. The first one is that it has to be called on an Integer (like `1` or `10000`). The second is that it executes the block a certain number of times, which is dependent on the number that it's called on. Let's look at the example below:
+
+```
+5.times do
+  puts "Penguins like to jump off icebergs!"
+end
+```
+
+This outputs `Penguins like to jump off icebergs!` five times in your Terminal.
+
+**Examples**
+
+**BASIC TIMES EXAMPLE: DINNER PARTY**
+
+Let's take a look at some more complex examples:
+
+You just had a wildly successful dinner party with seven of your very best friends. Then they went home and left you with all of the dishes. They will not be invited back.
+
+Let's clean those dishes using the `times` method:
+
+```
+7.times do 
+  puts "I am doing the dishes left by my former friends."
+end
+
+# > "I am doing the dishes left by my former friends."
+# > "I am doing the dishes left by my former friends."
+# > "I am doing the dishes left by my former friends."
+# > "I am doing the dishes left by my former friends."
+# > "I am doing the dishes left by my former friends."
+# > "I am doing the dishes left by my former friends."
+# > "I am doing the dishes left by my former friends."
+
+# => 7 (return value)
+```
+
+**INTERMEDIATE TIMES EXAMPLE: CRIME SPREE**
+
+Okay, that's fine, but all we did was print some text––what if we wanted to change the value of a variable within a loop? Let's see how that works:
+
+You are a jewel thief who has stolen a hundred (100) very valuable jewels (you are a really good jewel thief). But now you need to unload your stolen jewels from your bag into the safe in your secret hideout!
+
+```
+jewels_in_bag = 100
+
+3.times do 
+  puts "Hiding 10 stolen jewels."
+  jewels_in_bag = jewels_in_bag - 10
+end
+
+# => 3 (return value)
+
+puts "We have #{jewels_in_bag} jewels still to hide!"
+
+
+# > "Hiding 10 stolen jewels."
+# > "Hiding 10 stolen jewels."
+# > "Hiding 10 stolen jewels."
+
+# > "We have 70 jewels still to hide!"
+
+# => nil (return value)
+```
+
+**Advanced times Example**
+
+This is fun and all, but so far we've only printed text within the block of code within the loop. What if we wanted to do something more, say, keep track of the number of jewels we are hiding as we hide them?
+
+```
+jewels_in_bag = 100
+
+3.times do 
+  puts "Hiding 10 stolen jewels."
+  jewels_in_bag = jewels_in_bag - 10
+  puts "Now there are only #{jewels_in_bag} jewels left to hide!"
+end
+# => 3 (return value)
+
+puts "We have #{jewels_in_bag} jewels still to hide!"
+# => nil (return value)
+
+# > "Hiding 10 stolen jewels."
+# > "Now there are only 90 jewels left to hide!"
+# > "Hiding 10 stolen jewels."
+# > "Now there are only 80 jewels left to hide!"
+# > "Hiding 10 stolen jewels."
+# > "Now there are only 70 jewels left to hide!"
+
+# > "We have 70 jewels still to hide!"
+```
+
 
 ###while
 
@@ -2447,6 +2542,16 @@ end
 + Inside the block, we will `puts` a phrase and increment the counter by `1`.
 
 + Then, the program will go back to the top of the `until` loop and once again check to see if the counter is equal to `20`. If it is *not* true that the counter is equal to `20`, then the program will execute the code in the block. Otherwise, the program will break out of the loop.
+
+###The Add-And-Assign Operator (`+=`)
+
+This is a shorthand useful for incrementing, or "stepping up", values. It's an operator that adds the submitting value to the value of `x`. In the example above `x` begins with a value of `1`, and is incremented by `1` each time the `while` loop runs. The line `x += 1` is the same as the line `x = x + 1`.
+
+The loop is going to stop executing as soon as `x` hits `10`, since that was the condition that we set.
+
+###The Subtract-And-Assign Operator (`-=`)
+
+We can also use the subtract-and-assign operator (`-=`) which instead subtracts the submitted value from the given variable and reassigns that variable to the resulting difference.
 
 ##ITERATION & ABSTRACTION
 
