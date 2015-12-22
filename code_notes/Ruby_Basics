@@ -691,6 +691,67 @@ lil_bub #=> lil' bub
 
 There are a number of other methods available for manipulating arrays. You can learn more about them here, but we'll look at just a few examples together.
 
+**The `.sort` Method**
+
+This method rearranges the contents of the array by, well, sorting them. For strings, this means alphabetically, for numerical values, this means from smallest number to highest number.
+
+**Advanced**: ​The​ `.sort` ​method works by implicitly comparing elements with the "spaceship" operator​ `<=>` ​(because it looks like a flying saucer, swoosh!) and moving them accordingly.​
+
+```
+famous_cats = ["lil' bub", "grumpy cat", "Maru"]
+famous_cats.sort
+  => ["grumpy cat", "lil' bub", "Maru"]
+```
+
+One thing to be aware of is that the return value of `famous_cats` remains unchanged after using the sort method on it. Meaning if you call `famous_cats` again after the sort, it will still return `["lil' bub", "grumpy cat", "Maru"]`, not the previously sorted array.
+
+This is because sort returns a new array, we generally store it into another variable. So we would do `sorted_cats = famous_cats.sort`. Now we have two copies of the array. One unsorted (`famous_cats`) and one sorted (`sorted_cats`). If you don't care about the unsorted version of the array you can call `sort!`. This will sort the existing array without requiring you to save the return into a new variable. You'll notice the `!`. It's a ruby convention that a method with the `!` will do the operation in place. It will modify the receiver of the method (AKA the thing to the left of the dot).
+
+**THE .FIRST METHOD** 
+
+Call `.first` on an array to access the first element:
+
+```
+famous_cats = ["lil' bub", "grumpy cat", "Maru"]
+famous_cats.first
+  => "lil' bub"
+```
+
+**THE .LAST METHOD**
+
+We can use the `.last` method to access the last element:
+
+```
+famous_cats = ["lil' bub", "grumpy cat", "Maru"]
+famous_cats.last
+  => "Maru"
+```
+**THE .SIZE METHOD**
+
+This method will return the number of elements in the array.
+
+```
+famous_cats = ["lil' bub", "grumpy cat", "Maru"]
+famous_cats.size
+  => 3
+```
+
+Even though arrays start with a `0` index, this method returns the actual number of elements, starting from `1`.
+
+**Advanced: Finding An Element's Index With `.index()`**
+
+To discover the index number of an element within an array, we can use the `.index()` method. Calling `.index()` on an array with an argument inside the parentheses will return the first index number of an element matching that argument. If no elements match the argument, then this method will return `nil`.
+
+```
+famous_cats = ["Cheshire Cat", "Puss in Boots", "Garfield"]
+
+famous_cats.index("Puss in Boots")
+#  └── 1
+
+famous_cats.index("Maru")
+#  └── nil
+```
+
 **THE .REVERSE METHOD**
 
 This method **reverses an array**.
@@ -701,6 +762,7 @@ famous_wizards = ["Dumbledore", "Gandalf", "Merlin"]
 famous_wizards.reverse #=> ["Merlin", "Gandalf", 
 "Dumbledore"]
 ```
+Similarly to sort!, you can call `reverse!`, again modifying the receiver of the method in place.
 
 **THE .INCLUDE? METHOD**
 
@@ -713,6 +775,7 @@ famous_cats.include?("Garfield") #=> false
 
 famous_cats.include?("Maru") #=> true
 ```
+Since we are just returning `true` or `false`, the receiver of the method, `famous_cats`, remains unchanged.
 
 **THE .BETWEEN? METHOD**
 
