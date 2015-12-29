@@ -535,3 +535,46 @@ end
 ```
 
 And that's it! We've successfully built our own iteration using a `while` loop, yielded each individual member of an array to a block and captured the return values of yielding those items to the block. This is exactly how the `#collect` method works, and we've just built it out, all by ourselves.
+
+##Example of YIELD in use
+
+We're going to `yield` each element in the collection to the block. Let's look at the code and break down what's happening.
+
+```
+def my_all?(collection)
+  i = 0
+  while i < collection.length
+    yield(collection[i])
+    i = i + 1
+  end
+end
+```
+
+When this code is run and it hits the `yield` line, it is going to send whatever is passed in as the argument to the block.
+
+Note: If you are confused about where the block comes from, it becomes clearer after the method is called. Here's an example:
+
+```
+my_all?([1,2,3]) {|i| i < 2}
+```
+
+As this code executes it will look like this:
+
+```
+def my_all?([1,2,3])
+  i = 0
+  while i < 3
+    yield(1)
+    i = 0 + 1
+  end
+end
+```
+
+When it hits the `yield(1)`, it is going to send `1` to the block, evaluate it, and send the return value back to yield:
+
+```
+my_all?([1,2,3]) {|1| 1 < 2}
+  #=> true
+```
+
+In this example, ruby will send `true` (the return value of the block) back to the `my_all?` method because `1 < 2` evaluates to true.
