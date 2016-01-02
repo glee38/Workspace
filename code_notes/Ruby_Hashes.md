@@ -171,4 +171,26 @@ puts shipping_manifest
   "jar of molasses" => 10
 }
 ```
+##The `#each` Method and Hashes
 
+The `#each` iterator that we encountered in previous units can also be used to iterate over hashes. When we iterate over arrays, we iterate over one element at a time––each index in an array contains just one object. In a hash however, data is stored in key/value pairs so we will be iterating over those pairs. Let's take a look:
+
+```
+hash = {key1: "value1", key2: "value2"}
+
+hash.each do |key, value|
+  puts "#{key}: #{value}"
+end
+```
+
+When we iterate over a hash, the `#each` method (as well as any other iteration method you use) yields the key/value pair together into the block. Inside that block, you have access to the key and the value, and can manipulate either one or both.
+
+Drop into IRB and enter in the above code. You should see this output:
+
+```
+key1: value1
+key2: value2
+ => {:key1=>"value1", :key2=>"value2"} 
+```
+
+Inside the iteration we have access to, we can puts out the key and value of a single pair. The return value, however, is always the original hash. Remember that `#each` returns the original collection on which you are calling the method.
