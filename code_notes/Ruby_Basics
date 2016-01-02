@@ -707,6 +707,8 @@ One thing to be aware of is that the return value of `famous_cats` remains uncha
 
 This is because sort returns a new array, we generally store it into another variable. So we would do `sorted_cats = famous_cats.sort`. Now we have two copies of the array. One unsorted (`famous_cats`) and one sorted (`sorted_cats`). If you don't care about the unsorted version of the array you can call `sort!`. This will sort the existing array without requiring you to save the return into a new variable. You'll notice the `!`. It's a ruby convention that a method with the `!` will do the operation in place. It will modify the receiver of the method (AKA the thing to the left of the dot).
 
+
+
 **THE .FIRST METHOD** 
 
 Call `.first` on an array to access the first element:
