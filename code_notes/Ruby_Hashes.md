@@ -171,6 +171,82 @@ puts shipping_manifest
   "jar of molasses" => 10
 }
 ```
+
+**ANOTHER EXAMPLE OF ADDING TO HASHES**
+
+When adding to nested hashes, you can the `.merge` or `.merge!` (changes the original hash to include whatever is merged, therefore, changing the return value).
+
+```
+def adding_matz
+# add the following information to the top level of the
+ programmer hash
+# :yukihiro_matsumoto => {
+#   :known_for => "Ruby",
+#    :languages => ["LISP, C"]
+# }
+
+	programmer_hash = 
+ 		{
+        :grace_hopper => {
+        	:known_for => "COBOL", 
+        	:languages => ["COBOL", "FORTRAN"]},
+        :alan_kay => {
+          :known_for => "Object Orientation",
+          :languages => ["Smalltalk", "LISP"]
+        },
+        :dennis_ritchie => {
+          :known_for => "Unix",
+          :languages => ["C"]
+        }
+     }
+
+#below is an example of #merge
+
+    programmer_hash.merge!(yukihiro_matsumoto:
+     {known_for: "Ruby", languages: ["LISP, C"]})
+end
+```
+
+You can also do the following:
+
+```
+programmer_hash[:yukihiro_matsumoto] = {:known_for =>
+ "Ruby", :languages => ["LISP", "C"]}
+     programmer_hash
+```
+**NOTE**: The value of a key can be overriden. The last assigned value will become the current value of the key.
+
+**ADDING TO ARRAYS NESTED INSIDE OF A HASH**
+
+To add a value to an array inside of a hash (without *replacing* the original value), you can use the shovel method (`<<`):
+
+```
+def adding_to_dennis
+  programmer_hash = 
+    {
+        :grace_hopper => {
+          :known_for => "COBOL",
+          :languages => ["COBOL", "FORTRAN"]
+        },
+        :alan_kay => {
+          :known_for => "Object Orientation",
+          :languages => ["Smalltalk", "LISP"]
+        },
+        :dennis_ritchie => {
+          :known_for => "Unix",
+          :languages => ["C"]
+        }
+     }
+
+#Here is an example of the shovel method
+
+     programmer_hash[:dennis_ritchie][:languages] <<
+      "Assembly"
+     programmer_hash
+end
+```
+
+
 ##The `#each` Method and Hashes
 
 The `#each` iterator that we encountered in previous units can also be used to iterate over hashes. When we iterate over arrays, we iterate over one element at a time––each index in an array contains just one object. In a hash however, data is stored in key/value pairs so we will be iterating over those pairs. Let's take a look:
@@ -294,11 +370,12 @@ dev_team = ["Jonas", "Logan", "Amanda", "Seiji", "Kate", "Spencer"]
 With this set-up, though, there is no way to associate our two arrays and tell them that they both belong to the Flatiron School.
 
 This is where nested hashes come in.
-Our First Nested Hash
+
+**Our First Nested Hash**
 
 With a nested hash, we can store complex collections of data. In other words, we can store data that is associated to other data via categories and subcategories.
 
-Both the dev_team array and the instructors array should be associated to the Flatiron School. So, we can create a hash, flatiron_school, that contains keys to denote the instructors and dev_team categories. We can point these keys to the arrays that contain our instructors and dev team members respectively.
+Both the `dev_team` array and the `instructors` array should be associated to the Flatiron School. So, we can create a hash, `flatiron_school`, that contains keys to denote the `instructors` and `dev_team` categories. We can point these keys to the arrays that contain our instructors and dev team members respectively.
 
 Let's take a look:
 
@@ -317,7 +394,7 @@ Nested hashes allow us to further group, or associate, the data we are working w
 
 You may have noticed in the above example that we have a hash in which the value of a key is an array.
 
-Understand that arrays and hashes can store any type of data. In other words, the individual index items of an array can be strings, integers, or even other arrays and hashes. The same is true of hashes. The values that hash keys point to may be strings, integers, even arrays and hashes.
+Understand that arrays and hashes can store *any type of data*. In other words, the individual index items of an array can be strings, integers, or even other arrays and hashes. The same is true of hashes. The values that hash keys point to may be strings, integers, even arrays and hashes.
 
 In fact, one of the most common nested data structures you'll see when working with APIs, as discussed above, is an array of hashes.
 
