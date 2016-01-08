@@ -174,7 +174,7 @@ puts shipping_manifest
 
 **ANOTHER EXAMPLE OF ADDING TO HASHES**
 
-When adding to nested hashes, you can the `.merge` or `.merge!` (changes the original hash to include whatever is merged, therefore, changing the return value).
+When adding to nested hashes, you can the `.merge` or `.merge!` method (changes the original hash to include whatever is merged, therefore, changing the return value).
 
 ```
 def adding_matz
@@ -245,7 +245,38 @@ def adding_to_dennis
      programmer_hash
 end
 ```
+**Option 2:**
 
+If the above option isn't clear, we can break it down step by step.
+
++ First, grab the value (which itself is another hash) of the "Jon Snow" key, and store it in a variable called `jon_snow: jon_snow = contacts["Jon Snow"]`
+
++ Second, grab the value of Jon Snow's favorite ice cream, and store that array in a variable: `jons_fav_ice_cream = jon_snow[:favorite_icecream_flavors]`
+
++ Third, add the new ice cream to `jons_fav_ice_cream` using the shovel (`<<`) operator: `jons_fav_ice_cream << "mint chip"`
+
+```
+jon_snow = contacts["Jon Snow"]
+jons_fav_ice_cream = jon_snow[:favorite_icecream_flavors]
+jons_fav_ice_cream << "mint chip"
+```
+```
+puts contacts 
+#  > {
+  "Jon Snow" => {
+    name: "Jon",
+    email: "jon_snow@thewall.we", 
+    favorite_icecream_flavors: ["chocolate", "vanilla",
+     "mint chip"]
+  },
+  "Freddy Mercury" => {
+    name: "Freddy",
+    email: "freddy@mercury.com",
+    favorite_icecream_flavors: ["strawberry", "cookie
+     dough", "mint chip"]
+  }
+}
+```
 
 ##The `#each` Method and Hashes
 
@@ -433,3 +464,113 @@ instructors[0]
 ```
 
 Nested hashes can get pretty complicated. Read through the example in this lesson again before moving on. It's okay if you don't understand everything; just try to get comfortable reading through the above nested hash.
+
+##Nested Hash Iteration
+
+What happens when we want to iterate over a multidimensional hash like the one below? Let's iterate over our nested hash one level at a time; iterating over the first level of our hash would look like this:
+
+```
+contacts = {
+  "Jon Snow" => {
+    name: "Jon",
+    email: "jon_snow@thewall.we", 
+    favorite_icecream_flavors: ["chocolate", "vanilla", "mint chip"]
+  },
+  "Freddy Mercury" => {
+    name: "Freddy",
+    email: "freddy@mercury.com",
+    favorite_icecream_flavors: ["strawberry", "cookie dough", "mint chip"]
+  }
+}
+
+contacts.each do |person, data|
+  puts "#{person}: #{data}"
+end
+```
+
+This should return:
+
+```
+Jon Snow:      
+{ :name=>"Jon", 
+  :email=>"jon_snow@thewall.we", 
+  :favorite_icecream_flavors=>["chocolate", "vanilla", "mint chip"],
+  :knows=>nil
+}
+
+Freddy Mercury: 
+{ :name=>"Freddy", 
+:email=>"freddy@mercury.com", 
+:favorite_icecream_flavors=>["strawberry", "cookie dough", "mint chip"]
+}
+```
+
+On the first level, the keys are our contacts' names, "Jon Snow" and "Freddy", and our values are the hashes that contain a series of key/value pairs describing them.
+
+Let's iterate over the second level of our `contacts` hash. In order to access the key/value pairs of the second tier (i.e. the name, email, and other data about each contact), we need to iterate down into that level. So, we pick up where we left off with the previous iteration and we keep going:
+
+```
+contacts.each do |person, data|
+  #at this level, "person" is Jon Snow or Freddy and
+   "data" is a hash of key/value pairs
+  #to iterate over the "data" hash, we can use the
+   following line: 
+
+  data.each do |attribute, value|
+    puts "#{attribute}: #{value}"
+  end
+end
+```
+
+That should output the following:
+
+```
+name: Jon
+email: jon_snow@thewall.we
+favorite_icecream_flavors: ["chocolate", "vanilla", "mint chip"]
+knows: nil
+
+name: Freddy
+email: freddy@mercury.com
+favorite_icecream_flavors: ["strawberry", "cookie dough", "mint chip"]
+```
+
+Let's take is one step further and print out just the favorite ice cream flavors. Once again, we'll need to iterate down into that level of the hash, then we can access the favorite ice cream array and print out the flavors:
+
+```
+contacts.each do |person, data|
+  #at this level, "person" is Jon Snow or Freddy and
+   "data" is a hash of key/value pairs
+  #to iterate over the "data" hash, we can use the 
+  following line: 
+
+  data.each do |attribute, value|
+    #at this level, "attribute" is describes the key
+     of :name, :email, :favorite_icecream_flavors, or 
+     :knows
+    #we need to first check and see if the key is 
+    :favorite_icecream_flavors,
+    #if it is, that means the VALUE is an array that 
+    we can iterate over to print out each element
+
+    if attribute == :favorite_icecream_flavors
+      value.each do |flavor|
+        # here, each index element in an ice cream
+         flavor string
+        puts "#{flavor}"
+      end
+    end
+  end
+end
+```
+
+This should output:
+
+```
+chocolate
+vanilla
+mint chip
+strawberry
+cookie dough
+mint chip
+```
