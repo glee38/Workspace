@@ -574,3 +574,45 @@ strawberry
 cookie dough
 mint chip
 ```
+
+##Helpful hash methods
+
+###`.VALUES`
+
+You can collect all of the values in a hash with the `.values` method:
+
+```
+groceries = {fruit: "Banana", vegetable: "Broccoli",
+ dessert: "Cookie"}
+
+groceries.values
+#  => ["Banana", "Broccoli", "Cookie"]
+```
+
+We can see that the `.values` method returns an array of the values of the keys in the hash.
+
+###`.KEYS`
+
+This method, not surprisingly, returns an array containing all of the keys in the hash that `.keys` has been called on:
+
+```
+groceries = {fruit: "Banana", vegetable: "Broccoli",
+ dessert: "Cookie"}
+
+groceries.keys
+#  => [:fruit, :vegetable, :dessert]
+```
+
+###`.MIN`
+
+You can use the `.min` method on a hash to return the key/value *pair* that contains that **lowest** value. What return type can return two different things? Arrays!:
+
+```
+food_items = {apples: 45, pears: 12}
+
+food_items.min
+#  => [:apples, 45]
+```
+
+These are only a few of the many helpful methods out there. Be sure to check out the Ruby Docs on Hashes to learn more.
+
