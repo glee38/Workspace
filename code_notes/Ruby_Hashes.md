@@ -361,7 +361,10 @@ In this case, we are multiplying the value of each `age` by `7` and collecting t
 ```
 [63, 42, 189]
 ```
+##Iterating over nested hashes
 
+###Great resource
+http://www.codequizzes.com/learn-ruby/iteration-nested-data-structures
 ##Nested Hashes
 
 So far, we've seen hashes that store values in associated keys. In the hashes we've built up until now, each key points to a single value. Hashes are so useful, however, because they can be multi-dimensional, or nested. A key in a hash can point to a value that is a *collection of objects*, i.e. an array or even another hash.
@@ -615,4 +618,20 @@ food_items.min
 ```
 
 These are only a few of the many helpful methods out there. Be sure to check out the Ruby Docs on Hashes to learn more.
+
+###`.FLATTEN`
+
+What happens when you call `.values` on a nested hash? What is the return value? How can you flatten an array of arrays? 
+
+```
+groceries.values
+#=> [["milk", "yogurt", "cheese"], ["carrots", "broccoli", "cucumbers"], ["chicken", "steak", "salmon"], ["rice", "pasta"]]
+```
+
+Now, to get all the values in a flat array:
+
+```
+groceries.values.flatten
+#=> ["milk", "yogurt", "cheese", "carrots", "broccoli", "cucumbers", "chicken", "steak", "salmon", "rice", "pasta"]
+```
 
