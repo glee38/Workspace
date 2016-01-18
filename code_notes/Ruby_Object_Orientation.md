@@ -540,6 +540,14 @@ end
 
 If we know that we are going to be reading and writing to the `name` attribute on our `Person` class, we can use another macro called an attribute accessor.
 
++ Attribute Readers
+	+ Attribute readers give us a getter, or reader, for free.
+	+ In other words, if we have an attribute reader (`attr_reader`) for `:name`, Ruby will create a `name` method for us.
+	
++ Attribute Accessors
+	+ Attribute accessors give us both a getter and a setter for free!
+	+ In other words, if we have an attribute accessor (`attr_accessor`) for `:name`, Ruby will create both `name` and `name=` methods for us.
+
 So this code:
 
 ```
@@ -571,6 +579,35 @@ When opening up a class, `attr_accessor` and friends allow you to get a high lev
 
 As developers we spend more time reading rather then writing code, so it's important that the code we are reading is challenging, not the easy stuff.
 
+##Class Constants
+
+Class Constants are available to all instances of a particular class. Whereas instance variables, i.e. title, author, etc., are individual to each instance of a class, class constants are shared among **all** instances. They all have access to the same data, and if that data should change for some reason, all instances will know about that change.
+
+**Note: constants are written in all caps.**
+
+**EXAMPLE**
+
+Let's go ahead and define the `GENRES` constant. Since it's plural, I'm going to guess that it should be an array, so I'll start by defining it as an empty array:
+
+```
+# book.rb
+ 
+class Book
+  attr_accessor :author, :page_count, :genre
+  attr_reader :title
+ 
+  GENRES = []
+ 
+  def initialize(title)
+    @title = title
+  end
+ 
+  def turn_page
+    puts "Flipping the page...wow, you read fast!"
+  end
+ 
+end
+```
 
 ##Object Initialization
 
