@@ -334,6 +334,116 @@ It worked! Why did it work? Inside the `#name=` method, we set the value of `@th
 
 As we dive deeper into object oriented Ruby, we'll be using instance variables frequently to pass information around the instance methods of a class. Think of instance variables as the containers for instance-specific information. The ability of instance variables to store information and be accessible within different instance methods is one of the things that makes it possible for us to create similar, but unique objects in object orientated Ruby.
 
+##Class Variables and Methods
+
+###Why Use Class Variables and Methods
+
+Let's say you wanted to keep a counter for how many albums you had in your music collection. That way, you can brag to your friends about what a music aficionado you are. The current code in our `Album` class has no way to keep such a count. Looks like we will have to write some code to accommodate this new feature of our program.
+
+When it comes to adding new features or functionalities to our code, we start out by asking a question: whose responsibility is it to enact this behavior or functionality?
+
+Right now, our program is pretty simple. We have an `Album` class and we have album instances. So, is it the responsibility of an individual album to keep a count of all of the other albums? Or is it the responsibility of the `Album` class, which actually produces the individual albums, to keep a running count? I think we can agree that it *isn't* the job of the individual albums, but the job of the `Album` class to keep a count of all of instances it produces.
+
+Now that we've decided whose job it is to enact the "keep a count of all albums" behavior, we can talk about *how* we enact that behavior.
+
+We do so with the use of class variables and methods. Our goal is to be able to ask the `Album` class: "how many albums have you produced?" When we ask an object to tell us something about itself, we use methods. It would be great if we could do something like:
+
+```
+Album.count
+```
+
+and return the number of existing albums. Let's build out this capability now.
+
+###Building Class Methods and Using Class Variables
+
+An instance variable is responsible for holding information regarding an instance of a class and is accessible only to that instance of the class. A class variable is accessible to the entire class––it has **class scope**. A class method is a method that is called on the class itself, not on the instances of that class. Class variables store information regarding the class as a whole and class methods enact behaviors that belong to the whole class, not just to individual instances of that class.
+
+**DEFINING A CLASS VARIABLE**
+
+A class variable looks like this: ```@@variable_name```. Just like an instance or a local variable, you can set it equal to any type of data.
+
+Let's create a class variable, ```@@album_count``` and set it equal to ```0```.
+
+```
+class Album
+ 
+  @@album_count = 0
+ 
+  def release_date=(date)
+    @release_date = date
+  end
+ 
+  def release_date
+    @release_date
+  end
+end
+```
+
+Great, now we have a class variable to store our count of albums in. We can't yet access that variable from outside of our class though. How can we expose the contents of that variable? With a class method.
+
+**DEFINING A CLASS METHOD**
+
+A class method is defined like this:
+
+```
+def self.class_method_name
+  # some code
+end
+```
+
+Here, the `self` keyword refers to the entire class itself, *not to an instance of the class*. In this case, we are inside the class only, not inside an instance method of that class. So, we are in the class scope, not the instance scope.
+
+Let's define a class method `.count` that returns the current count of albums.
+
+```
+class Album
+  @@album_count = 0
+ 
+  def self.count
+    @@album_count
+  end
+end
+```
+
+Great, now if we call:
+
+```Album.count```
+
+It will return `0`.
+
+**OPERATING ON A CLASS VARIABLE INSIDE AN INSTANCE METHOD**
+
+Currently, however, our `@@album_count` is stuck at `0`. When and how should we increment it? The count of albums should go up as soon as a new album is created, or initialized. We can hook into this moment in time in our `#initialize` method.
+
+```
+class Album
+  @@album_count = 0 
+ 
+  def initialize
+    @@album_count += 1
+  end
+ 
+  def self.count
+    @@album_count
+  end
+end
+```
+
+Here we are using the `@@album_count` class variable, inside of our `#initialize` method, which is an instance method. We are saying: when a new album is created, access the `@@album_count` class variable and increment its value by `1`.
+
+We can access our class variables anywhere in our class: in both class and instance methods.
+
+Now our code should behave in the following manner:
+
+```
+Album.new
+Album.new
+Album.new
+ 
+Album.count
+  # => 3
+```
+
 ##Object Attributes
 
 ###Setter vs. Getter Methods
@@ -686,6 +796,161 @@ The initialize method is what's called a callback method, because it is automati
 You can also think of the initialize method as a constructor method. A constructor method is invoked upon the creation of an instance of a class and used to help define the instance of that class.
 
 So, because of how we defined our initialize method, every time you type `Dog.new("some breed")`, a new dog instance is created that has a breed of `"some breed"` (i.e. whatever string you give the `#new method`).
+
+##Self
+
+###Introduction
+
+When we create a class, each new instance of a class is considered to be an object. An object is a bundle of code that contains both characteristics and behaviors.
+
+For example, if we create a `Dog` class like this:
+
+```
+class Dog
+ 
+  attr_accessor :name
+ 
+  def initialize(name)
+    @name = name
+  end
+ 
+  def bark
+    "Woof!"
+  end
+ 
+end
+```
+
+We could create a new instance of `Dog` like this:
+
+```
+fido = Dog.new("Fido")
+```
+
+We could then access Fido's name like this:
+
+```
+fido.name
+  => "Fido"
+```
+or tell Fido to bark like this:
+
+```
+fido.bark
+  => "Woof!"
+```
+Fido, the individual dog that we created, has a number of methods we can call on it that will reveal it's attributes, like Fido's name, and enact certain behaviors, like barking.
+
+If an object, like `fido`, is a neat package of attributes and behaviors, does an object know about itself? In other words, does each individual object we create have the ability to enact behaviors on *itself*, instead of in isolation, like our `#bark` method?
+
+In fact, every object is aware of itself and we can define methods in which we tell objects to operate on themselves. We do so using the `self` keyword, inside the body of an instance method, to refer to the very same object the method is being called on.
+
+This is where the analogy of our objects as being alive really resonates. Every object is, quite literally, self aware.
+
+###Using `self`
+
+Try this:
+
+Copy and paste the following code into IRB:
+
+```
+class Dog
+  def showing_self
+    puts self
+  end
+end
+```
+
+Now that we have our Dog class ready to go, copy and paste the following method invocations into IRB:
+
+```
+fido = Dog.new
+fido.showing_self
+```
+
+The call to `#showing_self` should output:
+
+```
+#<Dog:0x007faf90a88cd8>
+```
+
+How does this work? Inside the `#showing_self` method we use the `self` keyword. The `self` keyword refers to the instance, or object, that the `#showing_self` method is being called on.
+
+So, when we call `#showing_self` on `fido`, the method will puts out to the terminal the `Dog` instance that is `fido`.
+
+###Operating on `self` in an Instance Method
+
+Let's say that Fido here is getting adopted. Fido's new owner is Sophie. Let's write an `attr_accessor` on our `Dog` for the owner attribute.
+
+```
+class Dog
+ 
+  attr_accessor :name, :owner
+ 
+  def initialize(name)
+    @name = name
+  end
+ 
+end
+```
+
+Now we can set Fido's `owner` attribute equal to the string of `"Sophie"`. The name of his new owner:
+
+```
+fido.owner = "Sophie"
+ 
+fido.owner
+  => "Sophie"
+```
+
+Great, Fido now knows the name of his owner. Let's think about the situation in which `fido` gets a new owner. This would occur at the moment in which `fido` is adopted.
+
+To represent this with code, we could write an `#adopted` method like this:
+
+```
+def adopted(dog, owner_name)
+  dog.owner = owner_name
+end
+```
+
+Here we have a method that takes in two arguments, an instance of the `Dog` class and an owner's name. We could call our method like this:
+
+```
+adopted(fido, "Sophie")
+ 
+# now we can ask Fido who his owner is:
+ 
+fido.owner
+  => "Sophie"
+```
+
+However, the beauty of object-oriented programming is that we can encapsulate, or wrap up, attributes and behaviors into one object. Instead of writing a method that is not associated to any particular object and that takes in certain objects as arguments, we can simply teach our `Dog` instances how to get adopted.
+
+Let's refactor our code above into an instance method on the `Dog` class.
+
+```
+class Dog
+ 
+  attr_accessor :name, :owner
+ 
+  def initialize(name)
+    @name = name
+  end
+ 
+  def bark
+    "Woof!"
+  end
+ 
+  def get_adopted(owner_name)
+    self.owner = owner_name
+  end
+ 
+end
+```
+
+Here, we use the `self` keyword inside of the `#get_adopted` instance method to refer to whichever dog this method is being called on. We set that dog's `owner` property equal to the new owner's name by calling the `#owner=` method on `self` inside the method body.
+
+Think about it: if `self` refers to the object on which the method is being called, and if that object is an instance of the `Dog` class, than we can call any of our other instance methods on `self`.
 
 ##Procedural vs. Object Orientation
 
