@@ -1119,7 +1119,7 @@ We push `self` into the array that is stored in `@@all`. In this way, the `@@all
 
 **BUILDING A CLASS METHOD TO ACCESS A CLASS VARIABLE**
 
-Let's call our class method `#all` and code it such that it iterates over all of the individual song instances stored in the `@@all` array, `puts`-ing out the name of each song.
+Let's call our class method `#all` and code it such that it iterates over all of the individual song instances stored in the `@@all` array, `puts`-ing out the name of each song. This is called a **class getter** method.
 
 ```
 class Song
