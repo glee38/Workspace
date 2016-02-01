@@ -162,28 +162,37 @@ end
 
 `self.all` in the context of `Person.find_by_name` is equivalent to `Person.all` as the scope of the method is the class. `self` within a class method is the class itself.
 
-Within #initialize, an instance method, self will refer to an instance, an individual person, not the entire class, so we can't simply say self.all within an instance method. Instead, we go from the instance, self, to the class via self.class, returning Person, and then evoke the Person.all method.
+Within `#initialize`, an instance method, `self` will refer to an instance, an individual person, not the entire class, so we can't simply say `self.all` within an instance method. Instead, we go from the instance, `self`, to the class via `self.class`, returning `Person`, and then evoke the `Person.all` method.
 
-If the variable @@all changes names, we only have to update it in one place, the Person.all reader. All code that relies on that method still works. 1 conceptual change, 1 line-of-code (LOC) change. That is a proportionate amount of work.
+If the variable `@@all` changes names, we only have to update it in one place, the `Person.all` reader. All code that relies on that method still works. 1 conceptual change, 1 line-of-code (LOC) change. That is a proportionate amount of work.
 
 In addition to the maintainability of our code through class method level encapsulation (when we build class methods to consolidate the logic of how the class operates so we only have to update 1 place in our code when something changes), class methods provide a more readable API for the class in the rest of the code. Consider just one more time the difference in seeing the following two lines of code littered throughout your code:
 
-Person.all.detect{|p| p.name == "Ada Lovelace"} # Literal implementation, no abstraction or encapsulation
+```
+Person.all.detect{|p| p.name == "Ada Lovelace"} 
+# Literal implementation, no abstraction or encapsulation
  
-Person.find_by_name("Ada Lovelace") # Abstract implementation with logic entirely encapsulated.
-Whenever we use Person.find_by_name the intention of our code is revealed. Instead of iterating on an array, our code reads clearly. Instead of describing the implementation of finding a person by name, our code simply says what it is doing, not how. This is called an API. You want to build objects that provide a semantic and obvious API. Methods that reveal what the object will do, not how it does that. Always hide the how and show the what.
+Person.find_by_name("Ada Lovelace") 
+# Abstract implementation with logic entirely encapsulated.
+```
+
+Whenever we use `Person.find_by_name` the intention of our code is revealed. Instead of iterating on an array, our code reads clearly. Instead of describing the implementation of finding a person by name, our code simply says what it is doing, not how. This is called an API. You want to build objects that provide a semantic and obvious API. Methods that reveal what the object will do, not how it does that. Always hide the how and show the what.
 
 Finders are just one example of a more semantic API for our classes. Let's look at another way class methods can provide a higher level of semantics for our code.
 
-Custom Class Constructors
+###Custom Class Constructors
 
 Our marketing team has provided us with a list of people in Comma Separated Format (CSV), a common formatting convention when exporting from spreadsheets. The raw data looks like:
 
+```
 Elon Musk, 44, Tesla/SpaceX
 Steve Jobs, 56, Apple
 Martha Stewart, 74, MSL
+```
+
 They tell us that they will often need to upload CSVs of people data. Let's look at how we'd create a person instance from a csv.
 
+```
 class Person
   attr_accessor :name, :age, :company
 end
@@ -206,8 +215,11 @@ people = rows.collect do |row|
   person
 end
 people #=> [#<Person @name="Elon Musk"...>, #<Person @name="Steve Jobs"...>...]
-Pretty complex. We don't want to do that through our application. In an ideal world every time we got csv data we'd just want the Person class to be responsible for parsing it. Could we build something like Person.new_from_csv? Of course! Let's look at how we might implement a custom constructor.
+```
 
+Pretty complex. We don't want to do that through our application. In an ideal world every time we got csv data we'd just want the `Person` class to be responsible for parsing it. Could we build something like `Person.new_from_csv`? Of course! Let's look at how we might implement a custom constructor.
+
+```
 class Person
   attr_accessor :name, :age, :company
  
@@ -249,8 +261,11 @@ people #=> [
 #<Person @name="Avi Flombaum"...>,
 #<Person @name="Payal Kadakia"...>
 # ]
+```
+
 We can see that when needing to parse two sets of CSV data, having a class method Person.new_from_csv greatly simplifies our code. Let's look at how the class method works a little more closely.
 
+```
 class Person
   attr_accessor :name, :age, :company
  
@@ -278,7 +293,9 @@ class Person
     people
   end
 end
-Like in any class method, self refers to the class itself so we can call self.new to piggyback, wrap, or extend the functionality of Person.new. We parse the raw data, create an instance, and assign the data to the corresponding instance properties.
+```
+
+Like in any class method, `self` refers to the class itself so we can call `self.new` to piggyback, wrap, or extend the functionality of `Person.new`. We parse the raw data, create an instance, and assign the data to the corresponding instance properties.
 
 Why do this? If we need to be able to create people from csvs, why not just build that directly into initialize? Well, the honest answer is because we don't always want to create people from csv data. Anything we build into initialize will happen always. Another key to writing maintainable code is designing functionality that is closed to modification but open to extension.
 
@@ -286,8 +303,9 @@ Initialize should be closed to modification. It should only handle the most requ
 
 If we ever need to make people from xml or json we can continue to extend the object with custom constructors instead of constantly modifying initialize with complex logic.
 
-Let's look at a somewhat simpler example of a custom constructor that wraps .new. When building objects that can be saved into a class variable @@all, we might not always want to save the newly instantiated instance.
+Let's look at a somewhat simpler example of a custom constructor that wraps `.new`. When building objects that can be saved into a class variable `@@all`, we might not always want to save the newly instantiated instance.
 
+```
 class Person
   @@all = []
  
@@ -295,8 +313,11 @@ class Person
     @@all << self
   end
 end
-With that code, no matter what, people instances will always be saved. We could instead implement a simple .create class method to provide the functionality of instantiating and creating the instance, leaving .new to function as normal.
+```
 
+With that code, no matter what, `people` instances will always be saved. We could instead implement a simple `.create` class method to provide the functionality of instantiating and creating the instance, leaving `.new` to function as normal.
+
+```
 class Person
   @@all = []
  
@@ -304,12 +325,15 @@ class Person
     @@all << self.new
   end
 end
-Class Operators
+```
+
+###Class Operators
 
 Beyond finders and custom constructors that return existing instances or create new instances, class methods can also manipulate class-level data.
 
 A basic case of this might be printing all the people in our application.
 
+```
 class Person
   attr_accessor :name
   @@all = []
@@ -331,8 +355,11 @@ Person.create("Grace Hopper")
 Person.all.each do |person|
   puts "#{person.name}"
 end
-Even that logic is worth encapsulating within a class method .print_all.
+```
 
+Even that logic is worth encapsulating within a class method `.print_all`.
+
+```
 class Person
   attr_accessor :name
   @@all = []
@@ -355,12 +382,13 @@ Person.create("Ada Lovelace")
 Person.create("Grace Hopper")
  
 Person.print_all
+```
+
 Way nicer.
 
-Class Operators
+Additionally, class methods might provide a global operation on data. Imagine that one of the csvs we were provided with has peoples' names in lowercase letters. We want proper capitalization. We can build a class method `Person.normalize_names`
 
-Additionally, class methods might provide a global operation on data. Imagine that one of the csvs we were provided with has peoples' names in lowercase letters. We want proper capitalization. We can build a class method Person.normalize_names
-
+```
 class Person
   attr_accessor :name
   @@all = []
@@ -379,12 +407,15 @@ class Person
     end
   end
 end
-The logic for actually normalizing a person's name is pretty complex. person.name.split(" ").collect{|w| w.capitalize}.join(" ")
+```
 
-What we're doing is splitting a name, like "ada lovelace", into an array at the space, " ", returning ["ada", "lovelace"]. With that array we collect each word into a new array after it has been capitalized, returning ["Ada", "Lovelace"]. We then join the elements in that array with a " " returning the final capitalized name, "Ada Lovelace".
+The logic for actually normalizing a person's name is pretty complex. `person.name.split(" ").collect{|w| w.capitalize}.join(" ")`
 
-Given how complex normalizing a person's name is, we should actually encapsulate that into the Person instance.
+What we're doing is splitting a name, like `"ada lovelace"`, into an array at the space, `" "`, returning `["ada", "lovelace"]`. With that array we collect each word into a new array after it has been capitalized, returning `["Ada", "Lovelace"]`. We then join the elements in that array with a `" "` returning the final capitalized name, `"Ada Lovelace"`.
 
+Given how complex normalizing a person's name is, we should actually encapsulate that into the `Person` instance.
+
+```
 class Person
   attr_accessor :name
   @@all = []
@@ -407,10 +438,13 @@ class Person
     end
   end
 end
-With #normalize_name, we've taught a Person instance how to properly convert it's name into a capitalized version. The class method that acts on the global data of all people is simplified and delegates the actual normalization to the original instances. This is a common pattern for global class operators.
+```
 
-Another example of this type of global data manipulation might be deleting all the people. We would build a Person.destroy_all class method that will clear out the @@all array.
+With `#normalize_name`, we've taught a `Person` instance how to properly convert it's name into a capitalized version. The class method that acts on the global data of all people is simplified and delegates the actual normalization to the original instances. This is a common pattern for global class operators.
 
+Another example of this type of global data manipulation might be deleting all the people. We would build a `Person.destroy_all` class method that will clear out the `@@all` array.
+
+```
 class Person
   attr_accessor :name
   @@all = []
@@ -427,4 +461,6 @@ class Person
     self.all.clear
   end
 end
-Here our Person.destroy_all method uses the Array#clear method to empty the @@all array through the class reader Person.all.
+```
+
+Here our `Person.destroy_all` method uses the `Array#clear` method to empty the `@@all` array through the class reader `Person.all`.
