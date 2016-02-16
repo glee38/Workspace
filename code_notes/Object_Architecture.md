@@ -152,8 +152,9 @@ Now we're ready to include our module in our classes:
 
 **STEP 3: INCLUDING THE MODULE**
 
-To lend our two classes all of the methods of the Dance module, we use the include keyword:
+To lend our two classes all of the methods of the `Dance` module, we use the `include` keyword:
 
+```
 class Kid
   include Dance
  
@@ -163,6 +164,8 @@ class Kid
     @name = name
   end
 end
+```
+```
 class Ballerina
   include Dance
  
@@ -172,10 +175,13 @@ class Ballerina
     @name = name
   end
 end
-If we use include keyword, we allow our classes to use all of the methods of the included module as instance methods. We'll talk about how to lend a module's methods as class methods in a minute.
+```
 
-Now that we've included the module, open up bin/dance_party and get familiar with following code:
+If we use the `include` keyword, we allow our classes to use all of the methods of the included module as instance methods. We'll talk about how to lend a module's methods as class methods in a minute.
 
+Now that we've included the module, open up `bin/dance_party` and get familiar with following code:
+
+```
 require_relative "../lib/kid.rb"
 require_relative "../lib/ballerina.rb"
  
@@ -184,39 +190,54 @@ mikhail_barishnkov = Ballerina.new("Mikhail")
  
 puts "#{angelina.name} says: #{angelina.twirl}"
 puts "#{mikhail_barishnkov.name} says: #{mikhail_barishnkov.take_a_bow}"
-Now, run the file by typing ruby bin/dance_party and you should see the following output in your terminal:
+```
 
+Now, run the file by typing `ruby bin/dance_party` and you should see the following output in your terminal:
+
+```
 Angelina says: I'm twirling!
 Mikhail says: Thank you, thank you. It was a pleasure to dance for you all.
-Code Along II: Extending Module Methods as Class Methods
+```
 
-In order to lend a module's methods to a class as class methods, we use the extend keyword. Let's write yet another module that we can extend into our classes as class methods. For the purposes of this example, let's create a shareable class method, metadata, which will report on some pertinent (shared) information regarding both classes.
+###Code Along II: Extending Module Methods as Class Methods
 
-Open up the lib/class_method_module.rb and define the following module and methods:
+In order to lend a module's methods to a class as class methods, we use the `extend` keyword. Let's write yet another module that we can extend into our classes as class methods. For the purposes of this example, let's create a shareable class method, `metadata`, which will report on some pertinent (shared) information regarding both classes.
 
+Open up the `lib/class_method_module.rb` and define the following module and methods:
+
+```
 module MetaDancing
  
   def metadata
     "This class produces objects that love to dance."
   end
 end
-Let's extend this module into both the Kid and Ballerina classes:
+```
 
+Let's extend this module into both the `Kid` and `Ballerina` classes:
+
+```
 class Ballerina
   extend MetaDancing
 end
 class Kid
   extend MetaDancing
 end
-Now, open up the bin/extending file and familiarize yourself with the following code:
+```
 
+Now, open up the `bin/extending` file and familiarize yourself with the following code:
+
+```
 require_relative "../lib/kid.rb"
 require_relative "../lib/ballerina.rb"
  
 puts Kid.metadata
 puts Ballerina.metadata
-Run the file with ruby bin/extending and you should see the following output in your terminal:
+```
 
+Run the file with `ruby bin/extending` and you should see the following output in your terminal:
+
+```
 This class produces objects that love to dance.
 This class produces objects that love to dance.
-Run the tests to make sure all of your tests are passing.
+```
