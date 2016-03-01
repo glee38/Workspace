@@ -180,13 +180,14 @@ gem "awesome_print", :git => "https://github.com/michaeldv/awesome_print.git"
 ```
 
 ##Scraping
-Introduction
+
+###Introduction
 
 In previous lessons we've become familiar with working with APIs in order to retrieve data from external resources. You may have seen, for example, the process of sending an HTTP request to an API and receiving data back from that API in JSON format. You may also have seen the Twitter gem used to request data from Twitter.
 
 However, there is yet another way for our Ruby programs to retrieve data from external sources: web scraping. Web scraping is the act of parsing a web page's HTML and pulling, or "scraping" pertinent data from that HTML. In this reading, we'll take a brief look at what scraping is and how to accomplish it. Then, we'll move on to a scraping code along exercise.
 
-What is Scraping and Why Use it?
+###What is Scraping and Why Use it?
 
 As we established above, scraping is a technique used to grab data out of the HTML that makes up a web page. Scraping can be difficult to accomplish––in order to get the data we want, we need to closely examine the HTML and identify exactly which elements contain the information we're interested in. It requires a high degree of precision.
 
@@ -194,50 +195,64 @@ So, if scraping is so tricky, why do we use it? Well, not all of the data we mig
 
 Here's another example: let's say you're creating an app that allows a user to subscribe to a news feed. You anticipate that your users are super-tech savvy and might be interested in subscribing to some lesser-known tech news sites. Such sites may not have an API that makes their articles available to you. Instead, you would have to scrape those sites for their latest news articles and send those newest articles to your users.
 
-These are just a few examples of situations in which scraping might come in handy. Now that we have a few use-cases that illustrate the utility of scraping, let's talk about how to scrape.
+These are just a few examples of situations in which scraping might come in handy. Now that we have a few use-cases that illustrate the utility of scraping, let's talk about *how* to scrape.
 
-Scraping HTML Using Nokogiri and Open-URI
+###Scraping HTML Using Nokogiri and Open-URI
 
-REFRESHER: WHAT IS OPEN-URI?
+**REFRESHER: WHAT IS OPEN-URI?**
 
-Open-URI is a module in Ruby that allows us to programmatically make HTTP requests. It gives us a bunch of useful methods to make different types of requests, but for this guide, we're interested in only one: open. This method takes one argument, a URL, and will return to us the HTML content of that URL.
+Open-URI is a module in Ruby that allows us to programmatically make HTTP requests. It gives us a bunch of useful methods to make different types of requests, but for this guide, we're interested in only one: `open`. This method takes one argument, a URL, and will return to us the HTML content of that URL.
 
 In other words, running:
 
+```
 html = open('http://www.google.com')
+```
+
 stores the HTML of Google into a variable called html. (More specifically, it actually stores the HTML in a temporary file that we can then call read on to get the raw HTML. We won't worry about that here though.)
 
-WHAT IS NOKOGIRI?
+**WHAT IS NOKOGIRI?**
 
 Nokogiri is a Ruby gem that helps us to parse HTML and collect data from it. Essentially, Nokogiri allows us to treat a huge string of HTML as if it were a bunch of nested nodes. In doing so, Nokogiri offers you, the programmer, a series of methods that you can use to extract the desired information from these nested nodes. Nokogiri makes the level of precision required to extract the necessary data much easier to attain. It works like a fine-toothed saw to scrape only the necessary data. In fact, that's what "nokogiri" means: a fine-toothed saw.
 
-
-
 Let's get Nokogiri up and running and look at a very basic example of its usage. Then, we'll move on to the next lesson, where you'll try it out for yourself.
 
-INSTALLING NOKOGIRI
+**INSTALLING NOKOGIRI**
 
-Installing Nokogiri is as easy as gem install nokogiri. If you run into any issues with this, check out the following documentation: Nokogiri Installation Guide.
+Installing Nokogiri is as easy as `gem install nokogiri`. If you run into any issues with this, check out the following documentation: Nokogiri Installation Guide.
 
-OPENING A WEB PAGE AS HTML WITH NOKOGIRI AND OPEN-URI
+**OPENING A WEB PAGE AS HTML WITH NOKOGIRI AND OPEN-URI**
 
-Let's say we have a file, scraper.rb which is responsible for (you guessed it) scraping. We need to require Nokogiri and open-uri:
+Let's say we have a file, `scraper.rb` which is responsible for (you guessed it) scraping. We need to require Nokogiri and open-uri:
 
+```
 require 'nokogiri'
 require 'open-uri'
  
 #more code coming soon!
+```
+
 We can use the following line to grab the HTML that makes up the Flatiron School's landing page at flatironschool.com:
 
+```
 html = open("http://flatironschool.com/")
-Next, we'll use the Nokogiri::HTML method to take the string of HTML returned by open-uri's open method and and convert it into a NodeSet (aka, a bunch of nested "nodes") that we can easily play around with.
+```
 
+Next, we'll use the `Nokogiri::HTML` method to take the string of HTML returned by open-uri's `open` method and and convert it into a NodeSet (aka, a bunch of nested "nodes") that we can easily play around with.
+
+```
 Nokogiri::HTML(html)
+```
+
 Let's save the HTML document in a variable, doc that we can then operate on:
 
+```
 doc = Nokogiri::HTML(html)
-If we were to puts out doc right now, we'd see something like this in our terminal:
+```
 
+If we were to `puts` out doc right now, we'd see something like this in our terminal:
+
+```
 <!DOCTYPE html>
 <html> <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <meta content="IE=edge,chrome=1" html-equiv="X-UA-Compatible"> <meta name="description" content="Learn to love code. The Flatiron School trains passionate, creative people in web and mobile development. Our Web and iOS Immersive courses are 12 weeks, full-time, and prepare students for careers as software developers."> <title>Flatiron School</title> <link href="stylesheets/all.css" rel="stylesheet"> <script src="javascripts/all.js"></script> <link rel="canonical" href="http://flatironschool.com/"> <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico"> <meta name="google-site-verification" content="IyKREnTZw16bmZ3mSIACjTF7n1smFdMOkjJS2dtwLl8"> </head> <body> <div class="wrapper"> <header id="header"> <div class="nav-holder holder"> <strong class="logo"><a href="/"><img src="images/logo.png" alt="The Flatiron School"></a></strong> <nav id="nav"> <a href="#" class="opener"><span></span></a> <div class="drop"> <div class="drop-holder"> <ul class="top-nav"> <li class="active hide_mobile"><a href="http://go.flatironschool.com/apply" target="_blank">Apply</a></li> <li class="hide_mobile"><a href="/hire">Partner</a></li> <li class="hide_mobile"><a href="http://precollege.flatironschool.com" target="_blank">Precollege</a></li> <li class="hide_mobile"><a href="http://blog.flatironschool.com/" target="_blank">Blog</a></li> <li class="hide_mobile"><a href="/contact">Contact</a></li> <li class="hide_mobile"><a href="/careers">We're hiring!</a></li> </ul> <ul class="main-nav mega-menu-nav"> <li> <a href="/school">The School</a> <div class="megamenu"> <div class="column quote-container"> <div class="tab-content"> <div id="tab7"> <blockquote> <q>“Best of luck to the new @FlatironSchool group. Looking back, you'll categorize your life as before today and after today.”</q> <cite> <a href="https://twitter.com/mcnameekm/status/298577378274336772" class="twitter"> <span class="icon-twitter"></span> </a> <span class="photo"><span data-picture data-alt="image description"> <span data-src="images/kevin_mcnamee.png"></span> <span data-src="images/kevin_mcnamee.png" data-media="(-webkit-min-device-pixel-ratio:1.5), (min-resolution:1.5dppx)"></span> <!--[if (lt IE 9) & (!IEMobile)]><span data-src="images/kevin_mcnamee.png"></span><![endif]--> <noscript><img src="images/kevin_mcnamee.png" width="41" height="40" alt="image description"></noscript> </span> </span> <strong class="name">@mcnameekm</strong> </cite> </blockquote> </div> </div> </div> <div class="column col-4 menu-holder"> <ul class="submenu"> <li><a href="/school#about">About</a></li> <li><a href="/team">The Team</a></li> <li><a href="/employers">Employers</a></li> <li><a href="/faq">FAQ</a></li> <li><a href="/careers">Careers at Flatiron</a></li> </ul> </div> </div> </li> <li class="mobile_subnav"><a href="/school#about">About</a></li> <li class="mobile_subnav"><a href="/team">The Team</a></li> <li class="mobile_subnav"><a href="/employers">Employers</a></li> <li class="mobile_subnav"><a href="/faq">FAQ</a></li> <li class="mobile_subnav"><a href="/careers">Careers at Flatiron</a></li> <li> <a href="/courses">Courses</a> <div class="megamenu"> <div class="column quote-container"> <div class="tab-content"> <div id="tab7"> <blockquote> <q>“What I love most about @FlatironSchool grads: not only are they great programmers, but they are great bloggers and presenters.”</q> <cite> <a href="https://twitter.com/debbiemadden200/status/345546073751822340" class="twitter"> <span class="icon-twitter"></span> </a> <span class="photo"><span data-picture data-alt="image description"> <span data-src="images/debbie_madden.png"></span> <span data-src="images/debbie_madden.png" data-media="(-webkit-min-device-pixel-ratio:1.5), (min-resolution:1.5dppx)"></span> <!--[if (lt IE 9) & (!IEMobile)]><span data-src="images/debbie_madden.png"></span><![endif]--> <noscript><img src="images/debbie_madden.png" width="41" height="40" alt="image description"></noscript> </span> </span> <strong class="name">@debbiemadden200</strong> </cite> </blockquote> </div> </div> </div> <div class="column col-4 menu-holder"> <ul class="submenu"> <li><a href="/courses">Course Listing</a></li> <li><a href="/web">Web Development</a></li> <li><a href="/ios">iOS Development</a></li> <li><a href="/frontend">Intro to Front End</a></li> <li><a href="/data-science">Intro to Data Science</a></li> <li><a href="/diy-electronics">DIY Electronics</a></li> <li><a href="/nycfellowship" target="_blank">Fellowship</a></li> </ul> </div> </div> </li> <li> <a href="/events">Events</a> <div class="megamenu"> <div class="column col-3"> <a class="event" href="http://www.meetup.com/Ruby-Project-Night-NYC/events/222354716/" target="_blank"> <em class="date">08.17.15</em> <span class="ico icon-svg_03"></span> <h2>Ruby Project Night</h2> </a> </div> <div class="column col-3"> <a class="event" href="http://www.meetup.com/Flatiron-School-Presents/" target="_blank"> <em class="date">08.18.15</em> <span class="ico icon-svg_05"></span> <h2>Flatiron School Students Present</h2> </a> </div> <div class="column col-3"> <a class="event" href="http://www.meetup.com/Flatiron-School-Presents/" target="_blank"> <em class="date">08.25.15</em> <span class="ico icon-svg_05"></span> <h2>Flatiron School Students Present</h2> </a> </div> <div class="column col-4 menu-holder"> <ul class="submenu"> <li><a href="/events">Upcoming Events</a></li> <li><a href="/guestspeakers">Guest Speakers</a></li> </ul> </div> </div> </li> <li class="mobile_subnav"> <a href="/guestspeakers">Guest Speakers</a>
@@ -276,46 +291,51 @@ If we were to puts out doc right now, we'd see something like this in our termin
     a.src=document.location.protocol+"//script.crazyegg.com/pages/scripts/0024/3946.js?"+Math.floor(new Date().getTime()/3600000);
     a.async=true;a.type="text/javascript";b.parentNode.insertBefore(a,b)}, 1);
   </script> </body> </html>
+```
+
 Gah! I know this looks awful. It kind of is. But don't worry! Nokogiri will help us parse this. What we're looking at here is all of the HTML that makes up the web page found at www.flatironschool.com. The massive lines above are actually a snapshot of that HTML converted into a structure of nested nodes by Nokogiri.
 
-What are Nested Nodes?
+**What are Nested Nodes?**
 
-Nested nodes refers to any tree of elements in which parent elements branch off to contain children elements. In fact, we've seen similarly nested structures before when we dealt with nested data structures like hashes. By creating a nested structure, Nokogiri allows us to do things like iterate over a collection of element from the HTML document and use brackets,[], and dot notation to access elements within the nested structure.
+Nested nodes refers to any tree of elements in which parent elements branch off to contain children elements. In fact, we've seen similarly nested structures before when we dealt with nested data structures like hashes. By creating a nested structure, Nokogiri allows us to do things like iterate over a collection of element from the HTML document and use brackets,`[]`, and dot notation to access elements within the nested structure.
 
-USING NOKOGIRI TO EXTRACT DATA
+**USING NOKOGIRI TO EXTRACT DATA**
 
-Visit this Flatiron School link and use your browser's developer tools to inspect the page. (You can just right-click anywhere on the page and select "inspect element".)
+Visit [this Flatiron School link](http://flatironschool.com/?__hstc=112149531.660f92f25f4668c70675340d010f296e.1447273179419.1456763942408.1456785661001.262&__hssc=112149531.1.1456785661001&__hsfp=3680126679) and use your browser's developer tools to inspect the page. (You can just right-click anywhere on the page and select "inspect element".)
 
 You should see something like this:
 
+![flatiron-web](http://readme-pics.s3.amazonaws.com/Screen%20Shot%202015-08-19%20at%205.58.16%20PM.png)
 
-
-The element inspector view on the bottom half of the page is revealing all of the page's HTML to us! In fact, the HTML it is showing us is exactly the same as the HTML put out to our terminal with the help of Nokogiri and open-uri.
+The element inspector view on the bottom half of the page is revealing all of the page's HTML to us! In fact, the HTML it is showing us is *exactly the same* as the HTML `put` out to our terminal with the help of Nokogiri and open-uri.
 
 Now that we understand what Nokogiri is and seen how it opens the HTML that makes up a web page, let's look at how we use to actually scrape information.
 
-USING CSS SELECTORS TO GET DATA
+**USING CSS SELECTORS TO GET DATA**
 
 Nokogiri allows you to use CSS selectors in order to retrieve specific pieces of information out of an HTML document.
 
-What is a CSS Selector
+**What is a CSS Selector**
 
 In the following code:
 
+```
 <div id="my-div">
   <p class="my-paragraph"></p>
 </div>
-The id and class attributes of the HTML elements are the CSS selectors. You would refer to the div with this selector: #my-div (using the # to indicate id), and the paragraph with this selector: .my-paragraph (using the . to indicate class).
+```
 
-Nokogiri's .css Method
+The id and class attributes of the HTML elements are the CSS selectors. You would refer to the div with this selector: `#my-div` (using the `#` to indicate id), and the paragraph with this selector: `.my-paragraph` (using the `.` to indicate class).
 
-Nokogiri's .css method can be called on the doc variable that we set equal to that giant string of HTML that Nokogiri retrieved for us. The .css method takes in an argument of the CSS selector you want to retrieve. Let's take a look.
+**Nokogiri's `.css` Method**
 
-Choosing a CSS Selector
+Nokogiri's `.css` method can be called on the `doc` variable that we set equal to that giant string of HTML that Nokogiri retrieved for us. The `.css` method takes in an argument of the CSS selector you want to retrieve. Let's take a look.
 
-How do we determine which selector to use to retrieve the desired information? Remember that the HTML document that Nokogiri retrieved for us to operate on is exactly the same HTML that makes up the web page. Let's go back to www.flatironschool.com and use the element inspector to find the selector of a certain piece of information:
+**Choosing a CSS Selector**
 
+How do we determine which selector to use to retrieve the desired information? Remember that the HTML document that Nokogiri retrieved for us to operate on is *exactly the same* HTML that makes up the web page. Let's go back to www.flatironschool.com and use the element inspector to find the selector of a certain piece of information:
 
+![flatiron-350](http://readme-pics.s3.amazonaws.com/Screen%20Shot%202015-08-19%20at%206.11.34%20PM.png)
 
 This nice, big, bold statement, "350+ lives changed, and counting.", looks like a pretty good candidate.
 
@@ -323,79 +343,118 @@ In order to identify its CSS selector, you click on the magnifying class icon on
 
 That highlights its HTML element for us. Notice that:
 
+```
 <span class="grey-text">...</span>
+```
+
 is highlighted in the above image. If you press the down carrot on that light, it will open up to show you what that element contains:
 
+```
 "350+ lives changed, and counting."
-We found it! That text lives in a span whose class is "grey-text". Now we're ready to use the .css method to grab the text we want:
+```
 
-Calling the .css method
+We found it! That text lives in a span whose class is `"grey-text"`. Now we're ready to use the `.css` method to grab the text we want.
 
-In our scraper.rb file, we had the following code:
+**Calling the `.css` method**
 
+In our `scraper.rb` file, we had the following code:
+
+```
 require 'nokogiri'
 require 'open-uri'
  
 doc = Nokogiri::HTML(open("http://flatironschool.com/"))
-Let's call .css on doc and give it the argument of our CSS selector:
+```
 
+Let's call `.css` on doc and give it the argument of our CSS selector:
+
+```
 require 'nokogiri'
 require 'open-uri'
  
 doc = Nokogiri::HTML(open("http://flatironschool.com/"))
 doc.css(".grey-text")
+```
+
 If we puts out the result of that method call:
 
+```
 puts doc.css(".grey-text")
+```
+
 We'd see something like this:
 
+```
 [#<Nokogiri::XML::Element:0x3ff8bdcc1a64 name="span" attributes=[#<Nokogiri::XML::Attr:0x3ff8bdcc19d8 name="class" value="grey-text">] children=[#<Nokogiri::XML::Text:0x3ff8bdcc12d0 "350+ lives changed,">, #<Nokogiri::XML::Element:0x3ff8bdcc11e0 name="br">, #<Nokogiri::XML::Text:0x3ff8bdcc0ee8 "and counting.">]>]
+```
+
 Okay, still kind of gross. But we're almost there. If you look closely at the element above, you'll notice this:
 
+```
 children=[#<Nokogiri::XML::Text:0x3ff8bdcc12d0 "350+ lives changed,">,
-There's our text! Buried in there. To get it out, we can call .text on it:
+```
 
+There's our text! Buried in there. To get it out, we can call `.text` on it:
+
+```
 doc.css(".grey-text").text
  => "350+ lives changed,and counting."
-We did it! We used Nokogiri to get the HTML of a web page. We used the element inspector in the browser to ID the CSS selector of the data we wanted to scrape. We used the .css Nokogiri method, along with that CSS selector, to grab the element that contains our desired data. Finally, we used the .text method to retrieve the desired text.
+```
+
+We did it! We used Nokogiri to get the HTML of a web page. We used the element inspector in the browser to ID the CSS selector of the data we wanted to scrape. We used the `.css` Nokogiri method, along with that CSS selector, to grab the element that contains our desired data. Finally, we used the `.text` method to retrieve the desired text.
 
 This was only a brief introduction into the concept and mechanics of scraping. We'll be taking a closer look in the upcoming code along exercise. Keep in mind that scraping is difficult and takes a lot of practice.
 
-ITERATING OVER ELEMENTS
+**ITERATING OVER ELEMENTS**
 
 Sometimes we want to get a collection of the same elements, so we can iterate over them.
 
 Let's first get a list of the instructors from the www.flatironschool.com/team page.
 
+```
 require 'nokogiri'
 require 'open-uri'
  
 html = open("http://flatironschool.com/team")
 doc = Nokogiri::HTML(html)
  
-instructors = doc.css("#instructors .team-holder .person-box")
-Even though the Nokogiri gem returns a Nokogiri::XML::Element (which looks like an array in ruby), we can use Ruby methods, such as .each and .collect, to iterate over it.
+instructors = doc.css("#instructors .team-holder 
+.person-box")
+```
 
+Even though the Nokogiri gem returns a `Nokogiri::XML::Element` (which looks like an array in ruby), we can use Ruby methods, such as `.each` and `.collect`, to iterate over it.
+
+```
 [#<Nokogiri::XML::Attr:0x3fcd82a22b84 name="class" value="icon-github2">]>]>]>, #<Nokogiri::XML::Text:0x3fcd82a238b8 " ">, #<Nokogiri::XML::Element:0x3fcd82a1feac name="li" children=[#<Nokogiri::XML::Element:0x3fcd82a1faec name="a" attributes=[#<Nokogiri::XML::Attr:0x3fcd82a1f8a8 name="href" value="http://twitter.com/aviflombaum">, #<Nokogiri::XML::Attr:0x3fcd82a1f894 name="target" value="_blank">] children=[#<Nokogiri::XML::Element:0x3fcd82a1ebb0 name="span" attributes=[#<Nokogiri::XML::Attr:0x3fcd82a1eb10 name="class" value="icon-twitter2">]>]>]>, #<Nokogiri::XML::Text:0x3fcd82a1be88 " ">, #<Nokogiri::XML::Element:0x3fcd82a1bd20 name="li" children=[#<Nokogiri::XML::Element:0x3fcd82a1b8d4 name="a" attributes=[#<Nokogiri::XML::Attr:0x3fcd82a1b85c name="href" value="http://www.facebook.com/aviflombaum">, #<Nokogiri::XML::Attr:0x3fcd82a1b848 name="target" value="_blank">] children=[#<Nokogiri::XML::Element:0x3fcd82a1ad58 name="span" attributes=[#<Nokogiri::XML::Attr:0x3fcd82a1acf4 name="class" value="icon-facebook2">]>]>]>, #<Nokogiri::XML::Text:0x3fcd82a1a470 " ">, #<Nokogiri::XML::Element:0x3fcd82a1a394 name="li" children=[#<Nokogiri::XML::Element:0x3fcd82a1a0d8 name="a" attributes=[#<Nokogiri::XML::Attr:0x3fcd82a1b9d8 name="href" value="http://www.linkedin.com/in/aviflombaum">, #<Nokogiri::XML::Attr:0x3fcd82a1a9e8 name="target" value="_blank">] children=[#<Nokogiri::XML::Element:0x3fcd82a17734 name="span" attributes=[#<Nokogiri::XML::Attr:0x3fcd82a176bc name="class" value="icon-linkedin2">]>]>]>, #<Nokogiri::XML::Text:0x3fcd82a16e38 " ">]>, … ]
-Let's iterate over the instructors array by using .each and puts "Flatiron School <3 " proceeded by a instructors name.
+```
 
+Let's iterate over the instructors array by using `.each` and `puts` `"Flatiron School <3 "` proceeded by a instructors name.
+
+```
 instructors.each do |instructor| 
   puts "Flatiron School <3 " + instructor.css("h2").text
 end
+```
+
 We'd see something like this:
 
+```
 Flatiron School <3 Avi Flombaum
 Flatiron School <3 Joe Burgess
 …
 …
 …
- 
-ADVANCED: OPERATING ON XML
+```
 
-Let's take another look at the element returned to us by our call on the .css method:
+**ADVANCED: OPERATING ON XML**
 
+Let's take another look at the element returned to us by our call on the `.css` method:
+
+```
 [#<Nokogiri::XML::Element:0x3ff8bdcc1a64 name="span" attributes=[#<Nokogiri::XML::Attr:0x3ff8bdcc19d8 name="class" value="grey-text">] children=[#<Nokogiri::XML::Text:0x3ff8bdcc12d0 "350+ lives changed,">, #<Nokogiri::XML::Element:0x3ff8bdcc11e0 name="br">, #<Nokogiri::XML::Text:0x3ff8bdcc0ee8 "and counting.">]>]
-This is an XML element. XML stands for Extensible Markup Language. Just like HTML, it is a set of rules for encoding and displaying data on the web. When we use Nokogiri methods, we get a return value of XML elements, collected into an array. Technically, methods like .css return a Nokogiri data object that is a collection of Nokogiri::XML::Element objects that functions like an array.
+```
+
+This is an XML element. XML stands for Extensible Markup Language. Just like HTML, it is a set of rules for encoding and displaying data on the web. When we use Nokogiri methods, we get a return value of XML elements, collected into an array. Technically, methods like `.css` return a Nokogiri data object that is a collection of Nokogiri::XML::Element objects that *functions* like an array.
 
 The main thing to understand, however, is that Nokogiri collects these objects into hierarchical data structures, much like the nested arrays and hashes we've been building and manipulating for a while now. So, we could iterate over an array of Nokogiri objects, use enumerators, grab the values of attributes that act as hash keys, etc. We'll get practice with all of this in the upcoming exercise.
 
