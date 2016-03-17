@@ -859,3 +859,196 @@ SELECT cats.name, dogs.name FROM cats, dogs;
 
 You may see this in the future. Don't let it trip you up.
 
+##SQL Aggregate Functions
+
+###Aggregate Functions
+
+Aggregate functions perform a calculation on specified values, queried from a database table. We will cover the following aggregators here:
+
+1. `AVG`
+2. `SUM`
+3. `COUNT`
+4. `MIN`
+5. `MAX`
+
+We'll craft queries that select a desired set of values from a table and then aggregate that data using the above aggregators, in addition to clauses that will group and or order the returned data based on various conditions.
+
+For this walk-through, we'll be utilizing a database of pets and owners.
+
+###Setting up the Database
+
+Some cats are very famous, and accordingly very wealthy. Our pets database will have a cats table in which each cat has a name, age, breed and net worth.
+
+**Creating the Database:**
+
+Create the database in your terminal with the following:
+
+```
+sqlite3 pets_database.db
+```
+
+**Creating the table:**
+
+In the `sqlite3>` prompt in your terminal:
+
+```
+CREATE TABLE cats (
+name TEXT,
+age INTEGER,
+breed TEXT, 
+net_worth INTEGER
+);
+```
+
+**Inserting the values:**
+
+```
+INSERT INTO cats (name, age, breed, net_worth) VALUES ("Maru", 3, "Scottish Fold", 1000000);
+INSERT INTO cats (name, age, breed, net_worth) VALUES ("Hana", 1, "Tabby", 21800);
+INSERT INTO cats (name, age, breed, net_worth) VALUES ("Grumpy Cat", 4, "Persian", 181600);
+INSERT INTO cats (name, age, breed, net_worth) VALUES ("Lil' Bub", 2, "Tortoiseshell", 2000000);
+```
+
+**Confirming our Data**
+
+```
+SELECT * FROM cats;
+```
+
+should return:
+
+```
+name             age         breed          net_worth 
+---------------  ----------  -------------  ----------
+Maru             3           Scottish Fold  1000000   
+Hana             1           Tabby          21800     
+Grumpy Cat       4           Persian        181600    
+Lil' Bub         2           Tortoiseshell  20000000   
+```
+
+###Using Aggregators
+
+**CODE ALONG I: `AVG()`**
+
+The average, `AVG()`, function returns the average value of a column. Here's how it works:
+
+```
+SELECT AVG(column_name) FROM table_name;
+```
+
+Let's write a query to grab the average net worth of our very lucrative cats.
+
+```
+SELECT AVG(net_worth) FROM cats;
+```
+
+This should return:
+
+```
+AVG(net_worth) 
+---------------
+800850.0 
+```
+
+That return value is a little ugly, however. Let's use the `AS` keyword to rename the column. This is called "aliasing the return value".
+
+```
+SELECT AVG(net_worth) AS average_net_worth FROM cats;
+```
+
+This should return:
+
+```
+average_net_worth   
+--------------------
+800850.0 
+```
+
+**CODE ALONG II: `SUM()`**
+
+The sum, `SUM()`, function returns the sum of all of the values in a particular column.
+
+Here's how it works:
+
+```
+SELECT SUM(column_name) FROM table_name;
+```
+
+Let's try it out by calculating the sum of the net worths of all of our cats:
+
+```
+SELECT SUM(net_worth) FROM cats;
+```
+
+This should return:
+
+```
+SUM(net_worth)      
+--------------------
+3203400   
+```
+
+**CODE ALONG II: `MIN()` AND `MAX()`**
+
+The minimum and maximum aggregator functions return the minimum and maximum values from a specified column respectively.
+
+Here's how it works:
+
+```
+SELECT MIN(column_name) FROM table_name;
+SELECT MAX(column_name) FROM table_name;
+```
+
+Let's try it out:
+
+```
+SELECT MIN(net_worth) FROM cats;
+```
+
+This should return:
+
+```
+MIN(net_worth)      
+--------------------
+21800   
+```
+
+**CODE ALONG III: `COUNT()`**
+
+The count function returns the number of rows that meet a certain condition.
+
+Here's how it works:
+
+```
+SELECT COUNT(column_name) FROM table_name;
+```
+
+We can use the `COUNT()` function to calculate the total number of rows in a table that are not `NULL`. `NULL` means empty. All of our cats have a `name` so we can call `COUNT` on the name column like this:
+
+```
+SELECT COUNT(name) FROM cats;
+```
+
+This should return:
+
+```
+COUNT(name)            
+--------------------
+4
+```
+
+We have a total of four cats in our Cats table with a name. If we really didn't care about a specific column and we just wanted the total number of rows in our database we can call `COUNT(*)`. `*` means everything. Sometimes it's called the "wildcard." This `COUNT(*)` will count the rows where at least one column has data in it.
+
+We can also use `COUNT()` to count the total number of rows in a table that meet a certain criteria. Let's use this aggregator to count the number of cats whose net worth is greater than one million:
+
+```
+SELECT COUNT(*) FROM cats WHERE net_worth > 1000000;
+```
+
+This should return:
+
+```
+COUNT(*)            
+--------------------
+1    
+```
