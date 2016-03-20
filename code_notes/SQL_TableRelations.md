@@ -782,3 +782,512 @@ name
 Nona           
 Maru 
 ```
+
+##Table Relations: Grouping and Sorting Data
+
+###GROUPING AND SORTING DATA
+
+SQL isn't picky about how it returns data to you, based on your queries. It will simply return the relevant table rows in the order in which they exist in the table. This is often insufficient for the purposes of data analysis and organization.
+
+How common is it to order a list of items alphabetically? Or numerically from least to greatest?
+
+We can tell our SQL queries and aggregate functions to group and sort our data using a number of clauses:
+
++ `ORDER BY()`
++ `LIMIT`
++ `GROUP BY()`
++ `HAVING` and `WHERE`
++ `ASC`/`DESC`
+
+Let's take a closer look at how we use these keywords to narrow our search criteria as well as to order and group it.
+
+**SETTING UP THE DATABASE**
+
+Some cats are very famous, and accordingly very wealthy. Our Pet's Database will have a Cats table in which each cat has a name, age, breed and net worth. Our database will also have an Owners table and cats_owners join table so that a cat can have many owners and an owner can have many cats.
+
+Creating the Database:
+
+Create the database in your terminal with the following:
+
+```
+sqlite3 pets_database.db
+```
+
+Creating the tables:
+
+In the `sqlite3>` prompt in your terminal:
+
+Cats table:
+
+```
+CREATE TABLE cats (
+id INTEGER PRIMARY KEY,
+name TEXT,
+age INTEGER,
+breed TEXT, 
+net_worth INTEGER
+);
+```
+
+Owners Table:
+
+```
+CREATE TABLE owners (id INTEGER PRIMARY KEY, name TEXT);
+Cats Owners Table:
+CREATE TABLE cats_owners (
+cat_id INTEGER,
+owner_id INTEGER
+);
+```
+
+Inserting the values:
+
+Cats:
+
+```
+INSERT INTO cats (id, name, age, breed, net_worth) VALUES (1, "Maru", 3, "Scottish Fold", 1000000);
+INSERT INTO cats (id, name, age, breed, net_worth) VALUES (2, "Hana", 1, "Tabby", 21800);
+INSERT INTO cats (id, name, age, breed, net_worth) VALUES (3, "Grumpy Cat", 4, "Persian", 181600);
+INSERT INTO cats (id, name, age, breed, net_worth) VALUES (4, "Lil' Bub", 2, "Tortoiseshell", 2000000);
+```
+
+Owners:
+
+```
+INSERT INTO owners (name) VALUES ("mugumogu");
+INSERT INTO owners (name) VALUES ("Sophie");
+INSERT INTO owners (name) VALUES ("Penny");
+```
+
+Cats Owners:
+
+```
+INSERT INTO cats_owners (cat_id, owner_id) VALUES (3, 2);
+INSERT INTO cats_owners (cat_id, owner_id) VALUES (3, 3);
+INSERT INTO cats_owners (cat_id, owner_id) VALUES (1, 2);
+```
+
+###CODE ALONG I: `ORDER BY()`
+
+**SYNTAX**
+
+```
+SELECT column_name, column_name
+FROM table_name
+ORDER BY column_name ASC|DESC, column_name ASC|DESC;
+```
+
+`ORDER BY()` will automatically sort the returned values in ascending order. Use the `DESC` keyword, as above, to sort in descending order.
+
+**EXERCISE**
+
+Imagine you're working for an important investment firm in Manhattan. The investors are interested in investing in a lucrative and popular cat. They need your help to decide which cat that will be. They want a list of famous and wealthy cats. We can do that with a basic `SELECT` statement:
+
+```
+SELECT * FROM cats WHERE net_worth > 0;
+```
+
+This will return:
+
+```
+name             age         breed          net_worth 
+---------------  ----------  -------------  ----------
+Maru             3           Scottish Fold  1000000   
+Hana             1           Tabby          21800     
+Grumpy Cat       4           Persian        181600    
+Lil' Bub         2           Tortoiseshell  2000000   
+```
+
+Our investors are busy people though. They don't have time to manually sort through this list of cats for the best candidate. They want you to return the list to them with the cats sorted by net worth, from greatest to least.
+We can do so with the following lines:
+
+```
+SELECT * FROM cats ORDER BY(net_worth) DESC;
+```
+
+This will return:
+
+```
+name             age         breed          net_worth 
+---------------  ----------  -------------  ----------
+Lil' Bub         2           Tortoiseshell  2000000   
+Maru             3           Scottish Fold  1000000   
+Grumpy Cat       4           Persian        181600    
+Hana             1           Tabby          21800     
+```
+
+###CODE ALONG II: THE `LIMIT` KEYWORD
+
+Turns out our investors are very impatient. They don't want to review the list themselves, they just want you to return to them the wealthiest cat. We can accomplish this by using the `LIMIT` keyword with the above query:
+
+```
+SELECT * FROM cats ORDER BY(net_worth) DESC LIMIT 1;
+```
+```
+name             age         breed          net_worth 
+---------------  ----------  -------------  ----------
+Lil' Bub         2           Tortoiseshell  2000000   
+```
+
+The `LIMIT` keyword specifies how many of records that result from the query you'd like to actually return.
+
+###CODE ALONG III: `GROUP BY()`
+
+The `GROUP BY()` keyword is very similar to `ORDER BY()`. The only difference is that `ORDER BY()` sorts the resulting data set of basic queries while `GROUP BY()` sorts the result sets of aggregate functions.
+
+**SYNTAX**
+
+```
+SELECT column_name, aggregate_function(column_name)
+FROM table_name
+WHERE column_name operator value
+GROUP BY column_name;
+```
+
+**EXERCISE**
+
+Let's calculate the sum of the net worth of all of the cats that belong to our second owner:
+
+```
+SELECT SUM(Cats.net_worth) 
+FROM Owners 
+INNER JOIN cats_owners 
+ON Owners.id = cats_owners.owner_id 
+JOIN Cats ON cats_owners.cat_id = Cats.id 
+WHERE cats_owners.owner_id = 2;
+```
+
+This should return:
+
+```
+SUM(Cats.net_worth) 
+--------------------
+1181600 
+```
+
+In the above query, we use the `SUM(Cats.net_worth)` aggregator. `SUM` looks at the all of the values in the `net_worth` column of the Cats table (or whatever column you specify in parentheses) and takes the sum of the those values.
+
+###CODE ALONG IV: `HAVING` VS `WHERE` CLAUSE
+
+Suppose we have a table called `employee_bonus` as shown below. Note that the table has multiple entries for employees Abigail and Matthew.
+
+employee_bonus
+
+```
+Employee	Bonus
+Matthew	1000
+Abigail	2000
+Matthew	500
+Tom	700
+Abigail	1250
+```
+
+To calculate the total bonus that each employee received, we would write a SQL statement like this:
+
+```
+SELECT employee, sum(bonus) from employee_bonus group by
+ employee;
+```
+
+This should return:
+
+```
+Employee	Bonus
+Matthew	1500
+Abigail	3250
+Tom	700
+```
+
+Now, suppose we wanted to find the employees who received more than $1,000 in bonuses for the year of 2007. You might think that we could write a query like this:
+
+```
+BAD SQL:
+select employee, sum(bonus) from employee_bonus 
+group by employee where sum(bonus) > 1000;
+```
+
+Unfortunately the above will not work because the where clause doesn’t work with aggregates – like sum, avg, max, etc. What we need to use is the `HAVING` clause. The having clause was added to sql just so we could compare aggregates to other values – just how the ‘where’ clause can be used with non-aggregates. Now, the correct sql will look like this:
+
+```
+GOOD SQL:
+select employee, sum(bonus) from employee_bonus 
+group by employee having sum(bonus) > 1000;
+```
+
+**DIFFERENCE BETWEEN HAVING AND WHERE CLAUSE**
+
+The difference between the having and where clause in sql is that the where clause can not be used with aggregates, but the having clause can. One way to think of it is that the having clause is an additional filter to the where clause.
+
+##SQL Complex Joins
+
+**OBJECTIVES**
+
+1. Know what an outer join is
+2. Distinguish an inner join from an outer join
+3. Identify different types of outer joins: left, right, and full
+
+**WHY IS THIS IMPORTANT?**
+
+**GRADE EXAMPLE (INNER JOIN)**
+
+Imagine you want to get a list of all the students with an "A" in the class. We only want those students in the class with top grades, ignoring the other students in the class.
+
+![inner_join](http://readme-pics.s3.amazonaws.com/Grade%20example%20Venn%20Diagram.png)
+
+**FIELD TRIP EXAMPLE (COMPLEX/OUTER JOIN)**
+
+Now imagine another scenario where the class is going on a field trip. The cost of the field trip is 10 dollars per student. As a teacher, we want to keep track of which students have paid AND which students still need to pay.
+Everything we've done up until this point looks like the Grade Example. This is an inner join. We only want the students with a certain grade. You can imagine a Venn Diagram where one circle is "Grades" and another circle is "Students". We only want the overlapping (or "inner") parts of the two circles.
+
+Complex joins are useful and important when it comes to situations like the Field Trip Example. Sticking with the Venn Diagrams, we can think about "Students" as one circle and "Payments" as another circle. A complex join (or outer join) will return the overlap between the two circles AND the rest (or the "outer" part) of the "Students" circle as well.
+
+![outer_join](http://readme-pics.s3.amazonaws.com/Payment%20example%20Venn%20Diagram.png)
+
+We'll elaborate more on visualizing joins in the Venn Diagrams section below.
+
+**OVERVIEW**
+
+A complex join in SQL is also referred to as an outer join. It is not necessarily more complex than an inner join. It is referred to as "complex" simply because SQL is conducting an inner join in addition to gathering a little more information from one or more tables. What is that extra bit of information? We will discover this by looking at the difference between outer and inner joins.
+
+**DIFFERENCE BETWEEN INNER JOIN AND OUTER JOIN
+INNER JOIN**
+
+As you may recall, an inner join is going to return only the rows from the database that match the query. For example, imagine we have the following tables:
+
+```
+TEACHERS TABLE             STUDENTS TABLE
+teacher_id                 student_id   teacher_id
+---------------            ------------------------
+1                          1            NULL
+2                          2            1
+3                          3            NULL
+```
+
+Let's look at an inner join.
+
+```
+SELECT * 
+FROM Teachers 
+INNER JOIN Students 
+ON Teacher.teacher_id = Student.teacher_id;
+```
+
+This query returns only the teacher with the `id = 1` because student 2 is in the first teacher's class.
+
+```
+teacher_id  |  student_id
+--------------------------
+1           |  2
+```
+
+**OUTER JOIN**
+
+Outer Joins, on the other hand, will return all of the matching rows AND all of the additional rows from the specified table. Which table/additional rows are determined by the type of outer join. There are three types of outer joins: Left Outer Join, Right Outer Join, and Full Outer Join.
+
+**LEFT OUTER JOIN**
+
+This is the most common outer join, and the one you'll use most often. This returns the normal inner join result and also returns all of the rows from the left-most (i.e. first mentioned) table.
+
+```
+SELECT * 
+FROM Teachers 
+LEFT OUTER JOIN Students 
+ON Teacher.teacher_id = Student.teacher_id;
+```
+```
+teacher_id  |  student_id
+--------------------------
+1           |  2
+2           |  NULL
+3           |  NULL
+```
+
+Notice that every row from the teacher's table is returned whether there is a corresponding student or not.
+
+**RIGHT OUTER JOIN**
+
+As you might imagine, this is the same as the Left Outer Join with the minor difference being that it ***returns all of the rows from the right-most (i.e. last mentioned) table***. Sticking with our example:
+
+```
+SELECT * 
+FROM Teachers 
+RIGHT OUTER JOIN Students 
+ON Teacher.teacher_id = Student.teacher_id;
+```
+```
+teacher_id     |  student_id
+--------------------------
+NULL           |  1
+1              |  2
+NULL           |  3
+```
+
+**FULL OUTER JOIN**
+
+The full ***returns all of the rows from the all tables***.
+
+```
+SELECT * 
+FROM Teachers 
+FULL OUTER JOIN Students 
+ON Teacher.teacher_id = Student.teacher_id;
+```
+```
+teacher_id     |  student_id
+--------------------------
+NULL           |  1
+1              |  2
+NULL           |  3
+2              |  NULL
+3              |  NULL
+```
+
+**VENN DIAGRAMS**
+
+It is helpful to think about our queries as a Venn Diagram. Each table can be represented by a circle.
+An Inner Join just returns the overlapping areas of the Venn Diagram.
+
+![inner_join2](http://readme-pics.s3.amazonaws.com/Inner%20Join%20Venn%20Diagram.png)
+
+A Left Outer Join returns all the the data from the left circle, and it includes the overlapping information from the right circle.
+
+![left_outer_join](http://readme-pics.s3.amazonaws.com/Left%20Outer%20Join%20Venn%20Diagram.png)
+
+A Right Outer Join returns all the the data from the right circle, and it includes the overlapping information from the left circle.
+
+![right_outer_join](http://readme-pics.s3.amazonaws.com/Right%20Outer%20Join%20Venn%20Diagram.png)
+
+A Full Outer Join returns all the data from all the tables, including the overlapping data.
+
+![full_outer_join](http://readme-pics.s3.amazonaws.com/Full%20Outer%20Join%20Venn%20Diagram.png)
+
+**EXAMPLES**
+
+**CREATE OUR STUDENTS TABLE**
+
+```
+CREATE TABLE students (
+    id INTEGER PRIMARY KEY,
+    name TEXT,
+    teacher_id INTEGER);
+```
+
+**INSERT STUDENTS**
+
+```
+INSERT INTO students (name, teacher_id)
+    VALUES ("Dave", 1);
+INSERT INTO students (name, teacher_id)
+    VALUES ("Jessie", 1);
+INSERT INTO students (name, teacher_id)
+    VALUES ("Bob", 1);
+INSERT INTO students (name, teacher_id)
+    VALUES ("Sara", 2);
+INSERT INTO students (name, teacher_id)
+    VALUES ("George",  2);
+INSERT INTO students (name, teacher_id)
+    VALUES ("Alexis",  NULL);
+```
+
+**STUDENTS SCHEMA**
+
+```
+id               name        teacher_id
+---------------  ----------  ----------  
+1                Dave           1
+2                Jessie         1
+3                Bob            1
+4                Sara           2
+5                Rob            2
+6                Alexis
+```
+
+**CREATE OUR TEACHERS TABLE**
+
+```
+CREATE TABLE teachers (
+    id INTEGER PRIMARY KEY,
+    name TEXT);
+INSERT INTO TEACHERS
+INSERT INTO teachers (name)
+    VALUES ("Steven");
+INSERT INTO teachers (name)
+    VALUES ("Joe");
+INSERT INTO teachers (name)
+    VALUES ("Jeff");
+```
+
+**TEACHERS SCHEMA**
+
+```
+id               name
+---------------  ---------
+1                Joe
+2                Steven
+3                Jeff
+```
+
+**LEFT OUTER JOIN**
+
+```
+SELECT * from teachers
+   LEFT OUTER JOIN students on teachers.id = students.teacher_id;
+```
+
+This query will return all of the records in the left table (teachers) regardless if any of those records have a match in the right table (students). It will also return any matching records from the right table. So for our example, it first returns all of the teachers followed by any student that has a `teacher_id`. You can see that Alexis was not returned because her `teacher_id` column is `NULL`.
+
+**RESULTS**
+
+```
+id  teacher_name    id      name     teacher_id
+--- ------------   ----    ------    -----------
+1      Joe           2       Bob          1
+1      Joe           1       Dave         1  
+1      Joe           3       Jess         1
+2      Steven        5       Rob          1
+2      Steven        4       Sara         1
+3      Jeff          NULL    NULL         NULL
+```
+
+**RIGHT OUTER JOIN**
+
+```
+SELECT * from teachers
+   RIGHT OUTER JOIN students on teachers.id = students.teacher_id;
+```
+
+This query will return all of the records in the right table (students) regardless if any of those records have a match in the left table (teachers). It will also return any matching records from the left table. You can see that all of the students were returned, but this time Jeff was left out.
+
+**RESULTS**
+
+```
+id    teacher_name   id      name     teacher_id
+---   ------------  ----    ------    -----------
+1        Joe         2       Bob          1
+1        Joe         1       Dave         1  
+1        Joe         3       Jess         1
+2        Steven      5       Rob          1
+2        Steven      4       Sara         1
+NULL     NULL        6       Alexis       NULL
+```
+
+**FULL JOIN**
+
+```
+SELECT * from teachers
+   FULL OUTER JOIN students on teachers.id = students.teacher_id;
+```
+
+This Join can be referred to as a FULL OUTER JOIN or a FULL JOIN. This query will return all of the records from both tables, joining records from the left table (teachers) that match records from the right table (students).
+
+```
+id    teacher_name   id      name     teacher_id
+---   ------------  ----    ------    -----------
+1        Joe         2       Bob          1
+1        Joe         1       Dave         1  
+1        Steven      3       Jess         1
+2        Steven      5       Rob          1
+2        Steven      4       Sara         1
+3        Jeff       NULL     NULL        NULL
+NULL     NULL        6       Alexis      NULL
+```
