@@ -352,3 +352,134 @@ class Application
     resp.finish
   end
 ```
+
+##Dynamic URL Routes
+
+####WHY DYNAMIC ROUTES?
+When you create a new repository on GitHub, how do URLs like `github.com/jmburges/my-repo` get generated? In our current examples, we would have to create a new `if` statement for each possible URL path. Since this is a dynamic application, our application can't be rewritten every time a new user signs up. So the concept of "dynamic routes" was created.
+
+####SETTING UP DYNAMIC ROUTES
+Let's assume we have a playlister app which has an array of Songs. First let's look at our `Song` object
+
+```
+#song.rb
+ 
+class Song
+ 
+attr_accessor :title, :artist
+ 
+end
+```
+
+Pretty simple class. Now we have our web app.
+
+```
+class Application
+ 
+  @@songs = [Song.new("Sorry", "Justin Bieber"),
+            Song.new("Hello","Adele")]
+ 
+  def call(env)
+    resp = Rack::Response.new
+    req = Rack::Request.new(env)
+ 
+    @@songs.each do |song|
+      resp.write "#{song.title}\n"
+    end
+ 
+    resp.finish
+  end
+end
+```
+
+We want more information about each song though. Similarily to GitHub, we want to be able to go to a URL like `localhost:9292/songs/Sorry` and get all the information on Sorry. We are doing routes like this instead of just plain `GET` params because it's easier to read. Remember the path is given to us as a `string`. We could therefore write something like this:
+
+```
+class Application
+ 
+  @@songs = [Song.new("Sorry", "Justin Bieber"),
+            Song.new("Hello","Adele")]
+ 
+  def call(env)
+    resp = Rack::Response.new
+    req = Rack::Request.new(env)
+ 
+    if req.path=="/songs/Sorry"
+      resp.write @@songs[0].artist
+    elsif req.path == "/songs/Hello"
+      resp.write @@songs[1].artist
+    end
+ 
+    resp.finish
+  end
+end
+```
+
+This is silly though, because every time we create a new `Song` we would have to create a new `if` statement. Thankfully, because paths are `strings`, we can do a regex match against the path. Then we just grab the content after the `/song/` to figure out which `Song` our user would like.
+
+```
+class Application
+ 
+  @@songs = [Song.new("Sorry", "Justin Bieber"),
+            Song.new("Hello","Adele")]
+ 
+  def call(env)
+    resp = Rack::Response.new
+    req = Rack::Request.new(env)
+ 
+    if req.path.match(/songs/)
+ 
+      song_title = req.path.split("/songs/").last #turn /songs/Sorry into Sorry
+      song = @@songs.find{|s| s.title == song_title}
+ 
+      resp.write song.artist
+    end
+ 
+    resp.finish
+  end
+end
+```
+
+Now our routes are dynamic! We can just add songs, and everything else is taken care of and works for us. Remembering that everything is Ruby is important. You have written a lot of Ruby; take comfort in your skills.
+
+##HTTP Status Codes
+####WHY STATUS CODES ARE IMPORTANT FOR THE CLIENT
+Status codes allow your server to tell something special to the client. The responses you send need to be effective to both a human user and to the browser itself. That means that response messages like `File Not Found` or `Item isn't in the cart` won't work if there is a human to read the English. Browsers also want to know the status of the response. To get that response, the HTTP protocol has an agreed upon contract for different "status codes". A status code is a 3-digit integer where the first digit represents the class of the response, and the remaining two digits represent a specific status. There are 5 primary values that the first digit can take.
+
+####STATUS CODE CHART
+Status Number	 | Code/Description
+--------------|-----------------
+1 | 1xx: Informational (request received and continuing process)
+2 | 2xx: Success (request successfully received, understood, and accepted)
+3 | 3xx: Redirection (further action must be taken to complete request)
+4 | 4xx: Client Error (request contains bad syntax and can't be completed)
+5 | 5xx: Server Error (server couldn't complete request)
+
+You've probably seen a bunch of these before, the most common being `404`. This means that the server couldn't find the route you requested.
+
+####STATUS CODES IN RACK
+In Rack, we are able to set the response's status code by just setting the `status_code` attribute. By default, Rack sets a status code of `200`. But when a user selects a route that doesn't exist, we need to set the `status` to `404`.
+
+```
+class Application
+ 
+  def call(env)
+    resp = Rack::Response.new
+    req = Rack::Request.new(env)
+ 
+    if req.path=="/songs"
+      resp.write "You requested the songs"
+    else
+      resp.write "Route not found"
+      resp.status = 404
+    end
+ 
+    resp.finish
+  end
+end
+```
+
+Now if you go to `localhost:9292/badURL` you'll get the error message, and if you open up the Inspect Element navigator you'll see something like this:
+
+![badURL](http://readme-pics.s3.amazonaws.com/rack-status-codes-readme/image1.png)
+
