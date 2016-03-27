@@ -4,7 +4,7 @@
 Object Relational Mapping (ORM) is the technique of accessing a relational database using an object-oriented programming language. Object Relational Mapping is a way for our Ruby programs to manage database data by "mapping" database tables to classes and instances of classes to rows in those tables.
 There is no special programming magic to an ORM––it is simply a manner in which we implement the code that connects our Ruby program to our database. For example, you may have seen code that connects your Ruby program to a given database:
 
-```
+```ruby
 database_connection = SQLite3::Database.new('db/my_database.db')
  
 database_connection.execute("Some SQL statement")
@@ -31,13 +31,13 @@ Let's say we have a program that helps a veterinary office keep track of the pet
 
 Our program would create a connection to the database:
 
-```
+```ruby
 database_connection = SQLite3::Database.new('db/pets.db')
 ```
 
 We would create an owners table and a cats table:
 
-```
+```ruby
 database_connection.execute("CREATE TABLE IF NOT EXISTS cats(id INTEGER PRIMARY KEY, name TEXT, breed TEXT, age INTEGER)")
  
 database_connection.execute("CREATE TABLE IF NOT EXISTS owners(id INTEGER PRIMARY KEY, name TEXT)")
@@ -45,7 +45,7 @@ database_connection.execute("CREATE TABLE IF NOT EXISTS owners(id INTEGER PRIMAR
 
 Then, we would need to regularly insert new cats and owners into these tables:
 
-```
+```ruby
 database_connection.execute("INSERT INTO cats (name, breed, age) VALUES ('Maru', 'scottish fold', 3)")
  
 database_connection.execute("INSERT INTO cats (name, breed, age) VALUES ('Hana', 'tortoiseshell', 1)")
@@ -59,7 +59,7 @@ As programers, you might remember, we are lazy. We don't like to repeat ourselve
 
 For example, we can write a `.save` method on our `Cats` class that handles the common action of `INSERT`ing data into the database.
 
-```
+```ruby
 class Cat
  
   @@all = []
@@ -84,7 +84,7 @@ end
 
 Now let's create some new cats and save them to the database:
 
-```
+```ruby
 database_connection = SQLite3::Database.new('db/pets.db')
  
 Cat.new("Maru", "scottish fold", 3)

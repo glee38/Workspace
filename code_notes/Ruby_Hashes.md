@@ -3,14 +3,14 @@
 
 Hashes are structured with keys and values. Each key/value pair makes up one unit in the hash. The entire collection of key/value pairs, which are comma separated, is enclosed in curly braces `{ }`.
 
-```
+```ruby
 hash = {"key" => "value", "another_key" => "another
  value"}
 ```
 
 You can think of a hash as a dictionary. The key is the reference point that is set equal to an associated value. A vocabulary dictionary actually makes a pretty good example of the hash structure:
 
-```
+```ruby
 dictionary = {
 
   "apple" => "a delicious fruit", 

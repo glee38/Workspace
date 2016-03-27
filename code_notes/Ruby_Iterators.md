@@ -4,7 +4,7 @@
 
 The `#each` method is a prime example of an iterator. Here's a boilerplate example of it's usage:
 
-```
+```ruby
 primary_colors = ["Red", "Yellow", "Blue"]
 primary_colors.each do |color|
   puts "Primary Color #{color} is #{color.length}
@@ -16,7 +16,7 @@ end
 
 A block is passed to `#each`, opened by the code that starts with `do` and closed by the preceding `end`. Every `do` needs a closing `end`.
 
-```
+```ruby
 primary_colors = ["Red", "Yellow", "Blue"]
 primary_colors.each do |color| # do begins a block
   # the lines between the do/end are the block's body
@@ -59,7 +59,7 @@ Those are called "pipes". When invoking an iterator like `#each`, the variable n
 
 This is exactly what happens when you define a method to accept an argument and then call that method with a real argument:
 
-```
+```ruby
 def hi_there(name)
   puts "Hi, #{name}"
 end
@@ -72,7 +72,7 @@ Think of the variable between the pipes like the name variable we are using to d
 
 The variable name inside the pipes is more or less arbitrary. For example:
 
-```
+```ruby
 brothers = ["Tim", "Tom", "Jim"]
 brothers.each do |brother|
   puts "Stop hitting yourself #{brother}!"
@@ -81,7 +81,7 @@ end
 
 Will output the same thing as:
 
-```
+```ruby
 brothers = ["Tim", "Tom", "Jim"]
 brothers.each do |hippo|
   puts "Stop hitting yourself #{hippo}!"
@@ -102,7 +102,7 @@ We should, however, be reasonable and sensical when we name our variables. If yo
 
 Let's revisit our example from above and break it down, step by step:
 
-```
+```ruby
 brothers = ["Tim", "Tom", "Jim"]
 brothers.each do |brother|
   puts "Stop hitting yourself #{brother}!"
@@ -117,7 +117,7 @@ Iterators like `#each` are smart – they don't need a separate counter variable
 
 Let's set a counter variable and manually increment it in order to see the `#each` method in action:
 
-```
+```ruby
 brothers = ["Tim", "Tom", "Jim"]
 counter = 1
 brothers.each do |brother|
@@ -149,7 +149,7 @@ Different iterators have different return values. Notice that the return value o
 
 Another way of establishing a code block that you may encounter is to use curly brackets, `{ }`, instead of the `do`/`end` keywords. Let's take a look:
 
-```
+```ruby
 brothers = ["Tim", "Tom", "Jim"]
 brothers.each{|brother| puts "Stop hitting yourself #{brother}!"}
 ```

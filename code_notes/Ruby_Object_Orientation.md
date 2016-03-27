@@ -18,7 +18,7 @@ Ruby comes with a few types of Objects to get us started, things like `Integer`,
 ###Defining a Class
 Here's what our `Dog` class would look like:
 
-```
+```ruby
 class Dog
   # some code to describe a dog
 end
@@ -28,7 +28,7 @@ The `Dog `class is defined with the `class` keyword, followed by the class name 
 
 Class names begin with capital letters because they are stored in Ruby constants. Constants may be defined within classes, but unlike instance variables, they are accessible outside the class. If your class name contains two words, the name should be CamelCased, like this:
 
-```
+```ruby
 class MyClass
   # some code all about your awesome class
 end
@@ -38,7 +38,7 @@ With this code alone, we can now make new dogs!
 
 ###Creating Instances of Classes
 
-```
+```ruby
 class Dog
 end
 
@@ -54,7 +54,7 @@ On the `Dog` class, we call the `.new` method and that will *instantiate* a new 
 
 We call these individuals, each specific dog or version of our class, *instances*. **An instance is a single occurrence of an object. Instances refer to the individual objects produced from the factory that is the class.**
 
-```
+```ruby
 class Dog
 end
 
@@ -71,7 +71,7 @@ snoopy #=> #<Dog:0x007fc52c2d4170>
 
 Let's make three dogs:
 
-```
+```ruby
 class Dog
 end
 
@@ -89,7 +89,7 @@ Notice that every time you make an instance of a class, Ruby tells you that the 
 
 Each of these instances are totally unique, even though they are all born from `Dog`.
 
-```
+```ruby
 class Dog
 end
 
@@ -109,7 +109,7 @@ Classes are factories for our objects. They let us manufacture and instantiate n
 
 We know that classes act as a factory for our objects, capable of instantiating new instances.
 
-```
+```ruby
 class Dog
 end
 
@@ -122,7 +122,7 @@ But what can this instance of a dog stored in the local variable `fido` do? In f
 
 We send objects messages asking them to perform an operation or task through a syntax known as "Dot Notation".
 
-```
+```ruby
 class Dog
 end
 
@@ -137,7 +137,7 @@ The `#object_id` method simply tells you the object's identifier in your compute
 
 **In dot notation, we call the object that received the method message the "receiver" and we call the method the "message".**
 
-```
+```ruby
 # The receiver is this very string      # reverse is 
                                           the message
 "Strings are instances and objects too".reverse
@@ -148,7 +148,7 @@ The `#object_id` method simply tells you the object's identifier in your compute
 
 All objects respond to methods and messages, like `#object_id` in the example above. One interesting method provided is the `#methods` method that returns an array of all the methods and messages an object responds to. We can evoke this method via dot-notation. One of the great things you can ask every object in ruby is "What methods do you respond to?"
 
-```
+```ruby
 class Dog
 end
 
@@ -174,7 +174,7 @@ We can. We're used to defining methods already with the `def` keyword. If we pla
 
 We call the methods defined within the object's class **Instance Methods** because they are methods that belong to any instance of the class.
 
-```
+```ruby
 class Dog
   # Class body
 
@@ -190,7 +190,7 @@ fido.bark #> "Woof!"
 
 By defining `#bark` within the `Dog` class, `bark` becomes a method of all instances of Dogs. If we make more dogs, they can all bark.
 
-```
+```ruby
 class Dog
   def bark
     puts "Woof!"
@@ -206,7 +206,7 @@ snoopy.bark #> "Woof!"
 
 Objects can only do what we teach them to do via the code we write and the methods we define. For example, currently, Dogs do not know how to sit.
 
-```
+```ruby
 class Dog
   def bark
     puts "Woof!"
@@ -221,7 +221,7 @@ fido.sit # NoMethodError: undefined method `sit' for
 
 In the same manner, instance methods, the methods that belong to particular instances of particular classes, are not globally evocable like procedural methods. They cannot be called without an instance.
 
-```
+```ruby
 class Dog
   def bark
     puts "Woof!"

@@ -22,7 +22,7 @@ In this lesson, we'll be taking a look at one of the most basic ways that two cl
 
 Imagine we are creating an app that allows users to list and interact with their music library. We're used to writing single classes to represent single concepts in our program. In this application, it makes sense for us to have a class to represent an individual song. Our `Song` class might look something like this:
 
-```
+```ruby
 class Song
  
   attr_accessor :title
@@ -35,20 +35,20 @@ end
 
 Now we can create a new song like this:
 
-```
+```ruby
 hotline_bling = Song.new("Hotline Bling")
 ```
 
 And we can return it's title to us like this:
 
-```
+```ruby
 hotline_bling.title
   # => "Hotline Bling"
 ```
 
 As far as modeling our program on the real world however, this isn't very realistic. Songs have many more attributes that just a title. The most important of which, from a user's point of view at least, is the song's artist. In the real world, a song belongs to an artist and an artist owns the many songs he or she has created. How can we model this relationship through our code? Let's give individual songs an artist attribute:
 
-```
+```ruby
 class Song
  
   attr_accessor :title, :artist
@@ -62,7 +62,7 @@ end
 
 Now that we have a setter and getter for a song's artist attribute, we can do this:
 
-```
+```ruby
 hotline_bling.artist = "Drake"
 hotline_bling.artist
   # => "Drake"
@@ -74,7 +74,7 @@ For example, users of our music app might want to know some more info about an i
 
 Let's ask him:
 
-```
+```ruby
 hotline_bling.artist.genre
   NoMethodError: undefined method `genre' for
    "Drake":String
@@ -84,7 +84,7 @@ Uh-oh! Looks like the string, `"Drake"`, that we assigned this song's `artist` a
 
 So, instead of setting the `#artist=()` method equal to a string of an artist's name, let's create an Artist class and assign an individual song's artist attribute equal to an instance of that class.
 
-```
+```ruby
 class Artist
   attr_accessor :name, :genre
  
@@ -105,14 +105,14 @@ Just like we were able to set the artist attribute equal to the string, `"Drake"
 
 Now we can ask for the genre of the artist of `hotline_bling`:
 
-```
+```ruby
 hotline_bling.artist.genre
   # => "rap"
 ```
 
 And the name of the artist of `hotline_bling`:
 
-```
+```ruby
 hotline_bling.artist.name
   # => "Drake"
 ```
@@ -125,7 +125,7 @@ We know that the programs we write are meant to model real-world environments. T
 
 We already know about the "belongs to" relationship. Let's say we have a `Song` class that produces individual song objects. Each song belongs to the artist that wrote it. We can build that relationship by creating an `attr_accessor` in the `Song` class for `artist`:
 
-```
+```ruby
 class Song
     attr_accessor :artist, :name
  
@@ -137,7 +137,7 @@ end
 
 If we also have an Artist class that looks like this:
 
-```
+```ruby
 class Artist
     attr_accessor :name
  
@@ -149,7 +149,7 @@ end
 
 We can set an individual instance of `Song` equal to an instance of the `Artist` class like this:
 
-```
+```ruby
 ninetynine_problems = Song.new("99 Problems")
 jay_z = Artist.new("Jay-Z")
  
@@ -173,7 +173,7 @@ How can we represent an object's "having many" of something? Well, having many o
 
 We would like to be able to call:
 
-```
+```ruby
 jay_z.songs
 ```
 
@@ -181,7 +181,7 @@ And have returned to us a list, or array, of the songs that Jay-Z has written. A
 
 **INITIALIZING WITH AN EMPTY COLLECTION**
 
-```
+```ruby
 class Artist
  
     attr_accessor :name
@@ -203,7 +203,7 @@ Whose responsibility is it to add a new song to a given artist's collection? Wel
 
 That's why we'll write the method that adds songs to an artist's collection in the `Artist` class:
 
-```
+```ruby
 class Artist
  
     attr_accessor :name
@@ -221,7 +221,7 @@ end
 
 Now we can execute the following code:
 
-```
+```ruby
 jay_z = Artist.new("Jay-Z")
 jay_z.add_song("99 Problems")
 jay_z.add_song("Crazy in Love")
@@ -233,7 +233,7 @@ Now we need a method that will allow a given artist to show us all of the songs 
 
 Let's write an instance method, `#songs`, that we can call on an individual artist to return the list of songs that artist has.
 
-```
+```ruby
 class Artist
  
     attr_accessor :name
@@ -257,7 +257,7 @@ The `#songs` method simply return the `@songs` array, which contains the list of
 
 Let's try it out:
 
-```
+```ruby
 jay_z.songs
   # => ["99 Problems", "Crazy in Love"]
 ```
@@ -272,7 +272,7 @@ This is the limitation of one-sided relationships. Just like associating a given
 
 Let's fix this now. Instead of calling the `#add_song` method with an argument of a string, let's call that method with an argument of a real song object:
 
-```
+```ruby
 99_problems = Song.new("99 Problems", "rap")
 crazy_in_love = Song.new("Crazy in Love", "pop")
  
@@ -287,7 +287,7 @@ Great, now our artist has many songs that are real, tangible `Song` instances, n
 
 We can do a number of useful things with this collection of real song objects, such as iterate over them and collect their genres:
 
-```
+```ruby
 jay_z.songs.collect do |song|
     song.genre
 end
@@ -298,7 +298,7 @@ end
 
 Now that we can ask our given artist for his songs, let's make sure that we can ask an individual song for its artist:
 
-```
+```ruby
 crazy_in_love.artist
   # => nil
 ```
@@ -307,7 +307,7 @@ Although we do have an `attr_accessor` for `artist` in our `Song` class, this pa
 
 Let's fix that now. Telling a song that it belongs to an artist should happen when that song is added to the artist's `@songs` collection. Consequently, we will write the code the accomplishes this inside our `#add_song` method:
 
-```
+```ruby
 class Artist
  
     attr_accessor :name
@@ -330,7 +330,7 @@ end
 
 Let's take a closer look at the code in our `#add_song` method:
 
-```
+```ruby
 def add_song(song)
     @songs << song
     song.artist = self
@@ -341,13 +341,13 @@ Here, we use the `self` keyword to refer to the artist on which we are calling t
 
 Let's try calling `#add_song` again:
 
-```
+```ruby
 jay_z.add_song(crazy_in_love)
 ```
 
 Now, we should be able to ask crazy_in_love for its artist:
 
-```
+```ruby
 crazy_in_love.artist.name
   # => "Jay-Z"
 ```
@@ -364,7 +364,7 @@ As it currently stands, we have to first create a song and then add it to a give
 
 Instead, let's build a method `#add_song_by_name`, that takes in an argument of a name and genre and both creates the new song *and* adds that song to the artist's collection.
 
-```
+```ruby
 class Artist 
   ...
  
@@ -385,14 +385,14 @@ Since we've already set up these great associations between instances of the Son
 
 Currently, to access the name of a given song's artist, we have to chain our methods like this:
 
-```
+```ruby
 crazy_in_love.artist.name
   # => "Jay-Z"
 ```
 
 That's not very elegant. Wouldn't it be nice if we have one simple and descriptive method that could return the name of a given song's artist? Let's build one!
 
-```
+```ruby
 class Song
   ...
  
@@ -402,7 +402,7 @@ class Song
 ```
 
 Now we can call:
-```
+```ruby
 crazy_in_love.artist_name
   # => "Jay-Z"
 ```
@@ -423,7 +423,7 @@ Let's take a look at each of these collaborations in more detail.
 
 The purpose of this MP3 Importer is to take in a list of mp3s and send each mp3 filename to the Song class to make a Song. Let's just focus on the collaboration. Our MP3Importer class will receive a list of filenames that look like this "Drake - Hotline Bling". MP3Importer will then send each of those filenames to the Song class to be created.
 
-```
+```ruby
 class Song
   attr_accessor :title
  
@@ -436,7 +436,7 @@ class Song
 end
 ```
 
-```
+```ruby
 class Mp3Importer
   attr_accessor :songs 
   def import(list_of_filenames)
@@ -454,7 +454,7 @@ When we hit this line of code, it will send us to the `Song` class to do whateve
 
 Since our song belongs to an artist, we will want to collaborate with the `Artist` class at some point. Imagine we have the following code:
 
-```
+```ruby
 class Song
   attr_accessor :artist
  
@@ -469,7 +469,7 @@ class Song
   end
 end
 ```
-```
+```ruby
 class Artist
   attr_accessor :name
  
@@ -484,7 +484,7 @@ end
 
 The point of this code is that we want to be able to execute the following code given a song `hotline_bling = Song.new('Hotline Bling')` (Let's use Hotline Bling by Drake):
 
-```
+```ruby
 hotline_bling.artist_name = "Drake"
 hotline_bling.artist
 ```
@@ -503,12 +503,12 @@ An individual artist, conversely, has many songs. We implement this relationship
 
 Let's take a look:
 
-```
+```ruby
 class Song
   attr_accessor :name, :artist
 end
 ```
-```
+```ruby
 class Artist
   attr_accessor :name
  
@@ -547,7 +547,7 @@ In the real world, individual songs belong to a genre. For example, you could cl
 
 Let's give our `Song` instances the ability to belong to a genre:
 
-```
+```ruby
 class Song
   attr_accessor :name, :artist, :genre 
 end
@@ -555,7 +555,7 @@ end
 
 Let's build a `Genre` class, so that we can associate individual songs to complex genre objects that can contain other information pertinent to a given genre.
 
-```
+```ruby
 class Genre
   attr_accessor :name
  
@@ -567,7 +567,7 @@ end
 
 Great! Now we can associate a `Song` to a `Genre`. At what point should this association be created? When a song is created, it can be categorized as a particular genre. So, let's create an `#initialize` method for our `Song` class that takes in an argument of a song name and a genre.
 
-```
+```ruby
 class Song
   attr_accessor :name, :artist, :genre
  
@@ -580,7 +580,7 @@ end
 
 With the above code, we can assign a `Song` instance a given genre:
 
-```
+```ruby
 rap = Genre.new("rap")
 ninety_nine_problems = Song.new("99 Problems", rap)
  
@@ -608,7 +608,7 @@ Let's build an instance method on the `Artist` class to accomplish that.
 
 We'll call our instance method `#genres`. This method will collect all of the genres of all of the songs of a given artist.
 
-```
+```ruby
 class Artist
   attr_accessor :name
  
@@ -638,7 +638,7 @@ The `#genres` method iterates over the `@songs` array, stored in the `#songs` in
 
 Let's see it in action:
 
-```
+```ruby
 jay_z = Artist.new("Jay-Z")
  
 rap = Genre.new("rap")
@@ -662,7 +662,7 @@ Right now, an artist can tell us about its songs and about its genres. But, a ge
 
 The first thing we want to do is build the direct relationship between a song and a genre. A song already belongs to a genre. Let's build the inverse of that relationship, the "has many" side. A genre should have many songs:
 
-```
+```ruby
 class Genre
   attr_accessor :name
  
@@ -675,7 +675,7 @@ end
 
 Now, when we initialize a new genre, we do so with an empty collection of songs. Let's build a method, `#add_song`, that adds a new song to the given genre's collection:
 
-```
+```ruby
 class Genre
   attr_accessor :name
  
@@ -692,7 +692,7 @@ end
 
 Now, we can refactor our `Song` class such that when a new song is instantiated it gets associated to a genre and the given genre adds that song to it's collection. This is similar to our `add_song` method from the `Artist` class:
 
-```
+```ruby
 class Song
   attr_accessor :name, :artist, :genre
  
@@ -706,7 +706,7 @@ end
 
 Now let's see it in action:
 
-```
+```ruby
 rap = Genre.new("rap")
  
 ninety_nine_problems = Song.new("99 Problems", rap)
@@ -720,7 +720,7 @@ Now a song knows about the genre it belongs to and a genre knows about the many 
 
 Let's put the finishing touches on our "has many through" relationship and tell our genres how to show us the artists they are associated to through the songs it has.
 
-```
+```ruby
 class Genre
   attr_accessor :name
  
