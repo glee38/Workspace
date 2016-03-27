@@ -74,3 +74,76 @@ Stopping ...
 ```
 
 This is the most basic Sinatra application structure and is actually pretty uncommon. More commonly, Sinatra is used in a modular style encapsulated by Controller Classes and booted via the `config.ru` Rack convention.
+
+##Sinatra from Scratch
+
+###BASIC SINATRA APP
+####SINATRA GEM
+It's important to note that Sinatra is just a gem. It's a library of code that developers wrote to allow us to build light-weight web applications quickly. If you take a look at our `Gemfile` (a list of all the gems our application uses), you will see the Sinatra gem listed.
+
+The first thing you need to do is enter in terminal `bundle install`. Just like software has different versions that require you to update your mobile apps, gems have newer versions. `bundle install` will lock in the current versions of the gems for your application, that way if any updates happen, your app won't break. It keeps the versions locked in a file called `Gemfile.lock` that is created for you.
+
+**`APP.RB`**
+
+The `app.rb` file is the heart and soul of a Sinatra application. This is our application controller. The application controller handles all incoming requests to our app, and sends back the appropriate responses to the client.
+
+The first line of `app.rb` is just requiring the Sinatra gem so that we can incorporate its functionality.
+
+On the next line, we define a class `App` and have it inherit from `Sinatra::Base`. This way, any instance of our class App will have all the functionality of the Sinatra class.
+
+Inside our class we have a Sinatra method define, or controller action. This method responds to a `GET` request to the root url and displays the text `Hello, World!` in the browser.
+
+**STARTING THE APP**
+
+To actually check if our app is working in the browser, enter `rackup app.rb` in your terminal.
+
+Sinatra relies on Rack for its middleware. Because we have the Sinatra gem listed in our Gemfile, we automatically have the Rack middleware setup.
+
+Once your server is running, visit `localhost:9292` in the browser to see `Hello, World!` displayed.
+
+##Sinatra Basics
+####MODULAR SINATRA APPLICATIONS
+Web applications, even simple Sinatra ones, tend to require a certain degree of complexity. For example, your application might have multiple routes, route-handlers, and configuration. To handle this, Sinatra is more commonly used through the Modular Sinatra Pattern (over the classical, single file `app.rb` pattern).
+
+**`CONFIG.RU`**
+
+The first new convention this pattern introduces is a `config.ru` file. The purpose of `config.ru` is to detail to Rack the environment requirements of the application and start the application.
+
+A common 'config.ru' might look like:
+
+File: `config.ru`
+
+```ruby
+require 'sinatra'
+ 
+require_relative './app.rb'
+ 
+run Application
+```
+
+In the first line of `config.ru` we load the Sinatra library. The second line requires our application file, defined in `app.rb`. The last line of the file uses `run` to start the application represented by the ruby class `Application`, which is defined in `app.rb`.
+
+SINATRA CONTROLLERS: APP.RB
+config.ru requires a valid Sinatra Controller to run. A Sinatra Controller is simply a ruby class that inherits from Sinatra::Base. This inheritance transforms into a web application by giving it a Rack-compatible interface behind the scenes via the Sinatra framework. Open app.rb
+class Application < Sinatra::Base
+ 
+  get '/' do
+    "Hello, World!"
+  end
+ 
+end
+We simply create a new class Application and inherit from Sinatra::Base.Our class constant could have been anything descriptive of the functionality provided by the class. The classes that inherit from Sinatra::Base and define the HTTP interface for our application are called Controllers.
+In a single controller application, a single file defining the controller, like app.rb, will suffice. That controller will define every single URL and response of our application.
+Controllers define an HTTP method using the sinatra routing DSL provided by methods like get and post. When you enclose these methods within a ruby class that is a Sinatra Controller, these HTTP routes are scoped and attached to the controller.
+The final step in creating a controller is mounting it in config.ru. Mounting a controller means telling Rack that part of your web application is defined within the following class. We do this in config.ru by using run Application where run is the mounting method and Application is the controller class that inherits from Sinatra::Base and is defined in a previously required file.
+The class name we defined in our application controller (app.rb) is just a normal Ruby class. We could have named it MyToDoApp:
+class MyToDoApp < Sinatra::Base
+ 
+  get '/' do
+    "Hello, World!"
+  end
+ 
+end
+If this was our class name, we would need to change config.ru to run the appropriate class:
+run MyToDoApp
+
