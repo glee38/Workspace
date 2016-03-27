@@ -181,3 +181,99 @@ The `public` directory holds our front-end assets. In the example above, it hold
 **`SPEC`** DIRECTORY
 
 The `spec` directory contains any tests for our applications. These tests set up any expectations for the rest of the project. These are often broken down into unit tests for models, controller tests for routes, and feature tests, which check the actual behavior for users.
+
+##Sinatra Views
+####PART 1: RENDERING HTML
+Rendering plain text is a great way to test the behaviors of our routes, but it doesn't give us any control over how the content is displayed. We'd like to structure our content using HTML and render that to the browser instead. The most basic way to do this is to include html tags as a part of the string we're rendering. If you haven't already, fork, clone, and open this lab. In the "/" route of our `app.rb` file, try the following:
+
+```ruby
+    get '/' do
+      "<h1>Hello World</h1>"
+    end
+```
+
+Run `shotgun` and go to `http://localhost:9393`. You're "Hello World" should now appear as an `h1`. Nice!
+
+####PART 2: USING AN ERB FILE
+You can imagine that writing HTML this way would get very messy, very quickly. Luckily, most web frameworks include a templating engine that allows us to render HTML content from a different file. We call these files "views." Views represent what the user sees and makes up the "V" of our "MVC".
+
+By default, Sinatra uses a templating engine called ERB, or Embedded Ruby. Our view files will use the extension `.erb` and we can write HTML code there just like in a plain old `.html` file. Sinatra is also configured by default to look for our `.erb` files in a directory called `views`.
+
+Create a new file called `index.erb` inside of the `views` directory. Add the following code into that file.
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>My First View!!</title>
+    </head>
+    <body>
+        <h1>Hello World</h1>
+        <p>This HTML code is inside of a '.erb' file in the views directory, where it belongs.</p>
+    </body>
+</html>
+```
+
+Now, we just need to update our controller to render the `index.erb` file at the "/" route. The syntax for this is as follows:
+
+```ruby
+    get '/' do
+      erb :index
+    end
+```
+
+This tells Sinatra to render a file called `index.erb` inside of a directory called `views`. Save your files and refresh your preview to see your changes. Awesome, right?
+
+####PART 3: MULTIPLE ROUTES WITH MULTIPLE VIEWS
+We can create as many routes and views as we want. Let's create a route called "/info" in our controller.
+
+```ruby
+    get '/' do
+      erb :index
+    end
+ 
+    get "/info" do
+      "Testing the info page"
+    end
+```
+
+With `shotgun` running, head to `http://localhost:9393/info`. You should see "Testing the info page" rendered there. This lets us know that our route is defined properly. Next, let's have this route render a separate file instead. Inside of the `views` directory, create a file called `info.erb`. Add whatever HTML code you like.
+
+```html
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Info Page</title>
+    </head>
+    <body>
+        <h1>Info Page</h1>
+        <p>This is the info page: here's some information about me!</p>
+    </body>
+</html>
+```
+
+Finally, update our controller to render that file.
+
+```ruby
+    get '/' do
+      erb :index
+    end
+ 
+    get "/info" do
+      erb :info
+    end
+```
+
+It's important to note that the name of the file doesn't have to match the name of the route. For example, if we wanted our "/info" route to render a file called `dogs.erb`, we could do so like this:
+
+```ruby
+    get '/' do
+      erb :index
+    end
+ 
+    get "/info" do
+      erb :dogs
+    end
+```
+
+By convention though, we keep our routes and our erb files named the same. This makes it easier to keep track of as our projects get bigger.
