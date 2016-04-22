@@ -512,3 +512,279 @@ Notice that some whitespace has been added for "breathing room" and increased re
 It's already starting to feel pretty unwieldy to manually manage all of this conditional display logic, but without an understanding of the dirty details, we can't even begin to use more powerful tools like `form_for` correctly.
 
 Next, we'll dive into a lab using `form_tag` and artisinally craft our own markup.
+
+##Validations with form_for
+####THE DIFFERENCES BETWEEN `FORM_FOR` AND `FORM_TAG`
+This step will make heavy usage of `form_for`, the high-powered alternative to `form_tag`. The biggest difference between these two helpers is that `form_for` creates a form specifically **for** a model object. `form_for` is full of convenient features.
+
+In the example below, `@post` is the model object that needs a form. `form_for` automatically performs a route lookup to find the right URL for post.
+
+`form_for` takes a block. It passes an instance of [FormHelper](http://api.rubyonrails.org/classes/ActionView/Helpers/FormHelper.html) as a parameter to the block, which is what `f` is below.
+
+A basic implementation looks like this:
+
+```html
+<!-- app/views/posts/edit.html.erb //-->
+ 
+<%= form_for @post do |f| %>
+  <%= f.text_field :title %>
+  <%= f.text_area :content %>
+  <%= f.submit %>
+<% end %>
+```
+
+This creates the HTML:
+
+```html
+<form class="edit_post" id="edit_post" action="/posts/1" accept-charset="UTF-8" method="post">
+  <input name="utf8" type="hidden" value="&#x2713;" />
+  <input type="hidden" name="_method" value="patch" />
+  <input type="hidden" name="authenticity_token" value="nRPP2OqVKB00/Cr+8EvHfYrb5sAkZRtr8f6dzBaJAI+cMceR0fUatcLWd4zdwYCpojW2J3QLK6uyBKeFAgZvmw==" />
+  <input type="text" name="post[title]" id="post_title" value="Existing Post Title"/>
+  <textarea name="post[content]" id="post_content">Existing Post Content</textarea>
+  <input type="submit" name="commit" value="Update Post" />
+</form>
+```
+
+Here's what we would need to do with `form_tag` to generate the exact same HTML:
+
+```html
+<!-- app/views/posts/new.html.erb //-->
+ 
+<%= form_tag post_path(@post), method: "patch", name: "edit_post", id: "edit_post" do %>
+  <%= text_field_tag "post[title]", @post.title %>
+  <%= text_area "post[content]", @post.content %>
+  <%= submit_tag "Update Post" %>
+<% end %>
+```
+
+`form_tag` doesn't know what action we're going to use it for, because it has no model object to check. `form_for` knows that an empty, unsaved model object needs a `new` form and a populated object needs an edit `form`. This means we get to skip all of these steps:
+
+1. Setting the `name` and `id` of the `<form>` element.
+2. Setting the method to `patch` on edits.
+3. Setting the text of the `<submit>` element.
+4. Specifying the root parameter name (`post[whatever]`) for every field.
+5. Choosing the attribute (`@post.whatever`) to fill for every field.
+
+Nifty!
+
+####USING `FORM_FOR` TO GENERATE EMPTY FORMS
+To wire up an empty form in our `new` view, we need to create a blank object:
+
+```ruby
+# app/controllers/posts_controller.rb
+ 
+  def new
+    @post = Post.new
+  end
+```
+
+Here's our usual vanilla `create` action:
+
+```ruby
+# app/controllers/posts_controller.rb
+ 
+  def create
+    @post = Post.create(post_params)
+ 
+    redirect_to post_path(@post)
+  end
+```
+
+We still have to solve the dual problem of what to do when there's no valid model object to redirect to, and how to hold on to our error messages while re-rendering the same form.
+
+####RE-RENDERING WITH ERRORS
+Remember from a few lessons ago how CRUD methods return `false` when validation fails? We can use that to our advantage here and branch our actions based on the result:
+
+```ruby
+# app/controllers/posts_controller.rb
+ 
+  def create
+    @post = Post.new(post_params)
+ 
+    if @post.save
+      redirect post_path(@post)
+    else
+      render :new
+    end
+  end
+```
+
+####FULL MESSAGES WITH PREPOPULATED FIELDS
+Because of `form_for`, Rails will automatically prepopulate the `new` form with the values the user entered on the previous page.
+
+To get some extra verbosity, we can add the snippet from the previous lesson to the top of the form:
+
+```html
+<!-- app/views/posts/new.html.erb //-->
+ 
+<% if @post.errors.any? %>
+  <div id="error_explanation">
+    <h2>
+      <%= pluralize(@post.errors.count, "error") %>
+      prohibited this post from being saved:
+    </h2>
+ 
+    <ul>
+    <% @post.errors.full_messages.each do |msg| %>
+      <li><%= msg %></li>
+    <% end %>
+    </ul>
+  </div>
+<% end %>
+```
+
+####MORE FREEBIES: `FIELD_WITH_ERRORS`
+Let's look at another nice feature of `FormHelper`. Here's our form_for code again:
+
+```html
+<!-- app/views/posts/edit.html.erb //-->
+ 
+<%= form_for @post do |f| %>
+  <%= f.text_field :title %>
+  <%= f.text_area :content %>
+  <%= f.submit %>
+<% end %>
+```
+
+The `text_field` call generates this tag:
+
+```html
+<input type="text" name="post[title]" id="post_title" value="Existing Post Title"/>
+```
+
+Not only will `FormHelper` pre-fill an existing `Post` object's data, it will also wrap the tag in a div with an error class if the field has failed validation:
+
+```html
+<div class="field_with_errors">
+  <input type="text" name="post[title]" id="post_title" value="Existing Post Title"/>
+</div>
+```
+
+This can also result in some unexpected styling changes, because `<div>`s are block tags (which take up the entire width of their container) while `<input>`s are inline tags. If your layout suddenly gets messed up when a field has errors, this is probably why.
+
+####RECAP
+`form_for` gives us a lot of power!
+
+Our challenge as developers is to keep track of the different layers of magic that makes this tool so convenient. The old adage is true: we're responsible for understanding not only how to use `form_for`, but also why it works. Otherwise, we'll be completely lost as soon as a sufficiently unusual edge case appears.
+
+When in doubt, **read the HTML**. Get used to hitting the "View Source" and "Open Inspector" hotkeys in your browser (`Ctrl-u` and `Ctrl-Shift-i` on Chrome Windows), and remember that most browsers let you [examine POST data in their developer network tools](http://superuser.com/questions/395919/where-is-the-post-tab-in-chrome-developer-tools-network).
+
+##Delete forms
+####OBJECTIVES
+After this lesson, you'll be able to...
+
++ Draw a `delete` route mapping to a `#destroy()` action
++ Explain the problem with submitting `delete` requests
++ Use `form_tag` to build a delete form for an object
++ Build a `#destroy()` action that finds the instance, destroys it, and redirects to index
++ Use `link_to` and `button_to :method => :delete` to destroy an object without a form.
+
+####IGNORANCE IS BLISS
+Before we dive into the problem with `PATCH` and `DELETE` requests, let's proceed as if we were none the wiser, and set up our route and form like usual:
+
+```ruby
+# config/routes.rb
+ 
+delete 'people/:id', to: 'people#destroy'
+```
+
+```html
+# app/views/people/show.html.erb
+ 
+<h2><%= @person.name %></h2>
+<%= @person.email %>
+<%= form_tag people_path(@person.id), method: "delete" %>
+  <%= submit_tag "Delete #{@person.name}" %>
+<% end %>
+```
+
+But, wait a minute... there's something weird about the output we get:
+
+```html
+<h2>Caligula</h2>
+caligula@rome-circa-50-AD.com
+<form accept-charset="UTF-8" action="/people/1" method="post">
+  <input name="_method" type="hidden" value="delete" />
+  <input name="utf8" type="hidden" value="&#x2713;" />
+  <input name="authenticity_token" type="hidden" value="f755bb0ed134b76c432144748a6d4b7a7ddf2b71" />
+  <input name="commit" type="submit" value="Delete Caligula" />
+</form>
+```
+
+Enhance!
+
+```html
+> <form accept-charset="UTF-8" action="/people/1" method="**post**">
+>   <input name="_method" type="hidden" value="**delete**" />
+```
+
+What's going on? Why the extra input?
+
+####PROGRAMMING IS HARD
+Web developers love to be on the cutting edge. We hoover up new tools and techniques, and aren't afraid of breaking a few million eggs to figure out that we actually have no idea how to make an omelette. Projects like Rails themselves are a product of this incredible devotion to progress and automation.
+
+**Browser** and **server** developers are the yin to the web developers' yang. These are the people who own and maintain the tools themselves: Internet Explorer, Firefox, Chrome, Apache, and so on.
+
+When a web developer makes a mistake, it might affect the users of their site.
+
+When a browser or server developer makes a mistake, it might affect [over a billion people](http://venturebeat.com/2015/05/28/google-chrome-now-has-over-1-billion-users/)!
+
+Because of this, browser/server developers have to go slow. *Really* slow. And they have to resist the urge to release "duct tape" solutions, because duct tape doesn't scale to a billion users!
+
+This means that, sometimes, incomplete solutions can remain in place for years, or even decades, while the maintainers go back and forth trying to find a better approach that won't open an eldritch portal to Bosch's [Garden of Earthly Delights](https://www.khanacademy.org/humanities/renaissance-reformation/northern/hieronymus-bosch/a/bosch-the-garden-of-earthly-delights).
+
+####WHAT'S ALL THIS HAVE TO DO WITH `DELETE` REQUESTS?
+As of HTML5, forms officially do not support `DELETE` and `PATCH` for their methods.
+
+There's no short and sweet answer to explain this. If you want to dive deep and understand as much as possible about the decisions that went into it, you can read more on [this illuminating StackExchange post](http://programmers.stackexchange.com/questions/114156/why-are-there-are-no-put-and-delete-methods-on-html-forms), but for the purposes of succinct explanation, you can always stick with the tried and true "for historical reasons".
+
+What you're seeing in the above `#form_tag()` behavior is a **workaround** implemented for us by Rails itself. With this in mind, we get the best of both worlds:
+
++ We get to be **good HTTP-abiding citizens** who use the correct request methods for their corresponding goals (`GET` for read, `PATCH` for update, and so on).
+
++ We get to **maintain our sanity** and not worry about W3C drama while writing views.
+
+####THAT'S GREAT. CAN WE ACTUALLY DELETE SOMETHING NOW?
+
+Thus enlightened, we can (finally) proceed with our original goal:
+
+```ruby
+# app/controllers/people_controller.rb
+ 
+  def destroy
+    Person.find(params[:id]).destroy
+    redirect_to people_url
+  end
+```
+
+Nothing too special happening here, except for a bit of method-chaining to immediately destroy the instance we find.
+
+####FANCY JAVASCRIPT HELPER
+As shown, you have to go to a user's `show` page to delete them. What if we want an admin control panel where users can be deleted from a list?
+
+```html
+<!-- app/views/people/index.html.erb //-->
+ 
+<% @people.each do |person| %>
+<div class="person">
+  <span><%= person.name %></span>
+  |
+  <%= link_to "Delete", person, method: :delete, data: { confirm: "Really?" } %>
+</div>
+<% end %>
+```
+
+[`link_to`](http://api.rubyonrails.org/classes/ActionView/Helpers/UrlHelper.html#method-i-link_to) is a method of `UrlHelper` that has a number of convenient features.
+
+The HTML generated by that call to `link_to` looks like this:
+
+```html
+<a data-confirm="Really?" rel="nofollow" data-method="delete" href="/people/1">Delete</a>
+```
+
+The `data-confirm` attribute and the `data-method` attribute rely on some JavaScript built into Rails.
+
+`data-method` will "submit" a `DELETE` request, as if a form had been submitted. It will use `GET` (the default method used by all browsers for HTML links) if the user has JavaScript disabled.
+
+`data-confirm` pops up a confirmation window before the link is followed, allowing the user to make sure they're ready to delete someone forever (what a decision!).
