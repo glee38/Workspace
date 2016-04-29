@@ -898,7 +898,7 @@ Because we've set up a join model, the interface will look almost identical. We 
 <% end %>
 ```
 
-##Has Many THrough in Forms
+##Has Many Through in Forms
 ####OVERVIEW
 We've looked at the different ways we can interact with our associated models through nested forms, as well as displaying data from more complex associations. In this lesson, we'll look at some different ways we can create data from our complex associations to make for a great user experience.
 
