@@ -767,3 +767,323 @@ information through a song.
 
 Note that `accepts_nested_attributes_for` and setter methods (e.g., `artist_attributes=`) aren't necessarily mutually exclusive. It's important to evaluate the needs of your specific use case and to choose the approach that
 makes the most sense. Keep in mind, too, that setter methods are useful for more than just avoiding duplicates — that's just one domain where they come in handy.
+
+##Displaying Has Many Through
+####HAS_MANY, THROUGH
+Let's say you're making a blog and you want to give users the ability to sign up and comment on your posts. What's the relationship between a post and a comment? If you said, "a comment belongs to a post, and a post has many comments," give yourself a pat on the back!
+
+What about the relationship between a user and a comment? Again, the user has many comments and the comment belongs to the user. So far, this is pretty straight forward.
+
+Things get slightly more complicated when we talk about the relationship between a user and posts that the user has commented on. How would you describe that relationship? Well, a user obviously can comment on many posts, and a post has comments by many users. Yep, this is a many to many relationship. We can setup a many-to-many relationship using a join table. In this case, `comments` will act as our Join Table. Any table that contains two foreign keys can be thought of as a join table. A row in our comments table will look something like this:
+
+id | content | post_id | user_id
+---|---------|---------|--------
+1 | "I loved this post!" | 5 | 3
+
+For this instance, we know that comment with the id of `1` was created by the user with id `3` for the post with id `5`. We have all of the information we need to determine all of the posts that a particular user has commented on, as well as all of the users who commented on any post. When we're done, we'll be able to simply call `@user.posts` to get a collection of all of those posts.
+
+Let's set this up. First, we'll need migrations for a comments table, posts table, and users table. We've included migrations and models in this repo so you can follow along.
+
+```ruby
+# db/migrate/xxx_create_posts
+class CreatePosts < ActiveRecord::Migration
+  def change
+    create_table :posts do |t|
+      t.string :title
+      t.string :content
+      t.timestamps null: false
+    end
+  end
+end
+```
+
+```ruby
+# db/migrate/xxx_create_users
+class CreateUsers < ActiveRecord::Migration
+   def change
+    create_table :users do |t|
+      t.string :username
+      t.string :email
+      t.timestamps null: false
+    end
+  end
+end
+```
+
+```ruby
+# db/migrate/xxx_create_comments
+class CreateComments < ActiveRecord::Migration
+  def change
+    create_table :comments do |t|
+      t.string :content
+      t.belongs_to :user
+      t.belongs_to :post
+      t.timestamps null: false
+    end
+  end
+end
+end
+```
+
+In our models, we have the following:
+
+```ruby
+#app/models/post.rb
+class Post
+  has_many :comments
+  has_many :users, through: :comments
+end
+```
+
+```ruby
+#app/models/user.rb
+class User
+  has_many :comments
+  has_many :posts, through: :comments
+end
+```
+
+```ruby
+#app/models/comment.rb
+class Comment
+  belongs_to :user
+  belongs_to :post
+end
+```
+
+Notice that we can't just declare that our `User` `has_many :posts` because our `posts` table doesn't have a foreign key called `user_id`. Instead, we tell ActiveRecord to look through the `comments` table to figure out this association by declaring that our `User` `has_many :posts, through: :comments`. Now, instances of our `User` model respond to a method called `posts`. This will return a collection of posts that share a comment with the user.
+
+####DISPLAYING COMMENTS ON OUR POSTS
+Now that our association is setup, let's display some data. First, let's setup our posts show page to display all of the comments in our particular post. We'll include the username of the user who created the comment, as well as a link to their show page.
+
+In `app/controllers/posts_controller.rb`, define a `show` action that finds a particular post to make it available for display.
+
+```ruby
+# app/controllers/posts_controller.rb
+class PostsController < ApplicationController
+ 
+  def show
+    @post = Post.find(params[:id])
+  end
+end
+```
+
+In our posts show page, we'll display the title and content information for the post, as well as the information for each comment associated with the post.
+
+```html
+#app/views/posts/show.html.erb
+<h2><%= @post.title %></h2>
+<p>
+  Content: <%= @post.content %>
+</p>
+Comments:
+  <% @post.comments.each do |comment| %>
+    <%= link_to comment.user.username, user_path(comment.user) %> said
+    <%= comment.content %>
+  <% end %>
+```
+
+This is the same as we've done before - we're simply looking at data associated with posts and comments. Calling `comment.user` returns for use the `user` object associated with that comment. We can then call any method that our user responds to, such as username.
+
+####ADDING POSTS TO OUR USERS
+Let's say that on our user's show page, we want our users to see a list of all of the posts that they've commented on. What would that look like?
+
+Because we've set up a join model, the interface will look almost identical. We can simply call on the `posts` method on our user and iterate through.
+
+```html
+<h2><%= @user.username %> </h2> has commented on the following posts:
+ 
+<% @user.posts.each do |post| %>
+  <%= link_to post.title, post_path(post) %>
+<% end %>
+```
+
+##Has Many THrough in Forms
+####OVERVIEW
+We've looked at the different ways we can interact with our associated models through nested forms, as well as displaying data from more complex associations. In this lesson, we'll look at some different ways we can create data from our complex associations to make for a great user experience.
+
+####JOIN MODEL FORMS
+Sometimes, it may be appropriate for a user to create an instance of our join model directly. Think back to the hospital domain from our previous lab. It makes perfect sense that a user would go to `appointments/new` and fill out a form to create a new appointment.
+
+```html
+<%= form_for @appointment do |f| %>
+  <%= f.datetime_select :appointment_datetime %>
+  <%= f.collection_select :doctor, Doctor.all, :id, :name %>
+  <%= f.collection_select :patient, Patient.all, :id, :name %>
+<% end %>
+```
+
+In this example, a user is filling out a form, entering the date and time they'd like to come, and choosing their Doctor and their name from a dropdown. We're assigning these properties directly to the appointment as it's created.
+
+Other times, we need to be more abstract. Let's go back to our blog example, but this time we'll say that post can have many categories and categories can have many posts. For this, we'll need a join table - let's call it `post_categories`. If our user wants to associate a post with a category, it doesn't make sense for them to go to `/post_categories/new` and fill out a "new post category form." That's confusing! Let's look at a more abstract way that we can do this, thanks to the magic of ActiveRecord.
+
+####SETTING UP OUR POSTS AND CATEGORIES
+
+```ruby
+#app/models/post.rb
+class Post < ActiveRecord::Base
+  has_many :post_categories
+  has_many :categories, through: :post_categories
+end
+```
+
+```ruby
+#app/models/category.rb
+class Category < ActiveRecord::Base
+  has_many :post_categories
+  has_many :posts, through: :post_categories
+end
+```
+
+```ruby 
+#app/models/post_category.rb
+class PostCategory < ActiveRecord::Base
+  belongs_to :post
+  belongs_to :category
+end
+```
+
+Now, let's make it so that our user can assign categories to a post when the post is created. We did this in a previous example without a join table. Our post was directly related to it's category, and the `posts` table had the foreign key for its category. Because of this, instances of our `post` class responded to a method called `category_ids=`. We called upon this method from our form helpers to build out a nested form.
+
+Luckily, `has_many, through` functions exactly the same as a has_many relationship. Instances of our `Post` class still respond to a method called `category_ids=`. We'll use a helper method very similar to the collection_select we used previously.
+
+```html
+#app/views/posts/_form.html.erb
+<%= form_for post do |f| %>
+  <%= f.label "Title" %>
+  <%= f.text_field :title %>
+  <%= f.label "Content" %>
+  <%= f.text_area :content %>
+  <%= f.collection_check_boxes :category_ids, Category.all, :id, :name %>
+  <%= f.submit %>
+<% end %>
+```
+
+This will create a checkbox field for each Category in our database. The HTML generated looks something like this:
+
+```html
+<input type="checkbox" value="1" name="post[category_ids][]" id="post_category_ids_1">
+```
+
+In our controller, we've setup our `post_params` to expect a key of `:category_ids` with a value of an array.
+
+```ruby
+#app/controllers/post_controller.rb
+class PostsController < ApplicationController
+  # ...
+ 
+  private
+  def post_params
+    params.require(:post).permit(:title, :content, category_ids:[])
+  end
+```
+
+After submitting the form, we end up with `post_params` that look something like:
+
+```ruby
+{"title"=>"New Post", "content"=>"Some great content!!", "category_ids"=>["2", "3", ""]}
+```
+
+Let's check out the SQL that fires from creating our new post.
+
+```ruby
+  def create
+    post = Post.create(post_params)
+    redirect_to post
+  end
+```
+
+```
+INSERT INTO "posts" ("title", "content", "created_at", "updated_at") VALUES (?, ?, ?, ?)  [["title", "New Post"], ["content", "Some great content!!"], ["created_at", "2016-01-15 21:25:59.963430"], ["updated_at", "2016-01-15 21:25:59.963430"]]
+ 
+INSERT INTO "post_categories" ("category_id", "post_id", "created_at", "updated_at") VALUES (?, ?, ?, ?)  [["category_id", 2], ["post_id", 6], ["created_at", "2016-01-15 21:25:59.966654"], ["updated_at", "2016-01-15 21:25:59.966654"]]
+ 
+INSERT INTO "post_categories" ("category_id", "post_id", "created_at", "updated_at") VALUES (?, ?, ?, ?)  [["category_id", 3], ["post_id", 6], ["created_at", "2016-01-15 21:25:59.968301"], ["updated_at", "2016-01-15 21:25:59.968301"]]
+```
+
+First, we're creating a new row in our `posts` table with title and content. Next, we create a row in our `post_categories` table for each id number that was stored in our `category_ids` array. This functions just like it did with a has many relationship, but instead of creating a new record in our categories table, Active Record is creating two new rows in our `post_categories` table. This means that we can interact with our higher-level models directly without having to think too much at all about our join table - ActiveRecord will manage that relationship for us behind the scenes.
+
+####CREATING NEW CATEGORIES
+We can now associate categories with our posts, but what about creating new categories? If I'm posting about baby elephants and no one has created the category "Super Cute!" yet, I want to be able to create it at the same time as my post. Again, this will be very similar to the way we've done things before.
+
+First, we want a text-field to enter the name of our new category. The value of the name should be nested under our `post_params` so that we don't have to add too much code to our controller. We can use the `fields_for` helper to do this very easily.
+
+```html
+# app/view/post/_form.html.erb
+<%= form_for post do |f| %>
+  <%= f.label "Title" %>
+  <%= f.text_field :title %>
+  <%= f.label "Content" %>
+  <%= f.text_area :content %>
+  <%= f.collection_check_boxes :category_ids, Category.all, :id, :name %>
+  <%= f.fields_for :categories, post.categories.build do |categories_fields| %>
+    <%= categories_fields.text_field :name %>
+  <% end %>
+  <%= f.submit %>
+<% end %>
+```
+
+The `fields_for` helper takes two arguments - the associated model that we're creating, and an object to wrap around. In this case, we've passed in the `:categories` association and built an empty category associated with the post.
+
+Let's look at the html that this generated for us.
+
+```html
+<input type="text" name="post[categories_attributes][0][name]" id="post_categories_attributes_0_name">
+```
+
+Our params hash will now have a key of `:categories_attributes` nested under the key of `post`. Let's add that to our strong params and tell it to expect a key of `name` inside for the category's name.
+
+```ruby
+#app/controllers/post_controller.rb
+class PostsController < ApplicationController
+  # ...
+ 
+  private
+  def post_params
+    params.require(:post).permit(:title, :content, category_ids:[], categories_attributes: [:name])
+  end
+```
+
+Now, when we do mass assignment, our `Post` model will call a method called `categories_attributes=`. Let's add that method to our model using the `accepts_nested_attributes_for macro`.
+
+```ruby
+class Post < ActiveRecord::Base
+  has_many :post_categories
+  has_many :categories, through: :post_categories
+  accepts_nested_attributes_for :categories
+
+end
+```
+
+Voila! Just like when our models were directly related, we can now create categories that are automatically associated with our new post. Looking at the SQL that gets generated, we can see that it's creating new instances of our post_categories without us ever having to interact with them.
+
+```
+(0.1ms)  begin transaction
+  SQL (0.4ms)  INSERT INTO "posts" ("title", "content", "created_at", "updated_at") VALUES (?, ?, ?, ?)  [["title", "A New Post!"], ["content", "It was the best of times, it was the worst of times"], ["created_at", "2016-01-15 22:08:37.271367"], ["updated_at", "2016-01-15 22:08:37.271367"]]
+  SQL (0.1ms)  INSERT INTO "categories" ("name", "created_at", "updated_at") VALUES (?, ?, ?)  [["name", "Really Neat!"], ["created_at", "2016-01-15 22:08:37.277421"], ["updated_at", "2016-01-15 22:08:37.277421"]]
+  SQL (0.3ms)  INSERT INTO "post_categories" ("post_id", "category_id", "created_at", "updated_at") VALUES (?, ?, ?, ?)  [["post_id", 9], ["category_id", 5], ["created_at", "2016-01-15 22:08:37.279564"], ["updated_at", "2016-01-15 22:08:37.279564"]]
+   (1.0ms)  commit transaction
+```
+
+Still, there's a problem. We're creating a new category each time, regardless of whether or not it exists. It will look pretty weird if three people type in "Super Cute!" and we get three different categories. In this case, we need to customize the way our category is created. Luckily, we can easily do this by creating our own `category_attributes=` method.
+
+```ruby
+class Post < ActiveRecord::Base
+  has_many :post_categories
+  has_many :categories, through: :post_categories
+ 
+ 
+  def categories_attributes=(category_attributes)
+    category_attributes.values.each do |category_attribute|
+      category = Category.find_or_create_by(category_attribute)
+      self.categories << category
+    end
+  end
+ 
+end
+```
+
+Now, we're only creating a new category if it doesn't already exist with the current name. We're also using a cool method called `categories<<`. What's great about this is you can mentally think of this as two steps. First, we call `self.categories` which returns an array of categories and then we call the shovel method to add our category object into the array. We could imagine later calling `save` on the `post` object and this then creating the `post_categories` join record for us. In reality, this is syntactic sugar for the `categories<<` method. That's the actual method name and behind the scenes it will create the join record for us. It's one of the methods dynamically created for us whenever we use the `has_many` association. The end result is this method doing exactly what ActiveRecord was doing for us before, we're just customizing the behavior a little bit.
+
+####CONCLUSION/SO WHAT?
+As you can see, it doesn't really matter how complex our associations are - ActiveRecord is really good at managing that complexity for us. We can always drop down a level of abstraction if needed to customize the way our application behaves.
