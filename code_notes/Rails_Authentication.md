@@ -401,3 +401,391 @@ At its base, login is very simple: the user provides you with credentials in a P
 
 ####RESOURCES
 + [Rails Tutorial Chapter 8 — Log in, log out](https://www.railstutorial.org/book/log_in_log_out)
+
+##Using has_secure Password
+####OVERVIEW
+It's quite difficult to manage passwords securely. About once a month, there is another big hack in the news, and all the passwords and credit cards from some poor site shows up on bittorrent.
+
+Rails provides us with tools to store passwords relatively securely, so that when hackers break into your servers, they don't gain access to users' actual passwords.
+
+####OBJECTIVES
+1. Explain why, it's a bad idea to store passwords in plaintext.
+2. Write code to store and verify hashed, salted passwords.
+3. Use Rails' `has_secure_password` to store and authenticate users login credentials securely.
+
+####THE PROBLEM WITH PASSWORDS
+Let's imagine a `SessionsController#create` method that does very simple authentication. It goes like this:
+
+```ruby
+   def create
+     @user = User.find(username: params[:username])
+     return head(:forbidden) unless params[:password] == @user.password
+     session[:user_id] = @user.id
+   end
+```
+
+We load the user row, check to see if the provided password is equal to the password stored in the database, and if it is, we set `user_id` in the `session`.
+
+This is tremendously insecure.
+
+The reason this is tremendously insecure is that you have to store all your users' passwords in the database, unencrypted.
+
+Never do this.
+
+Even if you don't care about the security of your site, people have a strong tendency to reuse passwords. That means that the inevitable security breach of your site will leak passwords which some users also use for Gmail. Your `users` table probably has an `email` column. This means that if I'm a hacker, getting access to your database has given me the Internet equivalent of the house keys and home address for some (probably surprisingly large) percentage of your users.
+
+####HASHING PASSWORDS
+So how do we store passwords if we can't store passwords?
+
+We store their hashes. A *hash* is a number computed by feeding a string to a *hash function*. Hash functions have the property that they will always produce the same number given the same input. You could write one yourself. Here's one that I just made:
+
+```ruby
+   # dumb_hash(input: string) -> number
+   def dumb_hash(input)
+     input.bytes.reduce(:+)
+   end
+```
+
+My `dumb_hash` function just finds the sum of the bytes that comprise the string. It is a hash function, since it satisfies the criteria that the same string always produces the same result.
+
+We could imagine using this function to avoid storing passwords in the database. Our `User` model and `SessionsController` might look like this:
+
+```ruby
+   # app/models/user.rb
+   class User < ActiveRecord::Base
+     def password=(new_password)
+       self.password_digest = dumb_hash(new_password)
+     end
+ 
+     def authenticate(password)
+       return nil unless dumb_hash(password) == password_digest
+       self
+     end
+ 
+     private
+ 
+     def dumb_hash(input)
+       input.bytes.reduce(:+)
+     end
+   end
+ 
+   # app/controllers/sessions_controller.rb
+   class SessionsController < ApplicationController
+     def create
+       user = User.find_by(username: params[:username])
+       authenticated = user.try(:authenticate, params[:password])
+       return head(:forbidden) unless authenticated
+       @user = user
+       session[:user_id] = @user.id
+     end
+   end
+```
+
+Note [try](http://api.rubyonrails.org/classes/Object.html#method-i-try) is an ActiveSupport method. `object.try(:some_method)` means
+`if object != nil then object.some_method else nil end`.
+
+In this world, we have saved the passwords' hashes in the database, in the `password_digest` column. We are not storing the passwords themselves.
+
+You can set a user's password by saying `user.password = *new_password*`. Presumably, our `UsersController` would do this, but we're not worrying about it for the moment.
+
+`dumb_hash` is, as its name suggests, a pretty dumb hash function to use for this purpose. It's a poor choice because similar strings hash to similar values. If my password was 'Joshua', you could log in as me by entering the password 'Jnshub'. Since 'n' is one less than 'o' and 'b' is one more than 'a', the output of `dumb_hash` would be the same.
+
+This is known as a *collision*. Collisions are inevitable when you're writing a hash function, since hash functions usually produce either a 32-bit or 64-bit number, and the space of all possible strings is much larger than either `2**32` or `2**64`.
+
+Fortunately, smart people who have thought about this a lot have written a lot of different hash functions which are well-suited to different purposes. And nearly all hash functions are designed with the quality that strings which are similar but not the same hash to significantly different values.
+
+Ruby internally uses [MurmurHash](https://en.wikipedia.org/wiki/MurmurHash), which produces better results for this:
+
+```
+> 'Joshua'.hash
+ => -3766180385262328513
+ 
+> 'Jnshub'.hash
+ => 827642026211689321
+```
+
+But Murmur still isn't ideal, because while it does not produce collisions so readily, it is still not difficult to produce them if that's what you're trying to do.
+
+Instead, Rails uses BCrypt. BCrypt is designed with these properties in mind:
+
+1. BCrypt hashes similar strings to very different values.
+
+2. It is a *cryptographic hash*. That means that if you have an output in mind, finding a string which produces that output is designed to be "very difficult". "Very difficult" means "even if Google put all their computers on it, they couldn't do it".
+
+3. BCrypt is designed to be slow—it is intentionally computationally expensive.
+
+The last two features make BCrypt a particularly good choice for passwords. (2) means that even if an attacker gets your database of hashed passwords, it is not easy for them to turn a hash back into its original string. (3) means that even if an attacker has a dictionary of common passwords to check against, it will still take them a considerable amount of time to check your password dictionary against that list.
+
+####SALT
+But what if our attackers have done their homework?
+
+Say I'm a hacker. I know I'm going to break into a bunch of sites and get their password databases. I want to make that worth my while.
+
+Before I do all this breaking and entering, I'm going to find the ten million most common passwords and hash them with BCrypt. If I can do around 1,000 hashes per second, so that's about three hours. Maybe I'll do the top five hundred million just to be sure.
+
+It doesn't really matter that this is going to take long time to run—I'm just doing this once. Let's call this mapping of strings to hash outputs a "rainbow table".
+
+Now, when I get your database, I just look and see if any of the passwords there are in my [rainbow table](https://en.wikipedia.org/wiki/Rainbow_table). If they are, then I know the password.
+
+The solution to this problem is *salting* our passwords. A salt is a random string appended to the password before hashing it. It's stored in plain text next to the password, so it's not a secret. But the fact that it's there makes an attacker's life much more difficult: it's very unlikely that I constructed my rainbow table with your particular salt in mind, so I'm back to running the hash algorithm over and over as I guess passwords. And remember, Bcrypt is designed to be expensive to run.
+
+So let's update our `User` model to use bcrypt:
+
+```ruby
+    # Gemfile:
+    gem 'bcrypt'
+ 
+    # app/models/user.rb
+    class User < ActiveRecord::Base
+      def password=(new_password)
+        salt = BCrypt::Engine::generate_salt
+        hashed = BCrypt::Engine::hash_secret(new_password, salt)
+        self.password_digest = salt + hashed
+      end
+ 
+      # authenticate(password: string) -> User?
+      def authenticate(password)
+        # Salts generated by generate_salt are always 29 chars long.
+        salt = password_digest[0..28]
+        hashed = BCrypt::Engine::hash_secret(password, salt)
+        return nil unless (salt + hashed) == self.password_digest
+      end
+    end
+```
+
+Our `users.password_digest` column actually stores two values: the salt, and the actual return value of BCrypt. We just concat them together in the column, and use our knowledge of the length of salts—generate_salt always produces 29 character strings—to separate them.
+
+After we've loaded the User, we find the salt which we previously stored in their `password_digest` column. We run the password we were given in `params` through BCrypt, along with the salt we read from the database. If the results match, you're in. If they don't, no dice.
+
+####RAILS MAKES IT EASIER
+You don't have to deal with all this yourself. Rails provides a method called `has_secure_password` which you can use on your ActiveRecord models to handle all this. It looks like this:
+
+```ruby
+    class User < ActiveRecord::Base
+      has_secure_password
+    end
+```
+
+You'll need to add 'bcrypt' to your Gemfile if it isn't already.
+
+[`has_secure_password`](http://api.rubyonrails.org/classes/ActiveModel/SecurePassword/ClassMethods.html) adds two fields to your model: `password` and `password_confirmation`. These fields don't correspond to database columns! Instead, the method expects there to be a `password_digest` column defined in your migrations.
+
+`has_secure_password` also adds some `before_save` hooks to your model. These compare `password` and `password_confirmation`. If they match (or if `password_confirmation` is nil), then it updates the `password_digest` column pretty much exactly like our example code before did.
+
+These fields are designed to make it easy to include a password confirmation box when creating or updating a user. All together, our very app might look like this:
+
+```html
+    # app/views/user/new.html.erb
+    <%= form_for :user, url: '/users' do |f| %>
+      Username: <%= f.text_field :username %>
+      Password: <%= f.password_field :password %>
+      Password Confirmation: <%= f.password_field :password_confirmation %>
+      <%= f.submit "Submit" %>
+    <% end %>
+```
+
+```ruby 
+    # app/controllers/users_controller.rb
+    class UsersController < ApplicationController
+      def create
+        user = User.new(user_params).save
+      end
+ 
+      private
+ 
+      def user_params
+        params.require(:user).permit(:name, :email, :password, :password_confirmation)
+      end
+    end
+```
+
+```ruby 
+    # app/controllers/sessions_controller.rb
+    class SessionsController < ApplicationController
+      def create
+        @user = User.find(username: params[:username])
+        return head(:forbidden) unless @user.authenticate(params[:password])
+        session[:user_id] = @user.id
+      end
+    end
+```
+
+```ruby 
+    # app/models/user.rb
+    class User < ActiveRecord::Base
+      has_secure_password
+    end
+```
+
+##Omniauth
+####OBJECTIVES
+1. Describe the problem of authentication and how Omniauth solves it.
+2. Explain an Omniauth strategy.
+3. Describe the problem OAuth solves, and how it solves it.
+4. Use Omniauth to provide OAuth authentication in a Rails server.
+
+####OVERVIEW
+Passwords are terrible.
+
+For one thing, you have to remember them. Or you have to use a password manager, which comes with its own problems. Unsurprisingly, some percentage of users will just leave and never come back the moment you ask them to create an account.
+
+And then on the server, you have to manage all these passwords. You have to store them securely. Rails secures your passwords when they are stored in your database, but it does not secure your servers, which see the password in plain text. If I can get into your servers, I can edit your Rails code and have it send all your users' passwords to me as they submit them. You'll also have to handle password changes, email verification, and password recovery. Inevitably, your users accounts will get broken into. This may or may not be your fault, but when they write to you, it will be your problem.
+
+What if it could be someone else's problem?
+
+Like Google, for example. They are dealing with all these problems somehow (having a huge amount of money helps). For example, when you log into Google, they are looking at vastly more than your username and password. Google considers where you are in the world (they can [guess based on your IP address](https://en.wikipedia.org/wiki/Geolocation), the operating system you're running (their servers can tell because they [listen very carefully to your computer's accent when it talks to them][IP_stack_fingerprinting]), and numerous other factors. If the login looks suspicious—like you usually log in on a Mac in New York, but today you're logging in on a Windows XP machine in Thailand—they may reject it, or ask you to solve a [captcha](https://en.wikipedia.org/wiki/CAPTCHA).
+
+Wouldn't it be nice if your users could use their Google—or Twitter, or Facebook—login for your site?
+
+Of course, you know this is possible. I'm sure you've seen sites that let you log in with Facebook. Today, we're going to talk about how you can enable such a feature for your site.
+
+####OMNIAUTH
+[Omniauth](https://github.com/intridea/omniauth) is a gem for Rails that lets you use multiple authentication providers on your site. You can let people log in with Twitter, Facebook, Google, or with a username and password.
+
+Here's how it works from the user's standpoint:
+
+1. I try to access a page which requires me to be logged in. I am redirected to the login screen.
+
+2. It offers me the options of creating an account, or logging in with Google or Twitter.
+
+3. I click "login with Google". This momentarily sends me to `$your_site/auth/google`, which quickly redirects to the Google signin page.
+
+4. If I'm not signed in to Google, I sign in. More likely, I am already signed in to Google (because Gmail), so Google asks me if they should let `$your_site` know who I am. I say yes.
+
+5. I am (hopefully briefly) redirected to `$your_site/auth/google/callback`, and from there, to the page I wanted.
+
+Let's see how this works in practice:
+
+####OMNIAUTH WITH FACEBOOK
+The Omniauth gem allows us to use the oauth protocol with a number of different providers. All we need to do is add the gem specific to the provider we want to use in addition to the omniauth gem, in this case add `omniauth` and `omniauth-facebook` to your Gemfile and `bundle`. We can add as many additional omniauth gems if you want multiple provider login in our app.
+
+First we'll need to tell omniauth about our app's oauth credentials.
+
+Create `config/initializers/omniauth.rb`. It will contain this:
+
+```ruby
+    Rails.application.config.middleware.use OmniAuth::Builder do
+      provider :facebook, ENV['FACEBOOK_KEY'], ENV['FACEBOOK_SECRET']
+    end
+```
+
+The ENV constant refers to a global hash for your entire computer environment. You can store any key value pairs in this environment and so it's a very useful place to store credentials that we don't want to be managed by git and later stored on github (if your repo is public). The most common error we see from students here is that when ENV["PROVIDER_KEY"] is evaluated in the initializer it returns nil! Then later when you try and authenticate with the provider you'll get some kind of 4xx error because the provider doesn't recognize your app.
+
+To recieve these credentials, each provider's process is different, but you'll essentially need to register your app with the provider and they'll give you a set of keys specific to your app.
+
+For Facebook:
+Log in to the [Facebook developer's panel](https://developers.facebook.com/). Create an app, copy the key (it's called "App ID" on Facebook's page) and the secret and set them as environment variables in the terminal:
+
+```
+export FACEBOOK_KEY=<your_key>
+export FACEBOOK_SECRET=<your_key>
+```
+
+We've included a [quick video](https://youtu.be/1yryyKB7Edk) as this often trips people up (including experienced folks!). Make sure you do the last two steps of setting your URL and valid domains. If you don't Facebook will think you're making a request from an invalid site and will never let the user login.
+
+Running these commands will make these key value pairs appear in the ENV hash in ruby in that terminal. A more lasting way to do this is using the Figaro or Dotenv gems.
+
+Jump into the console to check that you have set the keys properly. If `ENV["FACEBOOK_KEY"]` and `ENV["FACEBOOK_SECRET"]` return your keys you're all set!
+
+We now need to create a link that will take the user to Facebook to login. Create a link anywhere you'd like that sends the user to "/auth/facebook". We'll need a route, a controller and a view, I'll only show the view.
+
+```html
+  #\views\static\home.html.erb
+  <%= link_to("login with facebook!", "/auth/facebook") %>
+```
+
+**Hot-Tip**
+Log out of Facebook before you do this portion so you can see the full flow.
+
+Let's visit this page in the browser and click on the link.
+
+Clicking on the link clearly sends a GET request to your server to "/auth/facebook", but in the browser we end up at "https://www.facebook.com/login.php?skip_api_login=1&api_key=1688265381390456&signed_next=1&next=https%3A%2F%2Fwww.facebook.com%2Fv2.5%2Fdialog%2Foauth%3Fredirect_uri%3Dhttp%253A%252F%252Flocalhost%253A3000%252Fauth%252Ffacebook%252Fcallback%26state%3Dc7e7feeea98f875e7a77d76f7385ea2960db3dc23a397c4b%26scope%3Demail%26response_type%3Dcode%26client_id%3D1688265381390456%26ret%3Dlogin&cancel_url=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Ffacebook%2Fcallback%3Ferror%3Daccess_denied%26error_code%3D200%26error_description%3DPermissions%2Berror%26error_reason%3Duser_denied%26state%3Dc7e7feeea98f875e7a77d76f7385ea2960db3dc23a397c4b%23_%3D_&display=page"
+
+This URL has a whole bunch of parameters all URL [encoded](http://ascii.cl/url-encoding.htm) (which is why they look so strange). At this point we are at Facebook's site because somewhere in our app omniauth sent the browser a redirect to that url (which it intelligently autogenerated for us!).
+
+Once we're at Facebook and the user logs in, Facebook will send the browser ANOTHER redirect with the URL omniauth told it about in the previous URL. Omniauth always wants Facebook to redirect us back to our server to the route "/auth/whatever_provider/callback". Along with that request they'll send a whole bunch of information for us!
+
+The URL in your browser should looks something like this mess!
+"
+http://localhost:3000/auth/facebook/callback?code=AQA_CrhVYnuufhQid-3vS1NvI5rZfk4uPJwFZIymA90JeUR7NDFFy0bHQjbtneLkymqqZlmFbjcg2A0y5zRmaCy0D7k9H46F3j9pm9slzBIN9fM4Q54zAdiVZo2k6XtiMPZ_AG2xEZ8MyiTtbbQOBdaK57PY7lr7iLuFeaVUCUnZC69ddzcq_tLILEkjagSyWXi8WGGshbnIwy9C6d98hnoxl6AJjIi4TC3FScEAxKQ9vH1tXntQ9YvTLNWlWsWUcbefEq1RlywNi3IqGsLnDgyyRcHph0u4-TpnaqZPxHSNdcWCgnYfHK_bSO-R_a3H4Oo&state=60fb843af784e411ea7b5f809e34dd29d5e4eda891d0c4c1#=
+"
+
+You should now see a routing error
+`No route matches [GET] "/auth/facebook/callback"`
+
+Let's add something to handle that redirect
+
+```ruby
+#routes.rb
+get '/auth/facebook/callback' => 'sessions#create'
+#note the controller and action you use don't matter, but to be semantic we #should use the sessions controller because we're going to log the user in by creating a session.
+```
+
+Now we create a `SessionsController`. Our goal here is to either create a new user or find the user in our database and log them in. Facebook sends us a bunch of information back and omniauth parses it for us and puts it in the request environment `request.env['omniauth.auth']`. We can use the information in here to login the user or create them.
+
+Here's a sample of the auth hash Facebook sends us
+
+```ruby
+{
+  :provider => 'facebook',
+  :uid => '1234567',
+  :info => {
+    :email => 'joe@bloggs.com',
+    :name => 'Joe Bloggs',
+    :first_name => 'Joe',
+    :last_name => 'Bloggs',
+    :image => 'http://graph.facebook.com/1234567/picture?type=square',
+    :urls => { :Facebook => 'http://www.facebook.com/jbloggs' },
+    :location => 'Palo Alto, California',
+    :verified => true
+  },
+  :credentials => {
+    :token => 'ABCDEF...', # OAuth 2.0 access_token, which you may wish to store
+    :expires_at => 1321747205, # when the access token expires (it always will)
+    :expires => true # this will always be true
+  },
+  :extra => {
+    :raw_info => {
+      :id => '1234567',
+      :name => 'Joe Bloggs',
+      :first_name => 'Joe',
+      :last_name => 'Bloggs',
+      :link => 'http://www.facebook.com/jbloggs',
+      :username => 'jbloggs',
+      :location => { :id => '123456789', :name => 'Palo Alto, California' },
+      :gender => 'male',
+      :email => 'joe@bloggs.com',
+      :timezone => -8,
+      :locale => 'en_US',
+      :verified => true,
+      :updated_time => '2011-11-11T06:21:03+0000'
+    }
+  }
+}
+```
+
+Let's log the user in! (We've omitted the model related code)
+
+```ruby
+#app/controllers/sessions_controller
+class SessionsController < ApplicationController
+ 
+  def create
+    user = User.find_or_create_by(:uid => auth['uid']) do |u|
+      u.name = auth['info']['name']
+      u.email = auth['info']['email']
+    end
+    session[:user_id] = user.id
+  end
+ 
+  def auth
+    request.env['omniauth.auth']
+  end
+ 
+end
+```
+
+That completes the whole oauth login flow!
+
+####CONCLUSION
+Implementing the oauth protocol yourself is extremely complicated. Using the omniauth gem along with the omniauth-provider gem for the provider you'd like to allow users to log in to your site with makes the process a lot easier, but it still trips a lot of people up! Make sure you understand each piece of the flow, what you expect to happen, and any deviance from the expected result. The end result should be getting access to the users data from the provider in your sessions controller where you can decide what to do with it, which is usually either creating a user in your database using their provider data, and/or logging them in.
