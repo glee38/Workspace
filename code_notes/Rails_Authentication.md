@@ -824,3 +824,180 @@ Although Devise doesn't have out of the box support for authorization, it's comm
 
 You can pair the concept of roles with other gems that allow you to specify what "abilities" or "policies" users or types of users. For example we could say that admins have the "ability" to read, write and delete any post.
 [CanCanCan](https://github.com/CanCanCommunity/cancancan) and [Pundit](https://github.com/elabs/pundit) are the leaders in this space. The original gem CanCan (what can? a user do) was written by the creator of RailsCasts if you are a fan!
+
+##Devise
+####LEARNING OBJECTIVES
+1. Describe the major architecture and modules of Devise.
+2. Build a working login system using Devise.
+
+####OVERVIEW
+[Devise](https://github.com/plataformatec/devise) is a gem for when you have a lot of authentication needs.
+
+Want to send confirmation emails, lock user accounts after a certain number of failed login attempts, and send password resets? Devise can do that.
+
+Want to allow multiple models to be signed in, each with different roles, granting different permissions? Devise can handle that too.
+
+Devise has an extensive collection of generators. It includes standard views and controllers. It will generate templates that include Bootstrap for you.
+
+It will also be, at times, a giant pain, because no magic is without a price. Devise abstracts away a lot of implementation details. That can be very nice, but it can also make it challenging to setup and debug when things don't go exactly to plan.
+
+####ARCHITECTURE
+Devise is a Rails [engine](http://guides.rubyonrails.org/engines.html). That means it's basically a Rails app that sits inside your Rails app. It has its own views and controllers, and defines its own routes.
+
+It does not define models for you, but it does have generators that make the process of creating a Devise-compliant User model very easy.
+
+Devise is made up of modules. Modules are applied to your `User` model, so you should read these as abilities that User accounts can have.
+
+```
+   * Database Authenticatable: encrypts and stores a password in the database to validate the authenticity of a user while signing in. The authentication can be done both through POST requests or HTTP Basic Authentication.
+   * Omniauthable: adds OmniAuth (https://github.com/intridea/omniauth) support.
+   * Confirmable: sends emails with confirmation instructions and verifies whether an account is already confirmed during sign in.
+   * Recoverable: resets the user password and sends reset instructions.
+   * Registerable: handles signing up users through a registration process, also allowing them to edit and destroy their account.
+   * Rememberable: manages generating and clearing a token for remembering the user from a saved cookie.
+   * Trackable: tracks sign in count, timestamps and IP address.
+   * Timeoutable: expires sessions that have not been active in a specified period of time.
+   * Validatable: provides validations of email and password. It's optional and can be customized, so you're able to define your own validations.
+   * Lockable: locks an account after a specified number of failed sign-in attempts. Can unlock via email or after a specified time period.
+```
+
+That's from the [Devise docs](https://github.com/plataformatec/devise).
+
+####CONFIGURATION
+Several of these modules come added for you by default if you run
+
+```
+rails generate devise User
+```
+
+This generates a `User` model which includes this helpful bit at the top:
+
+```
+# Include default devise modules. Others available are:
+# :confirmable, :lockable, :timeoutable and :omniauthable
+devise :database_authenticatable, :registerable,
+       :recoverable, :rememberable, :trackable, :validatable,
+```
+
+That's Devise wiring itself into the model. It also creates a migration for all the fields it needs.
+
+Let's look at the highlights.
+
+####DATABASE_AUTHENTICABLE
+This adds a `valid_password?(password)` method to the model. The password is stored securely in the database.
+
+####REGISTERABLE
+Registerable gives you `User.new_with_session(params, session)`, which lets you initialize a `User` from session data (like a token from Facebook) in addition to params.
+
+####RECOVERABLE
+Recoverable gives you password resets, like so:
+
+```
+# resets the user password and save the record, true if valid passwords are given, otherwise false
+User.find(1).reset_password('password123', 'password123')
+ 
+# only resets the user password, without saving the record
+user = User.find(1)
+user.reset_password('password123', 'password123')
+ 
+# creates a new token and sends it with instructions about how to reset the password
+# (this one requires a mailer.)
+User.find(1).send_reset_password_instructions
+```
+
+####REMEMBERABLE
+This lets you remember a user and associate them with a `User` object in the database without them having to log in. It works by storing a token in cookies.
+
+```ruby
+User.find(1).remember_me!  # regenerating the token
+User.find(1).forget_me!    # clearing the token
+```
+
+####TRACKABLE
+Track information about your user sign in. It tracks the following columns:
+
++ `sign_in_count` - Increased every time a sign in is made (by form, openid, oauth)
+
++ `current_sign_in_at` - A timestamp updated when the user signs in
+
++ `last_sign_in_at` - Holds the timestamp of the previous sign in
+
++ `current_sign_in_ip` - The remote ip updated when the user sign in
+
++ `last_sign_in_ip` - Holds the remote ip of the previous sign in
+
+####VALIDATABLE
+The documentation on this is quite clear:
+
+````
+Validatable creates all needed validations for a user email and password. It's optional, given you may want to create the validations by yourself. Automatically validate if the email is present, unique and its format is valid. Also tests presence of password, confirmation and length.
+````
+
+####LOCKABLE
+Handles blocking a user's access after a certain number of attempts. Lockable accepts two different strategies to unlock a user after it's blocked: email and time. The former will send an email to the user when the lock happens, containing a link to unlock its account. The second will unlock the user automatically after some configured time (ie 2.hours). It's also possible to setup lockable to use both email and time strategies.
+
+####OMNIAUTHABLE
+Honestly, this one doesn't give you a whole lot more than omniauth already does. It does set some (but not all!) of the routes for you. That's a nice touch.
+
+####TYPICAL SETUP
+Add Devise to your Gemfile:
+
+```ruby
+    gem 'devise'
+```
+
+Now run the installer:
+
+```
+    rails generate devise:install
+```
+
+This creates a massive initializer in `config/initializers/devise.rb`. This is probably the single best source of documentation for Devise. You may wish to look through it.
+
+You'll notice that the installer prints a big notice of several things you should do. In particular, we should have a root route.
+
+Create a `WelcomeController` with a `home` action view and route.
+
+Now generate your `User` model with:
+
+```ruby
+    rails g devise User
+```
+
+Run `rake routes` and `rake db:migrate`. You should see that Devise has added a bunch of routes. Run `rails s` and take a look at one, maybe `/users/sign_in`.
+
+You should now have a working app with sign in.
+
+If you look at the routes you can see that Devise gives us a sign out route as well. Let's implement that.
+
+We probably want the user to be able to click sign out on any page when they're logged in so let's add it to our layout.
+
+```html
+#views/layouts/application.html.erb
+  ...
+  link_to("Sign out", destroy_user_session_path)
+  ...
+```
+
+Devise will also add messages to the flash when a user signs in or when there's an error. We can add that to the layout as well so that those flash notices appear.
+
+```html
+#views/layouts/application.html.erb
+  ...
+  <%= content_tag(:div, flash[:error], :id => "flash_error") if flash[:error] %>
+  <%= content_tag(:div, flash[:notice], :id => "flash_notice") if flash[:notice] %>
+  <%= content_tag(:div, flash[:alert], :id => "flash_alert") if flash[:alert] %>
+  ...
+```
+
+There's no navigation link for a user to get to the sign up page so let's add one of those as well.
+
+```html
+#views/layouts/application.html.erb
+  ...
+  <%= link_to("Sign Up", new_user_registration_path) %>
+  ...
+```
+
+####CONCLUSION
+In a real app you'd probably want to add some css, maybe put these pieces into partials like a header or a nav partial but you can see how quickly and with how little code we were able to get a fully functioning login system. Feel free to play around with the other Devise modules!
