@@ -20,8 +20,6 @@ Welcome to **Part 1** of AuthSeries, a series dedicated to authentication in Rai
 ####Our goal today:
 1. Learn about cookies
 2. Learn about sessions
-3. Understand how they are related to authentication
-
 
 ###Cookies
 
@@ -41,9 +39,19 @@ In the scenario above, every time you click on a different link or part of the F
 
 Thus, every time you ask your browser to load a different page in Facebook, Facebook will ask you to login again because it *doesn't* remember the fact that you already logged in during a previous request.
 
-This is where cookies come in. To solve this problem, cookies are created and stored in your browser when you visit a website that uses cookies to maintain state. The cookie is essentially a small text file that contains information about you as a user, such as your user id, what ads you click on, and more.
+This is where cookies come in. To solve this problem, cookies are created and stored in your browser when you visit a website that uses cookies to maintain state. The cookie is essentially a small text file that contains information about you as a user, such as your user id, what ads you click on, and more. Cookies provide a way for a website to verify who a user is once, and maintain that state for the rest of your visit on that site, or until you logout. 
 
-Cookies provide a way for a website to verify who a user is once, and maintain that state for the rest of your visit on that site, or until you logout. Ah, finally. Now you can creep happily ever after.
+Ah, finally. Now you can creep happily ever after.
+
+**99 PROBLEMS, AND A COOKIE IS ONE**
+
+As useful as cookies are, they also pose a huge security concern. Because they are stored as plain text files in a user's browser, it is frighteningly easy to change or manipulate the content of a cookie. 
+
+For example, let's say you visit Facebook again, login, and are prompted to your homepage. Your browser at this point has a cookie stored containing information about your Facebook login, which was used to authenticate you as a user. Yay! You no longer have to sign in every time you request a different page. 
+
+But what if you changed your user id in your cookie to something else? You click on the developer's console in your browser, find the Facebook cookie, change the user id, and voila! Suddenly, you find yourself logged in as the user with the newly changed user id. If you can hack into someone else's account this easily, doesn't this mean that the same could potentially happen to you? Uh oh.
+
+###Sessions
 
 
 
