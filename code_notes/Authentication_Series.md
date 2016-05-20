@@ -49,17 +49,179 @@ As useful as cookies are, they also pose a huge security concern. Because they a
 
 For example, let's say you visit Facebook again, login, and are prompted to your homepage. Your browser at this point has a cookie stored containing information about your Facebook login, which was used to authenticate you as a user. Yay! You no longer have to sign in every time you request a different page. 
 
-But what if you changed your user id in your cookie to something else? You click on the developer's console in your browser, find the Facebook cookie, change the user id, and voila! Suddenly, you find yourself logged in as the user with the newly changed user id. If you can hack into someone else's account this easily, doesn't this mean that the same could potentially happen to you? Uh oh.
+But what if you changed your user id in your cookie to something else? You click on the developer's console in your browser, find the Facebook cookie, change the user id, and voila! Suddenly, you find yourself logged in as the user with the newly changed user id. You sly fox, you. But wait - if you can hack into someone else's account this easily, doesn't this mean that the same could potentially happen to you? Uh oh.
 
 ###Sessions
 
+Enter sessions, a gift to all techkind. Unlike cookies, which are client-side (your browser) files that contain user information, sessions are server-side (such as Facebook) files that contain user information. Because sessions are stored server-side, a user can no longer easily manipulate their content like they could a cookie. 
+
+Let's break down how they work and why sessions allow maintaining state to be more secure.
+
+**WHAT ARE SESSIONS?**
+
+We've discussed above that HTTP is a stateless protocol, with cookies providing a way to maintain some sort of state (such as the user being logged in, the contents of a user's shopping cart, etc.) between the client and the server. A session is essentially a type of cookie in that it also behaves like a hash, storing user pertinent information in a key referred to as a "session id". The session id usually contains a 32-character string, which is used to identify the hash.
+
+The first time you log in to Facebook, a session id is created on the server side. This session id is used to identify and authenticate you during the time you are browsing their site. Thus, your "logged in" state will be maintained with Facebook until you either logout, or until the session expires (some websites have a timeframe in which a session will expire on its own if you have not explicitly logged out), whichever comes first.
+
+**WHY THEY ARE USEFUL**
+
+![facebook-login](http://i64.tinypic.com/2432a92.jpg)
+
+Now when you send a request to Facebook to go to another page or look at a different post, every cookie sent to Facebook's server will include your unique session id with which to authenticate you. Facebook will then send back the contents of your request for your browser to render, and will send back your session id with it. This exchange allows a state to be maintained between the client and server without having any revealing information passed through your cookies. Your session id variables can only be seen on the server side.
+
+Let's use a real life example to illustrate what is going on.
+
+**GIMME THAT SHACKSTACK**
+
+After hours of successfully procrastinating on Facebook, you realize that all this hard work has made you pretty darn hungry. There's no food in the fridge, so you decide to go out to the nearest Shake Shack. 
+
+![login_sessions](http://i67.tinypic.com/2vuwqq9.jpg)
+
+This Shake Shack is so poppin' that they provide every customer a buzzer and receipt number that is used to identify you when your food is ready. You stand on line, order, pay with your credit card, sign the receipt, and the employee hands you a buzzer and an order number. Your number is 33.
+
+After 180 seconds of hunger-induced torture, your buzzer vibrates. Your heart skips a beat and you bring your buzzer and receipt up to the counter. An employee takes a look at the number on your receipt and matches it up to the receipt attached the glorious brown bag containing your order. You don't need to show your credit card, or sign the receipt with your signature again to verify that you are indeed the proud owner of the food baby to be. That was already validated when you first paid for your order, and the ticket number is all you need to prove who you are. You take your food and blast Hall & Oates "You make my dreams come true" on your way home. Well done.
+
+![login_sessions_2](http://i63.tinypic.com/108h7rp.jpg)
+
+In the example illustrated above, paying and signing your receipt is like logging in with your username and password. The receipt is like the session id that is created by Facebook when you first log in, and that receipt is what is used to identity you for the remainder of your visit. You never have to show your credit card or sign the receipt again - the number on the receipt (like a session id) is all you need for a back and forth exchange between yourself (the client) and the employee (the server). This way, you don't run the risk of identity theft by exposing your credit card numbers multiple times (like a cookie being passed back and forth between requests), and you can access your food with the number issued by Shake Shack.
+
+**CONCLUSION**
+
+As you can see, cookies and sessions are a critical part in maintaining state and allowing for great user experience during your interaction with an application. In the next post, we will discuss how we can use these newly learned concepts to roll our own authentication logic using Rails.
+
+# AuthSeries Pt. 2: Creating Your Own Authentication
+
+Welcome to **Part 2** of AuthSeries, a series dedicated to authentication in Rails. In today's post, I will go over how to go about creating your own authentication logic from scratch. Rails has a lot of useful gems that get this job done for you, but I think it's always useful to understand what is going on under the hood before using gems that abstract away these basic, but very important principles.
+
+#### OUR GOAL TODAY:
+
+1. Learn how to build our own authentication logic inside of the:
+	+ User model and controller
+	+ Sessions controller
+	+ Application controller
+2. Allow users to sign up and login through forms
+3. Use the `has_secure_password` method
+4. Write validations
+5. Write helper methods:
+	+ current_user
+	+ authorize!
+	+ logged_in?
+
+#### STEP 1: GENERATE USER RESOURCE
+
+Let's say we are building a "Recipes" website where users can sign up, login, create, edit and view their own recipes. 
+
+In order to keep track of our users and store their recipes in the database, we will need to create sign up and login forms on your website. But before we do that, let's begin by generating our User model and migrating it to the database.
+
+**NOTE**: This is assuming that you have already generated your rails application and are cd'd into your application's folder. 
+
+In terminal, begin by typing in the following:
+
+```
+rails g resource User email:string password_digest:string
+```
+
+It is important to take note of the `password_digest` column, as it is the column that will utilize the `has_secure_password` feature in Rails that will be an essential part of our authentication logic.
+
+Running the above command  will generate the User model and UsersController.
+
+#### STEP 2: `has_secure_password`
+
+Now, go inside of your User model and add `has_secure_password` like so:
+
+```ruby
+class User < ActiveRecord::Base
+has_many :recipes
+has_secure_password
+
+# more code to come 
+
+end
+```
+
+The `has_secure_password` will do the following:
+
+1. Require a `password_digest` attribute (which we added previously in our Users table)
+
+2. Add methods to set and authenticate against a BCrypt password (a gem we will install later to help encrypt passwords)
+
+3. Automatically add  validations:
+	+ Password must be present on creation
+	+ Password length should be less than or equal to 72 characters
+	+ Password confirmation (using the password_confirmation attribute)
+
+Just by typing in one little line, Rails automagically generated validations and methods to help us in our authentication journey. Rails, you da best.
+
+#### STEP 3: `BCrypt`
+
+To utilize `has_secure_password`, uncomment this line in your `Gemfile`:
+
+```ruby
+# Use ActiveModel has_secure_password
+gem 'bcrypt', '~> 3.1.7'
+```
+
+Then, run `bundle install` in your terminal. The `bcrypt` gem will hash a user's password and stores it securely in your database.
+
+#### STEP 4: STRONG PARAMS
+
+If Rails terms were people, this one would be wearing sunglasses. Besides sounding undeniably cool, strong parameters are crucial in that they give you the ability to sanitize params passed in through user forms.
+
+What does this mean exactly?
+
+In your `UsersController`, type in the following:
+
+```ruby
+class UsersController < ApplicationController
+
+# we will add actions here later
+
+private # create private method user_params
+
+def user_params
+	params.require(:user).permit(:email, :password, 
+	:password_confirmation)
+end
+```
+
+Let's break down the above code:
+
+1. In the `params` hash, require the `user` key
+
+2. Allow only `email`, `password` and `password_confirmation` attributes to be passed in by the user
+
+What exactly will this look like when a user submits a sign up form? The value of `params[:user]` upon form submission should look similar to the following:
+
+```
+{ "email" => "grace@test.com", "password" => "test",
+ "password_confirmation" => "test }
+```
+
+This way, users cannot assign attributes to fields that you do not want them to have access to (such as the option to select whether or not they are an admin). Strong parameters are so important in fact, that Rails will raise an exception if a form is submitted and the model params are not found.
+
+**NOTE**: The strong params plugin not only sanitizes your params, but it allows for flexibility in mass assignment. The permitted attributes are not necessarily required, just permitted. 
+
+####STEP 5: ADD VALIDATIONS
+
+Now that we have successfully set up our params, let's go back inside the User model. Here, you can add validations for the attributes of your choice. This is utilized mostly in the 'Sign Up' portion of our application.
+
+For example:
+
+```ruby
+class User < ActiveRecord::Base
+has_many :recipes
+has_secure_password
+
+validates_uniqueness_of :email
+validates_presence_of :email
+# ... etc.
+
+end
+```
+
+You do not need to add validations for the `password` attribute since they are automatically added by `has_secure_password`. Woo!
+
+####STEP 6: `UsersController`
 
 
-
-
-
-
-#AuthSeries Pt. 2: Creating your own authentication
-
-Welcome to **Part 2** of AuthSeries, a series dedicated to authentication in Rails. In today's post, I will go over how to go about creating your own authentication logic from scratch. Rails has a lot of useful gems that get this job done for you, but I think it's always useful to understand what is going on under the hood before using gems that abstract away these basic, but extremely important principles.
 
