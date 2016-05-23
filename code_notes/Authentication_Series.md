@@ -102,10 +102,6 @@ Welcome to **Part 2** of AuthSeries, a series dedicated to authentication in Rai
 2. Allow users to sign up and login through forms
 3. Use the `has_secure_password` method
 4. Write validations
-5. Write helper methods:
-	+ current_user
-	+ authorize!
-	+ logged_in?
 
 #### STEP 1: GENERATE USER RESOURCE
 
@@ -206,7 +202,7 @@ def user_params
 end
 ```
 
-Let's break down the above code:
+**Let's break down the above code:**
 
 1. In the `params` hash, require the `user` key
 
@@ -289,7 +285,7 @@ class UsersController < ApplicationController
 end
 ```
 
-Let's break down what is happening on within our `create` method:
+**Let's break down what is happening on within our `create` method:**
 
 1. Set the `@user` variable to a new `User` instance with our strong parameters, `user_params`, to mass assign attributes
 
@@ -300,7 +296,7 @@ Let's break down what is happening on within our `create` method:
 
 4. If `@user` does not save successfully due to validation errors, re-render the sign up page with error messages.
 
-####STEP 7: `ROUTES`
+#### STEP 7: `ROUTES`
 
 Now that we have successfully set up our `User` actions, let's write out some routes to make sure our actions actually have paths to which they can route to. 
 
@@ -315,7 +311,7 @@ end
 
 The `resources` keyword will create restful routes for the specified controllers. To view these routes, type in `rake routes` or `rake route | grep users` in terminal. 
 
-####STEP 8: `VIEWS`
+#### STEP 8: `VIEWS/USERS`
 
 It is finally time to move on to our views! 
 
@@ -359,7 +355,7 @@ You can, of course, customize your form in whatever way you'd like. Another opti
 
 We're *almost* there! Next, let's create a link to our sing up page within our application layout.
 
-In `app/views/layouts/application.html.erb`, type in the following line wherever you'd like (I personally like to put this in the navigation bar):
+In `app/views/layouts/application.html.erb`, type in the following line wherever you'd like (I personally like to put this in a `_navigation.html.erb` partial and render it in `layout.html.erb`):
 
 ```ruby
 <%= link_to "Sign Up", new_users_path %>
@@ -381,7 +377,15 @@ At this point, we have successfully managed to create our user and log them in! 
 
 But wait - we still have no way to log ourselves out, or log back in! Let's build that next.
 
-####STEP : `SessionsController`
+#### STEP 9: `SessionsController`
+
+In terminal, type in the following:
+
+```
+rails g controller sessions
+```
+
+This will generate your `SessionsController`, where our authentication will actually happen when a user logs in.
 
 In `SessionsController`, type in the following:
 
@@ -393,13 +397,13 @@ class SessionsController < ApplicationController
   end
 
   def create
-    @user = User.find(params[:user][:email])
-    if @user
+    @user = User.find_by_email(params[:email])
+    if @user && @user.authenticate(params[:password])
       session[:user_id] = @user.id
       flash[:notice] = "Login successful!"
       redirect_to user_path(@user)
     else
-      flash[:notice] = "User does not exist."
+      flash[:notice] = "Email or password is invalid."
       redirect_to new_users_path
     end
   end
@@ -408,21 +412,30 @@ class SessionsController < ApplicationController
     if session[:user_id]
       reset_session
     end
+    flash[:notice] = "Logged out successfully."
     redirect_to '/'
   end
   
 end
 ```
 
-As usual, let's break down what is going on:
+**Let's break down what is going on within our `create` action:**
 
 1. When someone logs in, use their email to search for an existing user with that email address in the database.
 
-2. If a user is found, create a `session[:user_id]` equal to `@user.id` and redirect the user to their show page.
+2. If a user is found and authenticated (`authenticate` is a method that `has_secure_password` provides for us, which will return true or false depending on whether the password entered matches the one saved in the database), create a `session[:user_id]` equal to `@user.id` and redirect the user to their show page.
 
 3. If a user with that email address is not found, redirect the user to the sign up page and show an error message.
 
+The `destroy` action logs a user out by simply resetting the session if the session contains a `user_id`.
 
+Going back into `routes.rb`, let's define a few routes to help us out.
+
+**You can go about the next step in two ways:**
+
+1. Simply add `resources :sessions` into your route file
+
+2. OR create custom routes as shown below:
 
 ```ruby
 Rails.application.routes.draw do
@@ -432,10 +445,65 @@ Rails.application.routes.draw do
   root 'recipes#index'
   get '/' => 'recipes#index'
 
-  get '/signin' => 'sessions#new'
-  post '/signin' => 'sessions#create'
+  get '/login' => 'sessions#new'
+  post '/login' => 'sessions#create'
 
-  delete '/signout' => 'sessions#destroy'
+  delete '/logout' => 'sessions#destroy'
 
 end
 ```
+
+#### STEP 10: `VIEWS/SESSIONS`
+
+Next up are our views! 
+
+In `app/views/sessions/new.html.erb`, type in the following:
+
+```html
+<%= form_for @user, url: {action: "create"} do |f| %>
+  <p>
+  <%= f.label :email %><br>
+  <%= f.text_field :email %>
+  </p>
+  
+  <p>
+  <%= f.label :password %><br>
+  <%= f.password_field :password %>
+  </p>  
+  
+  <%= f.submit "Log In" %>
+<% end %>
+```
+
+This will render our login form when a user visits `www.your-site-name.com/login`, prompting the user to input their email and password with which to authenticate them.
+
+Finally, we will add the following links to our `_navigation.html.erb`:
+
+```html
+<%= link_to "Login", login_path %>
+<%= link_to "Logout", logout_path, :method=>'delete' %>
+```
+
+Now when we go back to `http://localhost:3000/`, you should see:
+
+[login, sign up, logout in navbar]
+
+Clicking on "login" will take us to `http://localhost:3000/login`:
+
+[login form]
+
+[filling out login form]
+
+[if password is incorrect / display error message]
+
+[if login is successful / login success message]
+
+Clicking on "logout" will post to `http://localhost:3000/logout` and redirect the user to the `root_path`:
+
+[logout success message on index page]
+
+And there you have it - you have just built your own Rails authentication system! So proud of you.
+
+#### CONCLUSION
+
+In today's post, we've covered how to set up basic user authentication using sessions, validations, and `has_secure_password`. In our next post, I will go over how to build some great helper methods that will allow us to further tailor our authentication system, including `current_user`, `logged_in?`, and `authenticate!`.
