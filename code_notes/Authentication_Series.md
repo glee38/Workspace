@@ -368,9 +368,13 @@ In `app/views/layouts/application.html.erb`, type in the following line wherever
 Run `rails s` in your terminal to start up the rails server on `http://localhost:3000/` and you should see something similar to:
 
 [drawing of recipes index page with sign up link]
+
 [drawing of login form]
+
 [example of login form with error]
+
 [example of login form filled in]
+
 [recipes index page with success message]
 
 At this point, we have successfully managed to create our user and log them in! We. Are. Awesome. 
@@ -389,14 +393,14 @@ class SessionsController < ApplicationController
   end
 
   def create
-    @user = User.find(params[:user][:id])
+    @user = User.find(params[:user][:email])
     if @user
       session[:user_id] = @user.id
       flash[:notice] = "Login successful!"
       redirect_to user_path(@user)
     else
       flash[:notice] = "User does not exist."
-      redirect_to signin_path
+      redirect_to new_users_path
     end
   end
 
@@ -412,7 +416,13 @@ end
 
 As usual, let's break down what is going on:
 
-1. 
+1. When someone logs in, use their email to search for an existing user with that email address in the database.
+
+2. If a user is found, create a `session[:user_id]` equal to `@user.id` and redirect the user to their show page.
+
+3. If a user with that email address is not found, redirect the user to the sign up page and show an error message.
+
+
 
 ```ruby
 Rails.application.routes.draw do
