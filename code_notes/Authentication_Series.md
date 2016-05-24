@@ -107,7 +107,7 @@ Welcome to **Part 2** of AuthSeries, a series dedicated to authentication in Rai
 
 Let's say we are building a "Recipes" website where users can sign up, login, create, edit and view their own recipes. 
 
-[image of recipes index page]
+![image of recipes index page](http://i66.tinypic.com/ek48k1.jpg)
 
 In order to keep track of our users and store their recipes in the database, we will need to create sign up and login forms on your website. But before we do that, let's begin by generating our User model and migrating it to the database.
 
@@ -363,15 +363,15 @@ In `app/views/layouts/application.html.erb`, type in the following line wherever
 
 Run `rails s` in your terminal to start up the rails server on `http://localhost:3000/` and you should see something similar to:
 
-[drawing of recipes index page with sign up link]
+![click-sign-up](http://i67.tinypic.com/30i9lic.jpg)
 
-[drawing of login form]
+If the form submitted does not pass all validations, the sign up form will re-render with the associated error messages.
 
-[example of login form with error]
+![sign-up-error](http://i67.tinypic.com/21bj0qb.jpg)
 
-[example of login form filled in]
+If the form submitted passes all validations, the user will be persisted to the database, logged in, and redirected to the root page with a success message.
 
-[recipes index page with success message]
+![sign-up-success](http://i67.tinypic.com/xpr6f5.jpg)
 
 At this point, we have successfully managed to create our user and log them in! We. Are. Awesome. 
 
@@ -486,17 +486,17 @@ Finally, we will add the following links to our `_navigation.html.erb`:
 
 Now when we go back to `http://localhost:3000/`, you should see:
 
-[login, sign up, logout in navbar]
+![updated-navbar](http://i67.tinypic.com/3496r7a.jpg)
 
-Clicking on "login" will take us to `http://localhost:3000/login`:
+Clicking on "login" will take us to `http://localhost:3000/login`.
 
-[login form]
+If the form submitted does not pass all validations, the login form will re-render with the associated error messages.
 
-[filling out login form]
+![login-failure](http://i66.tinypic.com/fyj09i.jpg)
 
-[if password is incorrect / display error message]
+If the form submitted passes all validations, the user will be persisted to the database, logged in, and redirected to the root page with a success message.
 
-[if login is successful / login success message]
+![login-success](http://i64.tinypic.com/14d1yky.jpg)
 
 Clicking on "logout" will post to `http://localhost:3000/logout` and redirect the user to the `root_path`:
 
