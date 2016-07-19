@@ -726,31 +726,50 @@ console.log(species.length);
 ```
 
 ####CHANGING CASE
-The two common functions to change the case of a string are toUpperCase() and toLowerCase(). It's important to note that when you call a function that doesn't require a parameter, like toUpperCase() and toLowerCase() does need to be invoked with ().
+The two common functions to change the case of a string are `toUpperCase()` and `toLowerCase()`. It's important to note that when you call a function that doesn't require a parameter, like `toUpperCase()` and `toLowerCase()` does need to be invoked with `()`.
+
+```javascript
 "I'm not shouting!!!".toUpperCase();
 // => "I'M NOT SHOUTING!!!"
  
 "I'M A CONSCIENTIOUS LIBRARIAN.".toLowerCase();
 // => "i'm a conscientious librarian."
-You may notice that there is no pre-built capitalize() method. To capitalize just the first letter of a string, you'll have to make your own custom method.
-REPLACING CHARACTERS
-To replace characters with new characters, you can use the replace() method. It works similarly to Ruby's gsub method in that the first parameter is the set of characters you would like to remove and the second is the string you would like to add instead.
+```
+
+You may notice that there is no pre-built `capitalize()` method. To capitalize just the first letter of a string, you'll have to make your own custom method.
+
+####REPLACING CHARACTERS
+To replace characters with new characters, you can use the `replace()` method. It works similarly to Ruby's `gsub` method in that the first parameter is the set of characters you would like to remove and the second is the string you would like to add instead.
+
+```javascript
 var sentence = "pandas have two compound eyes and a proboscis".replace("pandas", "butterflies");
 // => "butterflies have two compound eyes and a proboscis"
 sentence.replace("two compound eyes", "two antennae")
 // => "butterflies have two antennae and a proboscis"
-Notice that the replace() will replace only the first occurrence:
+```
+
+Notice that the `replace()` will replace only the first occurrence:
+
+```javascript
 var quote = "xylophone phone home";
 quote.replace("o", "*");
  
 // quote is now "xyl*phone phone home"
-The string class' replace() function can also take Regex for the first parameter:
+```
+
+The string class' `replace()` function can also take Regex for the first parameter:
+
+```javascript
 var phoneNumber = "5556768799";
  
 // the line below will return "(555) 676 - 8799"
 phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2 - $3');
-TURN STRING TO NUMBER
-Two different functions to turn are parseInt() and Number(). The Number function creates a new number, while the parseInt function parses the string. Check out this stack overflow post for more information.
+```
+
+####TURN STRING TO NUMBER
+Two different functions to turn are `parseInt()` and `Number()`. The `Number` function creates a new number, while the `parseInt` function parses the string. Check out [this stack overflow post](http://stackoverflow.com/questions/4090518/what-is-the-difference-between-parseint-and-number) for more information.
+
+```javascript
 Number("78");
 // => 78
 parseInt("78");
@@ -759,23 +778,35 @@ Number("20px");
 // => NaN
 parseInt("20px");
 // => 20
- 
-SLICE
-The slice() method extracts a section of a string and returns a new string. It accepts one required parameter, the index to start on, and one optional parameter, the index to end on.
+```
+
+####SLICE
+The `slice()` method extracts a section of a string and returns a new string. It accepts one required parameter, the index to start on, and one optional parameter, the index to end on.
+
+```javascript
 var sentence = "They misunderestimated me.";
 var word = sentence.slice(5, 22);
  
 // the line below prints "misunderestimated"
 console.log(word); 
+```
+
 Like in Ruby, you can also use negative indices with strings:
+
+```javascript
 var bushism = "They misunderestimated me.";
 var word = bushism.slice(5, -4);
  
 // the line below prints "misunderestimated"
 console.log(word); 
-SPLIT
-The split() method splits a String object into an array of strings by separating the string into substrings.
+```
+
+####SPLIT
+The `split()` method splits a String object into an array of strings by separating the string into substrings.
+
+```javascript
 var longString = "Jan,Feb,Mar,Apr,May,Jun";
 var months = longString.split(",");
  
 // months is now ["Jan","Feb","Mar","Apr","May","Jun"]
+```
