@@ -425,3 +425,357 @@ greeting
 // ReferenceError: greeting is not defined
 // This demonstrates that the variable greeting is still local instead of global
 ```
+
+##Intro to Data Types in JS
+####OBJECTIVES
++ Define "data type"
++ Explain JavaScript's data types
++ Use the typeof operator
+
+####WHAT IS A DATA TYPE?
+At the machine level, all data on a computer is bits — 1s and 0s. Humans, it turns out, prefer not to work so close to the metal, so we have data types for describing different bits of information. Data types give us a quick way of understanding how we can operate on a given bit of data.
+
+####MATH!
+Let's do some math. Open up your console and enter:
+
+```javascript
+2 + 2
+```
+
+We should, unsurprisingly, see `4` show up in console. Cool. Now let's try
+
+```javascript
+2 + "2"
+```
+
+(Don't forget the quotation marks around the second number!)
+
+And press enter.
+
+Um. Something's broken?
+
+Do you see `"22"`? That's because we're adding (with the + operator) things of two different *types*. `2` is a number; `"2"` is a string. So when we add them together, JavaScript recognizes that we can't do simple arithmetic — instead, it tries to make the two things compatible. In this case, it turns the first `2` into `"2"` and then *concatenates* (pushes together) the two things — so we get `"22"`.
+
+One last example — before you press "enter" for this one, we want to think about what's going to happen. What will the result be?
+
+```javascript
+"2" + 2
+```
+
+Have you thought about it? What did we learn above? Are you ready? Okay, press "enter".
+
+That's right, the result of `"2" + 2` is also `"22"`.
+
+Why all this mumbo jumbo with types? Well, let's think about it. As humans when we see `2345`, we provide context: we might think of this sequence of integers in our heads as "two thousand three hundred forty-five"; we might note immediately that the integers are consecutive. We understand that `2345 + 2` should give us `2347`.
+
+JavaScript can't do that. It sees `2345` and only knows that it's a number. Similarly, it sees *anything* in quotation marks as a string. We provide the context for JavaScript according to the rules that JavaScript follows — one of those rules happens to describe what happens when we add a number and a string.
+
+####YOU'RE JUST NOT MY TYPE
+How do we know what types we're dealing with? JavaScript gives us the handy dandy `typeof`. We use it like so
+
+```javascript
+typeof 2 // "number"
+typeof "2" // "string"
+typeof '2' // "string" — strings can be enclosed in single (') or double (") quotes
+```
+
+Pretty simple, right?
+In addition to numbers and strings, JavaScript has the following primitive types:
+
++ Boolean
++ Undefined
++ Null
+
+Enter the following commands in your console to get a feel for the different types:
+
+```javascript
+typeof 1
+typeof 10
+typeof 1.123
+```
+
+```javascript
+typeof "Albert"
+typeof '123'
+typeof "What's my type?"
+```
+
+```javascript
+typeof true
+typeof false
+```
+
+```javascript
+typeof undefined
+```
+
+```javascript
+typeof null
+```
+
+Also enter the following — pay attention to the errors!
+
+```javascript
+typeof 1.123.45
+```
+
+```javascript
+typeof 'I'm not going to work'
+```
+
+For now, we're going to explore numbers and strings the most. Later in the curriculum, you'll learn a lot more about booleans, `null` and `undefined`.
+
+####NUMBERS
+JavaScript uses numbers just like you would think of them, and we can even use decimal points. Enter the following in console:
+
+```javascript
+4
+8.0
+16.123
+```
+
+In fact, JavaScript treats *all* numbers as if they have decimal points (even if they don't). Sometimes this can lead to unexpected consequences. Enter the following in console:
+
+```javascript
+4
+```
+
+If you press enter, you'll see `4`. Simple enough. Now enter the following:
+
+```javascript
+4.0000000000000001
+```
+
+If you press `enter`, you'll see... `4`. Hrm. It's not important to know the details of how this behavior works right now (although we encourage you to search for resources online if you find it interesting!), but it is important to know that it happens.
+
+####STRINGS
+Strings are very straightforward in JavaScript. They are collections of characters. Plus signs are used to concatenate strings.
+
+In their most basic form, strings look like
+
+```javascript
+"I'm a string"
+'I\'m also a string'
+```
+
+Notice that we added a `\` before the `'` in the second string above. Because we use quotation marks to tell JavaScript, "Hey, this is a string!", we have to *escape* quotation marks when they're inside of a string so that JavaScript knows to treat them as part of the string.
+
+Go ahead and enter `'I\'m a string'` in console. You should see `"I'm a string"` — when we wrap a string in double quotation marks, we don't need to escape single quotation marks (the apostrophe, in this example) that appear inside.
+
+```javascript
+"I'm a string"
+```
+
+Similarly, we don't need to escape double quotes when we use them in a singly-quoted string:
+
+```javascript
+'I said, "Strings are pretty nifty."'
+```
+
+We can "add" strings together — this is called concatenation:
+
+```javascript
+'Hello, ' + 'World'  // Returns 'Hello, World'
+ 
+'High ' + 5 + '!!!' // Returns 'High 5!!!'
+```
+
+We can also insert strings into other strings — this is called *interpolation*. JavaScript supports string interpolation with [template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals).
+
+Template literals look and behave like strings, except instead of being wrapped in a single or double quote, they're wrapped in backticks (at the top left of your keyboard — it looks like `).
+
+```javascript
+`High ${3 + 2}!` // 'High 5!'
+```
+
+We'll cover string interpolation in greater depth later on, but for now notice that the whole string is wrapped in backticks, and the part that we *interpolate* is wrapped in `${}`. This, `${}`, is simply a special signal to JavaScript that people weren't likely to write out on their own — it signals to the JavaScript interpreter that it should *evaluate* (that is, run the code) whatever is inside of it. Being able to evaluate our code and put the result directly inside of a string is a super powerful idea that we'll make lots of use of.
+
+##Primitive Data Types And Objects in JS
+
+####OBJECTIVES
++ Explain what a primitive data type is
++ Explain what an object is
++ Create a primitive data type
++ Create an object
++ Explain why use the literal constructor over the new constructor
+
+While JavaScript shares a lot of the same data types with Ruby, it does handle them a little bit differently.
+
+In Ruby, every data type is an object. A string (whether its made with the literal constructor or `String.new`) is considered an instance of the String class. Also in Ruby, every object is mutable, which means you can change the object with methods like `upcase` and `swapcase`.
+
+In JavaScript, data types fall into two categories: **primitive data types** and **objects** and they behave very differently.
+
+All primitive types are immutable (values incapable of being changed), while objects are mutable. Primitive values are important for application performance. They are way faster for an application to process than objects.
+
+####PRIMITIVE DATA TYPES
+JavaScript has six primitive data types:
++ Number
++ String
++ Boolean
++ Undefined
++ Null
++ Symbol
+
+Primitive values are created using the literal constructor for each data type.
+
+```javascript
+var name = "joe";
+typeof name;
+// returns "string"
+ 
+var cents = 99;
+typeof cents;
+// returns "number"
+ 
+var truth = true;
+typeof truth;
+//returns "boolean"
+```
+
+####OBJECTS
+In JavaScript, objects can be seen as a collection of properties. You can think of them as most similiar to Ruby hashes, but with superpowers of storing functions as values in addition to the standard strings, numbers, etc.
+
+Objects are created using the New constructor:
+
+```javascript
+var word = new String("hello");
+typeof word;
+//returns "object"
+ 
+word;
+//returns String {0: "h", 1: "e", 2: "l", 3: "l", 4: "o", length: 5, [[PrimitiveValue]]: "hello"}
+ 
+var num = new Number(10);
+typeof num;
+//returns "object"
+num;
+//returns Number {[[PrimitiveValue]]: 10}
+```
+
+Because objects are mutable, you can use convenience methods to mutate these values. We'll get more into String convenience methods later, but just know they exist and can be done to any string object.
+
+####MUTATING NUMBERS AND STRINGS
+So we know we can modify objects but not primitive data types. But that's not entirely true. Let's take a string created with the literal constructor as an example:
+
+```javascript
+var word = "hello";
+typeof word;
+//returns "string"
+ 
+ 
+word.toUpperCase();
+// returns "HELLO"
+```
+
+But wait, I thought primitive values, like the one we just created, were immutable? That's because JavaScript gives you the ability to treat primitive values like objects. In the example above, behind the scenes, JavaScript turns the primitive value into an object, mutates the object, and turns it back into a primitive value.
+
+Given the following code:
+
+```javascript
+  var greeting = "hello";
+  var word = new String("hello");
+  word === greeting; 
+  // returns false
+ ```
+  
+The `===` is a type comparison operator. This means that it checks not just value, but data type. If the value and the data type don't match, it returns false. Using the type comparison operator, `greeting` and `word` are not the same type (one is a primitive value and the other an object) so we wouldn't expect them to be equal. But you can use convenience methods to manipulate both in the same way.
+
+Because of this, you want to use the literal constructor as much as possible. For all intents and purposes, you can use the literal constructor and the new constructor in same way, but your code will process much more quickly with the literal constructor.
+
+##Strings in JS
+####OBJECTIVES
++ Use string concatenation
++ Use JS string convenience methods
++ Convert string to number data type
+
+Just like in Ruby, JavaScript has a handful of convenience methods built into the language that allow us to easily manipulate and modify strings. You can read all about Strings in JS, and even more methods [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String).
+
+Feel free to open up the Developer Tools in Chrome or Firefox to play around with these methods.
+
+####CONCATENATION
+Unlike Ruby, JavaScript doesn't come with a prior knowledge of how to interpolate a variable (remember, interpolation in Ruby looks like this: `"Hi, my name is #{name}"`).
+
+Instead, when you want to combine several variables into one long string, you must concatenate.
+
+```javascript
+var name = "cricky";
+console.log("Hi my name is " + name);
+//this will print "Hi my name is cricky"
+```
+
+JavaScript does something unusual when you add a string with a number:
+
+```javascript
+var hours = 10;
+var species = "sloths";
+ 
+// the line below prints "sloths sleep 10 hours a day"
+console.log(species + " sleep " + hours + " hours a day");
+```
+
+You'll notice in the example above, the variable `hours` is storing a number, while the rest of the sentence is a string. When adding a number and a string, JavaScript automatically transforms the number into a string.
+
+####LENGTH
+Javascript strings have a `length` property that will return the number of characters in that string. Note that this is not a function call.
+
+```javascript
+var species = "mantis shrimp";
+ 
+// the line below will print 13
+console.log(species.length);
+```
+
+####CHANGING CASE
+The two common functions to change the case of a string are toUpperCase() and toLowerCase(). It's important to note that when you call a function that doesn't require a parameter, like toUpperCase() and toLowerCase() does need to be invoked with ().
+"I'm not shouting!!!".toUpperCase();
+// => "I'M NOT SHOUTING!!!"
+ 
+"I'M A CONSCIENTIOUS LIBRARIAN.".toLowerCase();
+// => "i'm a conscientious librarian."
+You may notice that there is no pre-built capitalize() method. To capitalize just the first letter of a string, you'll have to make your own custom method.
+REPLACING CHARACTERS
+To replace characters with new characters, you can use the replace() method. It works similarly to Ruby's gsub method in that the first parameter is the set of characters you would like to remove and the second is the string you would like to add instead.
+var sentence = "pandas have two compound eyes and a proboscis".replace("pandas", "butterflies");
+// => "butterflies have two compound eyes and a proboscis"
+sentence.replace("two compound eyes", "two antennae")
+// => "butterflies have two antennae and a proboscis"
+Notice that the replace() will replace only the first occurrence:
+var quote = "xylophone phone home";
+quote.replace("o", "*");
+ 
+// quote is now "xyl*phone phone home"
+The string class' replace() function can also take Regex for the first parameter:
+var phoneNumber = "5556768799";
+ 
+// the line below will return "(555) 676 - 8799"
+phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2 - $3');
+TURN STRING TO NUMBER
+Two different functions to turn are parseInt() and Number(). The Number function creates a new number, while the parseInt function parses the string. Check out this stack overflow post for more information.
+Number("78");
+// => 78
+parseInt("78");
+// => 78
+Number("20px");
+// => NaN
+parseInt("20px");
+// => 20
+ 
+SLICE
+The slice() method extracts a section of a string and returns a new string. It accepts one required parameter, the index to start on, and one optional parameter, the index to end on.
+var sentence = "They misunderestimated me.";
+var word = sentence.slice(5, 22);
+ 
+// the line below prints "misunderestimated"
+console.log(word); 
+Like in Ruby, you can also use negative indices with strings:
+var bushism = "They misunderestimated me.";
+var word = bushism.slice(5, -4);
+ 
+// the line below prints "misunderestimated"
+console.log(word); 
+SPLIT
+The split() method splits a String object into an array of strings by separating the string into substrings.
+var longString = "Jan,Feb,Mar,Apr,May,Jun";
+var months = longString.split(",");
+ 
+// months is now ["Jan","Feb","Mar","Apr","May","Jun"]
