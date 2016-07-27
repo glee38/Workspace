@@ -1789,3 +1789,190 @@ The following is written in all caps to stress its importance; it's qualified in
 **YOU ALMOST ALWAYS WANT TO USE `===` or `!==`.**
 
 Relying on JavaScript's implicit type-casting is inviting subtle and hard to track bugs into your code. Use `===` and `!==`. The only exception is when you're dealing with a value that might be either `null` or `undefined` but can also be `0` or `false`. In this case, a simple `if (variable) { ... }` won't work, because all of the above are false-y. But we can check `if (variable == null) { ... }` or `if (variable != null) { ... }` to catch `null` and `undefined` but not `0` and `false`.
+
+##Intro To Flow Control in JS
+####OBJECTIVES
++ Write if-statements in JS
++ Write if-elsif-else statements in JS
++ Use the ternary operator in JS
++ Write switch statements in JS
+
+####ABOUT
+Flow Control allows the execution of code only under certain conditions. In Ruby, we used if statements, if/else statements, if/elsif/else statements, ternary operators, and case statements to control what code runs when. JavaScript has similar methods to control what blocks of code to execute: if statements, if/else statements, if/else if/else statements, ternary operators, and switch statements.
+
+####IF STATEMENTS
+An if statement evaluates the code wrapped in parenthesis to either true or false. If `true`, the code block is executed. If false, nothing is executed.
+
+JS Syntax:
+
+```javascript
+if (conditionToTestIsTrue) {
+  // code to be executed here
+}
+```
+
+Let's write a function `basicTeenager` that accepts an age as a parameter. The function should contain an if-statement that checks to see if the age is a teenager. If the age is a teenager, it should return `"You are a teenager!"`
+
+```javascript
+function basicTeenager(age) {
+  if (age >= 13 && age <= 19) {
+    return "You are a teenager!";
+  }
+}
+```
+
+####IF/ELSE STATEMENTS
+You will often see an `If` statement used in combination with an `else` clause. An `else` clause is a fallback to an `if` statement and will only get executed if the previous if statement is false.
+
+Syntax:
+
+```javascript
+if (conditionToTestIsTrue) {
+  // condition is false hence code is not executed
+} else {
+  // code to be executed because previous condition is false
+}
+```
+
++ Define a function `teenager` that accepts an age as a parameter. If the age is between 13-19 it should return `"You are a teenager!"`. Otherwise, the function should return `"You are not a teenager"`.
+
+```javascript
+function teenager(age) {
+  if (age >= 13 && age <= 19) {
+    return "You are a teenager!";
+  } 
+  else {
+    return "You are not a teenager";
+  }
+}
+```
+
+####IF/ELSE IF STATEMENTS
+`if` statements can also be combined with an `else if` clause. This is like an else statement, but with its own condition. It will only run if its condition is true, and the previous statement's condition was false.
+
+**Note**: An important thing to keep in mind when transitioning to JavaScript from Ruby is that the `elsif` becomes two full words: `else if`.
+
+Syntax:
+
+```javascript
+if (conditionToTestIsTrue){
+    // condition is false hence code is not executed
+} else if (thisConditionIsTrue) {
+  // execute this code if previous statement is false
+} else {
+  // execute this code if the 2 conditions above are false
+}
+```
+
++ Define a function `ageChecker` that takes in an age as a parameter. If the age is between 13-19 it should return `"You are a teenager!"`. If the age is 12 or below, it should return `"You are a kid"`. If the age is above 19, it should return `"You are a grownup"`
+
+```javascript
+function ageChecker(age) {
+  if (age >= 13 && age <= 19) {
+    return "You are a teenager!";
+  } 
+  else if (age <= 12) {
+    return "You are a kid";
+  } 
+  else {
+    return "You are a grownup";
+  }
+}
+```
+
+####TERNARY OPERATOR
+The ternary operator is used as a shortcut for the `if-else` statement. You've probably seen it before in Ruby looking something like this:
+
+```ruby
+cart = ["graphic t-shirt", "aluminum water bottle"]
+ 
+puts cart.empty? ? "Please add something to your cart." : "You're ready to check out." 
+ 
+# Above prints:
+# You're ready to check out.
+```
+
+This operator tests a condition; if the condition is true, it returns a certain value, otherwise it returns a different value:
+
+Syntax:
+
+```javascript
+conditionToTest ? valueToBeReturnedIfTrue : valueToBeReturnedIfFalse
+```
+
++ Define a function `ternaryTeenager` that accepts age as a parameter. The body of the function should use the ternary operator to return `"You are a teenager"` if age is between 13-19 and returns `"You are not a teenager"` if the age is anything else.
+
+```javascript
+function ternaryTeenager(age) {
+  return (age >= 13 && age <= 19) ? "You are a teenager" : "You are not a teenager";
+}
+```
+
+####SWITCH STATEMENTS
+Switch statements acts like a big if/else if/else chain. The switch expression is evaluated once and the value of the expression is compared with the values of each case. If there is a match, the associated block of code is executed.
+
+Syntax:
+
+```javascript
+switch (expression) {
+  case n:
+      // code to be executed if case n is true
+      break; // break out of switch statement once code executed
+  case m:
+      // code to be executed if case m is true
+      break; // break out of switch statement once code executed
+  default:  // all other cases
+      // code to be executed if case n and case m false
+}
+```
+
+Example:
+
+```javascript
+var mood = "hungry"
+switch(mood){
+  case "happy":
+    console.log("Dance to Pharrel's Happy");
+    break;
+  case "sad":
+    console.log("You should eat a pint of icecream");
+    break;
+  case "anxious":
+    console.log("Take some deep breaths");
+    break;
+  case "hungry":
+    console.log("You should eat a big chocolate cake");
+    break;
+  default: 
+    console.log("That's not a mood we support");
+}
+```
+
+In the example above, we'll see `"You should eat a big chocolate cake"` printed to the console. If we change the value of the `mood` variable to `sad` you'll see `"You should eat a pint of icecream"`. If the value of `mood` changed to `"grumpy"`, the default statement would trigger and print out `"That's not a mood we support"`.
+
++ Define a function `switchAge` that accepts an age as a parameter. The case statement should switch on `age` and return `"You are a teenager"` if the age is 13, 14, 15, 16, 17, 18, or 19, and return `"You have an age"` as the default.
+
+```javascript
+function switchAge(age) {
+  switch(age) {
+    case 13:
+    case 14:
+    case 15:
+    case 16:
+    case 17:
+    case 18:
+    case 19:
+      return "You are a teenager";
+      break;
+    default:
+      return "You have an age";
+      break;
+  }
+}
+```
+
+####RESOURCES
++ [Codecademy - if/if else/if else if else](http://www.codecademy.com/glossary/javascript/if-statement)
++ [MDN - if..else](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/if...else)
++ [Codecademy - Ternary Operator](http://www.codecademy.com/glossary/javascript/ternary-operator)
++ [Codecademy - Switch Statements](http://www.codecademy.com/glossary/javascript/switch-statements)
