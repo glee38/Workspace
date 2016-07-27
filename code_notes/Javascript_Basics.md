@@ -1533,3 +1533,216 @@ Then, if you open up `index.html` in your browser (if you're using the IDE, simp
 As we mentioned above, we're actually running our tests in a slightly contrived environment. This setup lets us be very flexible with our approach to debugging. If you're reading this lesson locally (that is, if you aren't using the IDE), you can run `npm run debug` to launch a debugging session in your browser. This will run the tests in Terminal.app, letting you inspect the results as you step through the code. Note that you must use Chrome for the debugger to work.
 
 Simply navigate to the provided URL in Chrome on your machine, and you can debug remotely.
+
+##JS Scope
+####OBJECTIVES
++ Explain how scope works in JavaScript
++ Explain what lexical or function-level scope is
++ Explain what block-level scope is
++ Explain how local and global variables work in JS
+
+####WHAT IS SCOPE?
+Scope is the current context of your code, and can be locally or globally defined. Understanding scope is the key to understanding how your variables interact with each other in your code. Without a solid understanding of scope, your variables could be storing entirely different values than you think they are.
+
+####RUBY VERSUS JAVASCRIPT SCOPE
+When talking about scope in this README, we mean variable scope — what's available in the context of your currently executing code. In Ruby, there are four levels of variable scope — global, class, instance, and local — determined by prefixes on the variable name:
+
++ `$` for global variables
++ `@@` for class variables
++ `@` for instance variables
++ no prefix for local variables
+
+We'll focus on local variables for now. In Ruby, a variable's locality is determined by the function context it appears in. So in this example
+
+```ruby
+def locality
+  here = true
+end
+```
+
+`here` is local to the method `locality`. Similarly,
+
+```ruby
+["bread", "wine", "cheese"].each do |food|
+  puts food
+end
+```
+
+In the above example, `food` is local to the `each` block.
+
+In Ruby, you can only access local variables that have been declared before the currently executing line in the current scope:
+
+```ruby
+x = 1
+$x = 3
+@@x = 4
+@x = 5
+ 
+def my_method
+  y = 2
+  puts $x
+  puts @@x
+  puts @x
+  puts x
+end
+ 
+my_method
+ 
+puts y
+ 
+puts x
+```
+
+The method call `my_method` returns the unknown local variable or method error, because `x` is not defined in the scope of that method. However, it successfully prints `$x`, `@@x`, and `@x` because of their broader scopes. (You'll probably see `warning: class variable access from toplevel` for `@@x` — this is expected, and you shouldn't use class variables in this way. We're bending the rules here to highlight how local scope works.)
+
+`puts y` returns the exact same error as `my_method` because `y` was only defined inside the method, not in the global scope. `puts x` does work, because we're printing out `x` in the same scope in which it was created.
+
+But translate that same code to JavaScript and you get a very different result:
+
+```javascript 
+var x = 1;
+ 
+function myFunction(){
+  var y = 2;
+  console.log(x);
+}
+ 
+ 
+myFunction();
+// prints out 1
+ 
+console.log(y)
+// error - y is not defined
+ 
+console.log(x)
+// prints out 1
+```
+
+The function call `myFunction();` actually does work perfectly, even `console.log(x);` This is because the variable `x` is defined in the global scope. Any variable defined in an outer scope is available to inner scopes. (So *everything* defined in the global scope is available *everywhere*.)
+
+However, anything defined in a function is not accessible outside of it, which is why the `console.log(y);` does not work. `y` was only defined inside the `myFunction` function, making it inaccessible anywhere else.
+
+And again `console.log(x);` works because were printing it out in the scope in which it was defined.
+
+####THE KEY TO SCOPE
+To determine a variable's scope in JavaScript, ask yourself two questions:
+
+```
+1. Is it declared inside a function?
+2. Is it declared with the `var` keyword?
+```
+
+If a variable is declared in the outermost scope of a project, it's going to be global no matter what – that is, whether you write `var foo = 'bar'` or `foo = 'bar'`. Remember, saying that a variable is "global" in JavaScript just means that it's a property of the top-most object. (In the browser, that object is `window`; in other environments (like Node.js), it could be `global`.)
+
+Inside a function, variables declared with `var` are only available within that function's scope. Variable's declared without `var` attach themselves to the global object.
+
+Contrast this to Ruby's variable scoping mechanisms: Where Ruby uses prefixes to determine a variable's scope, JavaScript determines scope primarily based on where a variable is declared (and only when declared within a function does any sort of keyword prefix matter).
+
+In our `myFunction` function, the variable `y` was defined with the `var` keyword. If instead, we had done:
+
+```javascript
+function myFunction(){
+  y = 2;
+  console.log(x);
+}
+```
+
+We would be able to call `console.log(y)` outside the function as well.
+
+Let's take our whole code example:
+
+```javascript
+var x = 1;
+ 
+function myFunction(){
+  y = 2;
+  console.log(x);
+}
+ 
+console.log(y);
+ 
+console.log(x);
+```
+
+If you copy and paste this into the JS Console, you'll get an error with `console.log(y);` At this point in time, even though y is a global variable, the variable hasn't been defined. JavaScript has just stored a function called `myFunction`.
+
+If we were to do this:
+
+```javascript
+var x = 1;
+ 
+function myFunction(){
+  y = 2;
+  console.log(x);
+}
+ 
+myFunction();
+ 
+console.log(y);
+ 
+console.log(x);
+```
+
+Now, because of the `myFunction` call, the global variable `y` exists, and `console.log(y)` will work!
+
+####THE SCOPE OF SCOPE, OR GETTING CLOSURE
+One of the most powerful things about scope in JavaScript is how easily we can hide variables from the global scope but still make them available in inner scopes.
+
+```javascript
+function outerFunction() {
+  var innerVariable = "I'm sort of a secret.";
+ 
+  return function innerScope() {
+    var inaccessible = "Nothing can touch me.";
+ 
+    return innerVariable;
+  }
+}
+```
+
+JavaScript has first-class functions, meaning that we can pass them around with ease. When we call `outerFunction()`, the returned value is another function.
+Let's give it a try:
+
+```javascript
+var myScope = outerFunction();
+ 
+// the stringified version of `innerScope()`
+myScope;
+```
+
+Cool! What happens if we try to call innerScope() directly?
+
+```javascript
+innerScope();
+```
+
+This will throw the error `undefined is not a function` (very helpful, JavaScript). But if we call `myScope` (the variable to which we assigned the output of `outerFunction()`):
+
+```javascript
+myScope();
+```
+
+We should see `"I'm sort of a secret."` returned! What happened?
+
+Inside `outerFunction()`, we made the variable `innerVariable` available to `innerScope()` in what we call a **closure**. In this example, `innerScope()` *remembers* the environment it was created in, and it maintains references to variables declared in that environment in a closure. As we noted above, JavaScript functions have access to their entire outer scope, so the `innerScope()` function has access to `outerFunction()`'s environment and to the global (`window`) environment.
+
+Note, though, that `outerFunction()` doesn't know anything about what's in `innerScope()` — the variable `inaccessible` is aptly named, because we can't get at its value except inside `innerScope()`.
+
+####A FINAL NOTE (EXTRA CREDIT)
+We've over-simplified the case for JavaScript for the moment. ECMAScript 6 (ES6) introduces two new declarations, `let` and `const`. Scope-wise, the difference is that `let` and `const` have block-level scope whereas `var` only has function-level scope. This means that declaring with `let` and `const` inside, for example, an `if` block will restrict the use of a variable to that `if` block. You can try out the following at https://babeljs.io/repl
+
+```javascript
+if (true) {
+  const blockVariable = "block";
+  var localVariable = "local";
+}
+ 
+// when you run the following lines, you should see:
+// "local"
+// blockVariable is not defined
+// on the right-hand side of the lower middle part of your screen.
+console.log(localVariable);
+console.log(blockVariable);
+```
+
+Try changing `const` to `let` — you should get the same error output.
