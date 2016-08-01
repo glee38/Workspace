@@ -2379,6 +2379,120 @@ do {
 
 Remember how we couldn't be sure with the plain `while` loop above that the body would run using `maybeTrue()`? With `do`, we *can* be sure that the body will run!
 
-**TODO**: Define a function called `doWhileLoop` in loops.js. The function should take an array as an argument. Use the maybeTrue() function (you can copy it from this README) as the condition, and remove elements from the array until the array is empty or until maybeTrue() returns false. (Your condition might look something like array.length > 0 && maybeTrue().) Finally, return the array.
-CONCLUSION
-If seeing all of these new loops all at once is freaking you out, take a deep breath. Remember, 98% of the time you will want to use a for loop. A general heuristic for choosing which loop, is try a for. If using for doesn't serve your purposes, then go ahead and try a different loop. Also remember that you can always refer to documentation on these loops at any time. After some time coding in JavaScript, writing a for loop will come as naturally to you as wrapping one gift after another.
+**TODO**: Define a function called `doWhileLoop` in `loops.js`. The function should take an array as an argument. Use the `maybeTrue()` function (you can copy it from this README) as the condition, and remove elements from the array until the array is empty or until `maybeTrue()` returns `false`. (Your condition might look something like `array.length > 0 && maybeTrue()`.) Finally, return the array.
+
+####CONCLUSION
+If seeing all of these new loops all at once is freaking you out, take a deep breath. Remember, 98% of the time you will want to use a `for` loop. A general heuristic for choosing which loop, is try a `for`. If using `for` doesn't serve your purposes, then go ahead and try a different loop. Also remember that you can always refer to documentation on these loops at any time. After some time coding in JavaScript, writing a `for` loop will come as naturally to you as wrapping one gift after another.
+
+##Hashes in JS
+####OBJECTIVES
++ Explain what a hash in JavaScript is
++ Create an object in JS
++ Access a value from an object
++ Add a key-value pair to an object
++ Delete a key-value pair from an object
++ Iterate over key-value pairs in an object
+
+####INTRO
+In JavaScript, all objects are effectively key-value pairs. We're not going to talk about objects in relation to Object Orientation, but objects as hashes. We will eventually get to objects and properties of objects, but right now we're just focused on how to create, manipulate and delete key-value pairs from a "hash".
+
+JavaScript Objects behave sort of like a cross between Classes and Hashes in Ruby. For now, we're just going to focus on how to use them like a hash. From here on out, we'll be referring to a hash as an object. Every time you see the word "object" think "hash".
+
+####CREATING OBJECTS
+You can create an object in two different ways, with the literal syntax and with the new Object constructor.
+
+Literal Syntax:
+
+```javascript
+var meals = {};
+```
+
+Object Constructor:
+
+```javascript
+var meals = new Object();
+```
+
+You can also create an object with key-value pairs:
+
+```javascript
+var meals = {breakfast: "oatmeal"};
+```
+
+Note that JavaScript does not have `=>` syntax. You mark a key with `:` and set the value directly after.
+
+####ADDING TO AN OBJECT
+Now that we have an empty object, it's time to start adding key-value pairs:
+
+```javascript
+var meals = {}
+meals["breakfast"] = "oatmeal"
+meals["lunch"] = "turkey sandwich"
+meals["dinner"] = "steak and potatoes"
+```
+
+####ACCESSING A VALUE
+Just like in Ruby, we access the value of an object from its key:
+
+```javascript
+var meals = {breakfast: "oatmeal", lunch: "turkey sandwich", dinner: "steak and potatoes"}
+meals["breakfast"] //returns "oatmeal"
+meals["lunch"] // returns "turkey sandwich"
+meals["dinner"] // returns "steak and potatoes"
+```
+
+####DELETING A KEY-VALUE PAIR
+Let's say it's only 5pm and we haven't actually eaten dinner yet, so we want to delete the dinner key-value pair:
+
+```javascript
+var meals = {breakfast: "oatmeal", lunch: "turkey sandwich", dinner: "steak and potatoes"};
+delete meals["dinner"];
+meals;
+//returns {breakfast: "oatmeal", lunch: "turkey sandwich"}
+```
+
+####CHANGING A VALUE
+Let's say we actually ate oatmeal and a banana for breakfast, and we want to update the value the `breakfast` key is storing:
+
+```javascript
+var meals = {breakfast: "oatmeal", lunch: "turkey sandwich", dinner: "steak and potatoes"};
+meals["breakfast"] = "oatmeal and banana";
+meals;
+//returns {breakfast: "oatmeal and banana", lunch: "turkey sandwich", dinner: "steak and potatoes"}
+```
+
+####CHECK EMPTY OBJECT
+Unlike Ruby, JavaScript does not have a handy `.empty?` convenience method. But, you can check to see if your object is empty by using `Object.keys(yourObject)` which returns an array of all the keys in your object.
+
+```javascript
+var meals = {breakfast: "oatmeal", lunch: "turkey sandwich", dinner: "steak and potatoes"};
+Object.keys(meals);
+//returns ["breakfast", "lunch", "dinner"]
+```
+
+You can also count the number of key-value pairs by doing something like this:
+
+```javascript
+var meals = {breakfast: "oatmeal", lunch: "turkey sandwich", dinner: "steak and potatoes"};
+Object.keys(meals).length;
+//returns 3
+```
+
+####ITERATING OVER AN OBJECT
+In order to iterate over an object, we need to use a new loop, the for in loop. We'll stick with the meals object for this example. The for in loop looks something like this:
+
+```javascript
+for (variable in object) {
+  // code to be executed goes here
+}
+```
+
+In this case, we want to iterate over every key value pair, so our variable is `key` and our object is `meals`. JavaScript will automagically take every key in the hash in turn and print out in the console, `"for breakfast I ate oatmeal"`, `"for lunch I ate turkey sandwich"`, `"for dinner I ate steak and potatoes"`.
+
+```javascript
+var meals = {breakfast: "oatmeal", lunch: "turkey sandwich", dinner: "steak and potatoes"};
+for (var key in meals) {
+  console.log("for " + key + " I ate " + meals[key]);
+}
+```
+
