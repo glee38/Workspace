@@ -42,13 +42,25 @@ document.getElementById("hey").style.backgroundColor = "#ccc";
 
 `document` is the JavaScript object that represents the HTML document that gets loaded to render the page. We can use JavaScript functions to select and manipulate different HTML elements via `document`.
 
-The functions getElementById() selects an HTML element by an ID. In this case we're passing in the ID "hey" which will select the p tag on our page. We're then using the JavaScript style.property = "value" function which allows us to change the CSS of an element.
+The functions `getElementById()` selects an HTML element by an ID. In this case we're passing in the ID `"hey"` which will select the `p` tag on our page. We're then using the JavaScript `style.property = "value"` function which allows us to change the CSS of an element.
+
 Now that we're familiar with using JavaScript to change the CSS, let's try to float the text to the right side of the page.
+
 For earlier versions of Firefox and Chrome, you could achieve that with the following JS:
+
+```javascript
 document.getElementById("header").style.cssFloat = "left";
+```
+
 But this code wouldn't work with earlier versions of Internet Explorer. Instead, you would have to write:
+
+```javascript
 document.getElementById("header").style.styleFloat = "left";
+```
+
 This need for different JavaScript code for different browsers can get very messy very quickly. Suddenly you need crazy if-statements and browser detection to trigger different lines of code for each browser, all just for a simple CSS change.
-JQUERY TO THE RESCUE
+
+####JQUERY TO THE RESCUE
 jQuery was created to solve this problem of needing different lines of code for different browsers. If you include the jQuery library in your code, you can write one single line of code that handles each browser on its own. AMAZING!
-jQuery provides us with immense convenience methods that make our jobs as developers much easier, especially when dealing with AJAX and API calls. We can write significantly fewer lines of code and still achieve the same effect. jQuery is also an open source library and has a tremendous community around it. At the time of this writing, over 78% of the top million sites on the web use jQuery - crazy! There are many many jQuery plugins that provide additional functionality and that allow us to build complex applications very quickly.
+
+jQuery provides us with immense convenience methods that make our jobs as developers much easier, especially when dealing with AJAX and API calls. We can write significantly fewer lines of code and still achieve the same effect. jQuery is also an open source library and has a tremendous community around it. At the time of this writing, over [78% of the top million sites on the web use jQuery](http://trends.builtwith.com/javascript/jQuery) - crazy! There are many many jQuery plugins that provide additional functionality and that allow us to build complex applications very quickly.
