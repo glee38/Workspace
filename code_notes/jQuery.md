@@ -373,108 +373,318 @@ Now that we know about jQuery selectors, we know how to select HTML elements to 
 
 ####ATTRIBUTE METHODS
 Attribute methods retrieve the value of a DOM attribute and set that value based on a specific parameter. There are a ton of attribute methods, including (but not limited to `addClass`, `removeClass`, `toggleClass`, and `val`)
-ADDCLASS
-The addClass() function is called on a specific HTML element, and adds a class (passed in as a parameter) to that element.
+
+####ADDCLASS
+The `addClass()` function is called on a specific HTML element, and adds a class (passed in as a parameter) to that element.
+
 Given the following HTML:
+
+```html
 <p> This is my paragraph</p>
+```
+
 And this CSS:
+
+```css
 .myBorder {
   border-color: blue;
   border-width: 5px;
   border-style: dotted;
 }
-In our HTML, we never applied the class myBorder to our p tag. But let's say we wanted to do that programmatically with jQuery:
+```
+
+In our HTML, we never applied the class `myBorder` to our `p` tag. But let's say we wanted to do that programmatically with jQuery:
+
+```javascript
 $("p").addClass("myBorder").
-We use $("p") as our selector to select the p tag, and then we call the addClass function, and pass it the paramater "myBorder".
+```
+
+We use `$("p")` as our selector to select the `p` tag, and then we call the `addClass` function, and pass it the paramater `"myBorder"`.
+
 Our resulting HTML will look like this:
+
+```html
 <p class="myBorder"> This is my paragraph</p>
-VAL
-Let's say you're building a form for an online order. Typically, you give your user an option to check if their shipping address is different than their billing address. If they click the box that they are different addresses, then they would expect an additional form to fill out for shipping address. In order to achieve this, you would want to check the value of the checkbox, and trigger the form to be filled out if it is checked with the val function.
-The val() function returns the value attribute for an HTML element.
+```
+
+####VAL
+Let's say you're building a form for an online order. Typically, you give your user an option to check if their shipping address is different than their billing address. If they click the box that they are different addresses, then they would expect an additional form to fill out for shipping address. In order to achieve this, you would want to check the `value` of the checkbox, and trigger the form to be filled out if it is checked with the `val` function.
+
+The `val()` function returns the `value` attribute for an HTML element.
+
 Given the following HTML:
+
+```html
 <form>
   <input type="checkbox" value="choice a">Choice A
   <input type="checkbox" value="choice b">Choice B
 </form>
+```
+
 We can select the value of an input with:
+
+```javascript
 $('input').val();
-It's important to note that this function returns the very first match, so it would find the first input field and return "choice a".
+```
+
+It's important to note that this function returns the very first match, so it would find the first input field and return `"choice a"`.
+
 We could change our selector to look for the selected checkbox:
+
+```javascript
 $('input:checked').val();
-If you wanted to change the value of the input to "choice Z" instead of "choice a", you would just pass a parameter to the val function:
+```
+
+If you wanted to change the value of the input to "choice Z" instead of `"choice a"`, you would just pass a parameter to the val function:
+
+```javascript
 $('input').val("choice Z");
-CSS METHODS
-This group of jQuery methods deals with retrieving and setting CSS properties of HTML elements. These methods include addClass, hasClass, removeClass, width, scrollLeft, and many more.
-HASCLASS
-If you wanted to trigger an event based on a class already set on a property, you could use hasClass to check if that class exists. If it does, it will return true.
-Given the following HTML
+```
+
+####CSS METHODS
+This group of jQuery methods deals with retrieving and setting CSS properties of HTML elements. These methods include `addClass`, `hasClass`, `removeClass`, `width`, `scrollLeft`, and many more.
+
+####HASCLASS
+If you wanted to trigger an event based on a class already set on a property, you could use `hasClass` to check if that class exists. If it does, it will return `true`.
+
+Given the following HTML:
+
+```html
 <ul class="favList">
   <li>Chocolate</li>
   <li>Puppies</li>
   <li>Gold</li>
 </ul>
-We could check if this list has the class favList by passing it as an argument to hasClass:
+```
+
+We could check if this list has the class `favList` by passing it as an argument to `hasClass`:
+
+```javascript
 $('ul').hasClass('favList')
-EFFECTS
+```
+
+####EFFECTS
 We can use jQuery to add special effects (like animations) to our web page.
-ANIMATE
+
+####ANIMATE
 The animate function allows you to create a custom animation on any HTML element. The function accepts a CSS object as a parameter.
-Let's say we have an image of a bird on our website that we want to get bigger, we could achieve that with the animate function:
-HTML:
+
+Let's say we have an image of a bird on our website that we want to get bigger, we could achieve that with the `animate` function:
+
+**HTML**:
+
+```html
 <img src="images/bird.png">
-jQuery:
+```
+
+**jQuery**:
+
+```javascript
 $('img').animate({
   height: '500px'})
-FADEOUT
-The fadeOut function makes the select elements the function is called on opaque.
+```
+
+####FADEOUT
+The `fadeOut` function makes the select elements the function is called on transparent.
+
 Let's take the bird image again:
+
+```html
 <img src="images/bird.png">
-We could make the bird disappear by using fadeOut. This function accepts a parameter of the amount of time in milliseconds for the item to fade:
+```
+
+We could make the bird disappear by using `fadeOut`. This function accepts a parameter of the amount of time in milliseconds for the item to fade:
+
+```html
 $('img').fadeOut(4000);
-FADEIN
-Once an item is opaque, you can make it come back to full visibility with fadeIn.
-HTML:
+```
+
+####FADEIN
+Once an item is transparent, you can make it come back to full visibility with `fadeIn`.
+
+**HTML**:
+
+```html
 <img src="images/bird.png">
+```
+
+**jQuery**:
+
+```javascript
 $('img').fadeOut(4000); //takes 4 seconds to fade image out
 $('img').fadeIn(2000); //image back to full visibility in 2 seconds
-HIDE
-The hide function hides all matched elements.
+```
+
+####HIDE
+The `hide` function hides all matched elements.
+
 Let's say we have a paragraph that we want to hide:
+
+```html
 <p> paragraph.</p>
+```
+
 We easily hide it:
+
+```javascript
 $('p').hide(); // hides the paragraph immediately
 $('p').hide(4000); //gradually shrinks and hides the image over 4 seconds
-SHOW
+```
+
+####SHOW
 The show function makes hidden elements reappear:
+
+```html
 <p> paragraph.</p>
+```
+
 We easily hide it:
+
+```javascript
 $('p').hide(); // hides the paragraph immediately
 $('p').show(); // shows the paragraph immediately
  
 $('p').hide();
 $('p').show(4000); // gradually grows and shows the paragraph
-DOM INSERTION
+```
+
+####DOM INSERTION
 The methods under this category allow us to insert new content into our site.
-APPEND
+
+####APPEND
 The append method adds specific content to the end of the element.
-HTML:
+
+**HTML**:
+
+```html
 <p> Hey there. This is a short paragraph.</p>
-To add text to the paragraph, we can use the append function and pass it a parameter of the content we want to add to the end of the p tag:
+```
+
+To add text to the paragraph, we can use the `append` function and pass it a parameter of the content we want to add to the end of the `p` tag:
+
+```javascript
 $('p').append("Now the paragraph is a little bit longer because I am adding text to it with jQuery");
+```
+
 Now our HTML looks something like this:
+
+```html
 <p> Hey there. This is a short paragraph.Now the paragraph is a little bit longer because I am adding text to it with jQuery</p>
-INSTRUCTIONS
-You'll be coding your solutions in js/methods.js. There are tests to run to make sure your solutions work as expected. Styling is defined in css/style.css. You can test your code in the console by opening up index.html in the browser.
-Create a function fancySchmancy which does not accept any parameters. The function should use the addClass function to add the class iAmFancy (defined in css/style.css) to the p tag with the ID bacon. The function should return the p tag.
-Create a function addText which accepts a string as a parameter. The function should append the parameter to the 2nd paragraph. The function should return the p tag.
-Create a function showDolphin, which shows the hidden image of the dolphin, using the show function. The function does not need to have a return value.
-Create a function hideImage which hides the gif of a man getting hit in the face with a pie. The function does not need to have a return value.
-Create a function fadeIt which uses fadeIn to show the div with the list of favorite snacks. The function does not need to have a return value.
-Create a function fadeItOut which hides the second paragraph using the fadeOut function. You'll need to pass 0 to the fadeOut function so that the image fades immediately. Otherwise, you'll have issues with the tests. The function does not need to have a return value.
-Create a function called findItByClass which accepts a string of a jQuery selector as a parameter. The function should use the hasClass function to check if the a tag has the class flatironLink. The function should return the evaluation of the hasClass function.
-Create a function called formValue that does not accept any parameters. The function should use the val method to retrieve the value of the last input tag. The function should return the value of the value attribute
-RESOURCES
-jQuery Attribute Methods
-jQuery CSS Methods
-jQuery Effects Methods
-jQuery DOM Insertion Methods
+```
+
+####RESOURCES
++ [jQuery Attribute Methods](https://api.jquery.com/category/attributes/)
++ [jQuery CSS Methods](https://api.jquery.com/category/css/)
++ [jQuery Effects Methods](https://api.jquery.com/category/effects/)
++ [jQuery DOM Insertion Methods](http://api.jquery.com/category/manipulation/dom-insertion-inside/)
+
+##jQuery Event Listeners
+####OBJECTIVES
++ Explain what an event listener is and how it's used
++ Implement an event listener
+
+####INTRO
+Ever used a website where an action you took triggered something to happen on the page? You clicked part of a form and suddenly more to fill out appeared. You moused over part of the page and a modal window appeared. On Facebook, you click to see more comments and the rest appear. The list goes on and on and on. When these actions happen, code is responding to an event taken by a user, and responding with an action.
+
+In JavaScript, these things that happen are called **DOM events** and the code written to trigger the action is called an **event listener** or **event handler**.
+
+####ATTACH EVENT HANDLER
+In order to trigger events, we need to set up a handler that will respond when we can run our code.
+
+Let's take a basic example:
+
+```html
+<h1> This is some text to click</h1>
+```
+
+Given the above HTML, let's set up an event handler to pay attention to this `h1` tag:
+
+```javascript
+$('h1').on("eventname", function(){
+    //action you want taken
+});
+```
+
+We use `on` to bind an event to the HTML element we selected (in this case `h1`). The `on` function takes an argument of the name of the event you want the user to take. Whenever that event happens, the code inside the function will run.
+
+####LOAD
+The load event handler triggers an action to happen when the element it's called on is loaded. An image is a good example for when this would be used because images typically load slower than text.
+
+**HTML**:
+
+```html
+  <img src="https://s3.amazonaws.com/after-school-assets/minion-tongue.jpg">
+```
+
+**JS**:
+
+```javascript
+$('img').on('load', function(){
+  //actions you want to happen
+});
+```
+
+####KEYPRESS, KEYDOWN, KEYUP
+The `keypress` event keeps track of every time a key on the keyboard is pressed (excluding ALT, CTRL, SHIFT, ESC). It's important to note that `keypress` isn't covered by browser specifications, so it's behavior isn't guaranteed.
+
+`keydown` tracks every time a key is pressed down on the keyboard, and the `keyup` checks every time a key press is released.
+
+`keypress`:
+
+```javascript
+$(document).on('keypress', function(key) {
+  if (key.which == 13){
+    alert('enter was pressed');
+  }
+});
+```
+
+`keyup`:
+
+```javascript
+$(document).on('keyup', function(key) {
+  if (key.which == 82){
+    alert('r was pressed');
+  }
+});
+```
+
+`keydown`:
+
+```javascript
+$(document).on('keydown', function(key) {
+  if(key.which == 83){
+      alert('s was pressed');
+  }
+});
+```
+
+The three examples above use `document` as the jQuery selector, so any time a key is pressed anywhere on the screen, the alert will appear. If you want to check if the cursor is in a particular area (like an input field) then you would just need to change the selector.
+
+Let's walk through how `keydown` works. We use `document` as our selector, and bind the `keydown` event. We pass `theKey` to the function as an argument. Inside the function, we set up an `if` statement that checks if the `which` of the pressed key matches. `83` is the ASCII code for `s`. If the `s` key was pressed, the alert `"s was pressed"` will appear.
+
+####SUBMIT
+The `submit` event submits a form. Let's set up our submit event so that it only submits the form if a certain value has been entered in the text field:
+
+```javascript
+$("form").on("submit", function() {
+  if ($( "input:first" ).val() === "correct") {
+    alert('your form is going to be submitted now');
+    return;
+  }
+  alert("you entered the wrong value");
+  return;
+});
+```
+
+In the example above, we are using the `submit` event. We use the HTML `form` as our selector to bind the event on. We then set up an if-statement that checks to see if the value of the first input is `"correct"`. If the user typed `"correct"` then the alert `'your form is going to be submitted now'` will appear, and the function will `return` so that no other lines of code will be executed. If they didn't enter `"correct"` the alert `"you entered the wrong value"` will appear. As of right now, the form is still submitting even with the wrong value, but later we'll learn how to prevent that from happening.
+
+####RESOURCES
+There are many many more jQuery events. Take a look at the docs to learn about all of them!
+
++ [Browser Events](https://api.jquery.com/category/events/browser-events/)
++ [ASCII Key Values](http://keycode.info/)
+
+And keep in mind that jQuery events are based on the `Event` class that's built into browsers. You can read more about `Event` here:
+
++ [Event](https://developer.mozilla.org/en-US/docs/Web/API/Event)
