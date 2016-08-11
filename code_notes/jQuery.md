@@ -257,3 +257,108 @@ The DOM will become increasingly important as we use JavaScript and jQuery to ma
 + [MDN DOM Introduction](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction)
 + [MDN Document Properties](https://developer.mozilla.org/en-US/docs/Web/API/Document)
 + [MDN EventTarget.addEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener)
+
+##jQuery Selectors
+####OBJECTIVES
++ Explain the purpose of a DOM selector
++ Use a DOM selector to select an HTML element
+
+####INTRO
+Because jQuery was created as a way to make DOM manipulation quick and painless, a big part of that is correctly selecting the DOM node you want to work with. Thankfully, the browser provides a seamless way to select the correct HTML, similar to CSS selectors.
+
+When we're using jQuery, we can wrap these selectors (which are just strings) in a call to `$` — for example, if we wanted all the `div`s on a page, we could call `$('div')`.
+
+You will be coding your solution in `index.html` and `js/selectors.js`. There are tests for this walk-through to make sure your code works as expected.
+
+####GETTING EVERYTHING SET UP
+First things first, we need to load several external resources to `index.html`:
+
++ jQuery: `<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>`
++ Our JS file: `<script src="js/selectors.js"></script>`
+
+Both of these script tags should go at the bottom the `body`. Order here matters, if we plan on using jQuery in `js/selectors.js` that file needs to be linked first.
+
+####USING SELECTORS
+To set up a jQuery selector, you start with the `$`. Every line of jQuery code should start with the `$`.
+
+```javascript
+$('selector-goes-here')
+```
+
+In between the quotation marks, you place your selector. Just like in CSS, there are many types of selectors. Let's dive into a few.
+
+You'll want to have `index.html` open in the browser, with the console open.
+
+####ELEMENT SELECTOR
+The element selector returns all HTML elements with that specific tag:
+
+```javascript
+$('img')
+```
+
+Because we have six images on our page, this selector will return an array of all six images.
+
+####CLASS SELECTORS
+You'll notice `index.html` has two `divs` with the class `pics`. Let's use selectors to select those two divs.
+
+```javascript
+$('.pics')
+```
+
+Just like in CSS, we use a `.` to denote a class. This code is selecting any HTML elements with the class `pics`, which in this case is two different divs.
+
+####ID SELECTORS
+The first gif on the page is a baby doing ninja moves. An ID selector works in much the same way as a class selector, you just replace the `.` with a `#`:'
+
+```javascript
+$('#baby-ninja')
+```
+
+####DESCENDANT SELECTOR
+Let's say we want to select all list items inside the `ul` tag. The `li` tags are descendants of the `ul` tag. We can use a descendant selector like this:
+
+```javascript
+$('ul li')
+```
+
+####FIRST CHILD
+Let's say we want to select the first `img` tag inside each `div`. We could do that with the first child selector. You set up this selector:
+
+```javascript
+$('parent-tag child-tag:first-child')
+```
+
+Because we want to select the first image inside a `div`, we put `div` first. Next comes the element we want to select, which is `img`, followed by `:first-child`:
+
+```javascript
+$('div img:first-child')
+```
+
+**Example**
+Write a function firstListItem which does not accept any parameters. The function should use a first-child selector to return the first list item in the ul with the ID pic-list.
+
+```javascript
+function firstListItem() {
+  return $('ul#pic-list li:first-child');
+}
+```
+
+####ALT TAG SELECTOR
+Let's say we want to select an image that has a specific alt text. The second image on our page (or the beatles) has the alt text `"the beatles making faces"`. We can use that text to find the image:
+
+```javascript
+$("img[alt='the beatles making faces']")
+```
+
+####LAST SELECTOR
+Let's say you want to select the last div on the page. You could use the last selector to do that:
+
+```javascript
+$('div:last')
+```
+
+####OTHERS
+There are a tremendous number of other DOM selectors, including but not limited to last-child, nth-type-of, next sibling, input selector, and the list goes on. Take a look at the [MDN docs](https://api.jquery.com/category/selectors/) for a full list.
+
+####RESOURCES
++ [MDN jQuery Selectors](https://api.jquery.com/category/selectors/)
