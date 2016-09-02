@@ -48,7 +48,7 @@ Now that we can put files anywhere, how do we get them to be included in our web
 
 File: `app/assets/javascripts/application.js`
 
-```js
+```javascript
 //= require jquery
 //= require calendar
 ```
@@ -60,7 +60,7 @@ Now that we solved the question of discoverability, let's talk about concatenati
 Finally, the sprocket directives that power our asset manifests will be covered in detail later.
 
 ####PREPROCESSING
-Being able to combine files and load them from a set of pre defined locations in our application is a great beneifit of the Asset Pipeline. That's only the beginning. Because we're loading assets through Rails, we can preprocess the files using popular languages like SCSS for writing better CSS and Coffeescript for cleaner JS. If you make an asset named theme.css.scss, you are telling the asset pipeline to run the file through the SCSS preprocessor before serving theme.css to the browser. The SCSS preprocessor compiles the file into CSS. The only thing we had to do was provide the correct file extension, `.scss`, to the file and the asset pipeline knows to run it through the SCSS preprocessor.
+Being able to combine files and load them from a set of pre defined locations in our application is a great benefit of the Asset Pipeline. That's only the beginning. Because we're loading assets through Rails, we can preprocess the files using popular languages like SCSS for writing better CSS and Coffeescript for cleaner JS. If you make an asset named `theme.css.scss`, you are telling the asset pipeline to run the file through the SCSS preprocessor before serving theme.css to the browser. The SCSS preprocessor compiles the file into CSS. The only thing we had to do was provide the correct file extension, `.scss`, to the file and the asset pipeline knows to run it through the SCSS preprocessor.
 
 ####FINGERPRINTING
 The last benefit we will talk about is Fingerprinting, but first let's talk about the problem it helps us solve. When we serve files to the browser, they are likely to be cached to avoid downloading them again in the future. What's caching you might ask?
@@ -141,10 +141,18 @@ Now that we have our manifest file, we need to include it in our application. Th
 ```
 
 Sprockets will then take care of loading our manifest file and determining what assets to load. If we are in development mode, each asset will be loaded individually.
+
+```html
 <script src="assets/jquery.min.js" />
 <script src="assets/bootstrap.min.js" />
 <script src="assets/blogs.js" />
+```
+
 In production mode, all the assets will be combined into a single file.
+
+```html
 <script src="/assets/application-908e25f4bf641868d8683022a5b62f54.js" />
-RESOURCES
-http://guides.rubyonrails.org/asset_pipeline.html
+```
+
+####RESOURCES
++ http://guides.rubyonrails.org/asset_pipeline.html
