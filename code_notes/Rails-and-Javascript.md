@@ -239,3 +239,69 @@ $(".pages.contact").click(function() {
   console.log("only runs on the contact page!")
 })
 ```
+
+##External Javascript Libraries
+####OUTLINE
+Loading JavaScript into our application can be done many different ways in Rails. We can use HTML script tags for JS files located on another server. We can place third party JS files in our vendor folder. Finally we can even use gems to load the JS libraries we need.
+
+####EXTERNAL JAVASCRIPT
+Not all of our JavaScript files will be loaded from our application directories. Sometimes we may want to load JS from a CDN. This can allow us to save on bandwidth and if we have a CDN setup for our application, it will help with file download speeds for users throughout the world. To load JS like this, we create HTML script tags in our application layout file.
+
+```html
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" />
+```
+
+####VENDOR ASSETS
+Our applications will grow as we add more and more features. We might end up with a lot of different JS libraries along the way. The problem is all of these external JS files will need to be downloaded one by one and this will slow page load times. At some point, we will probably decide to make these external JS files to be internal JS files.
+
+We don't really want to clutter our main `assets/javascripts` folder with code written and maintained by other people. This is why Rails provides the `vendor/assets/javascripts` folder. We can place third party JS libraries in here and add them to our JS manifest file. We also get the added benefit of having all of these external JS files combined into one file with all our application JS files. One thing to consider when doing this is if you are using a popular library, a user has probably already downloaded this JS file from another site they visited and is sitting in their cache. By adding this to your manifest you'd be forcing them to download the code again.
+
+####GEMS
+Manually adding JS to our vendor directory can be cumbersome and hard to maintain. New versions of the JS files come out and unless we're keeping track of every release, it's easy to fall behind. Luckily, many of the popular JS libraries we use have gems. These gems package the JS files and when installed, add them to our asset path allowing us to require the JS inside of our manifest file.
+
+For example, let's install the jQuery gem in our Gemfile. Once we `bundle install`, we are able to add `//= require jquery` to our manifest file. Now jQuery will be loaded by Rails. Plus, we can use bundler to update jQuery when new versions are released. Handling updating is particular helpful for bigger JS frameworks that might have many JS files and dependencies. This makes our life simpler, but it also may cause problems. It's possible we don't want to update to the newest version of every JS file. The API of the library could have changed causing our code to break. It also is going to require the user to re-download the JS libary when there may be no need to. We also (as in the previous section) would be concatenating our JS libraries together which might lose the benefits of caching those libraries.
+
+##CSS Manifests
+OBJECTIVES
+Create CSS Manifest Files
+Require CSS Files in Manifests with Sprocket Directives
+Include CSS Manifest Files in Layouts
+See a Manifest in Development vs Production
+OVERVIEW
+CSS makes our web applications look good but can be hard to manage. As our application grows, so do the amount of stylesheets we need to manage. The Asset Pipeline can help us manage this chaos much like with JavaScript.
+MANIFEST FILES
+Like our JavaScript manifest, the CSS manifest has a special syntax that differentiates it from a regular CSS file. The *= require directive is very similar to it's JS counterpart. We are just using a CSS comment instead of a JS comment.
+/*
+*= require main
+*/
+Note: In a CSS manifest file you must open the CSS comment block with /* and then each directive appears on an individual line starting with *=. You close the comment block with */. It's a little different than the JS directive comments of //= which are individual valid JS comments.
+REQUIRE DIRECTIVES
+When we require a CSS asset in our manifest, if it is located in one of the configured folders, it will be included in our application. One thing to remember is when you require something the path you provide must be the asset path. For example, if you have the file app/assets/stylesheets/blogs/main.css you will need to require it like this, *= require 'blogs/main'.
+LOADING A MANIFEST FILE IN YOUR LAYOUT
+Loading our CSS manifest file into our application is just as easy as it was with JS. We create a stylesheet_link_tag in our application layout and Sprockets takes care of loading the manifest and determining what assets to include.
+<%= stylesheet_link_tag 'application' %>
+In development mode, each CSS file will get it's own link tag. This allows for easier debugging. A manifest file that looks like this:
+/*
+*= require main
+*= require blogs
+*= require posts
+*/
+Would create this in our application layout's head tag: (assuming fingerprinting/digests are turned off)
+  <link rel="stylesheet" href="/assets/main.css" /> 
+  <link rel="stylesheet" href="/assets/blogs.css" /> 
+  <link rel="stylesheet" href="/assets/posts.css" /> 
+MANIFESTS IN PRODUCTION
+In production mode, Sprockets will take all of our CSS files and create one large CSS file. It will also minify the contents removing unneeded whitespace to reduce the overall size of the file. Both of these things will speed up page load times for our users. If we look at our previous manifest example:
+/*
+*= require main
+*= require blogs
+*= require posts
+*/
+We would only get a single link tag from this in our application manifest.
+<link rel="stylesheet" href="/assets/application-4dd5b109ee3439da54f5bdfd78a80473.css" /> 
+The CSS in this file would look like this:
+body{background-color:#FFF;font-size:14px;margin:0}a{color:#1B97F2;text-decoration:none}.clear{clear:both}ul{margin:4px 0;padding-left:17px}ul.horizontal{list-style:none;margin:0;padding:0}ul.horizontal li{margin:0;padding:0;float:left}#flash_notice,#flash_alert{padding:10px 0;text-align:center;color:#FFF}
+Notice the lack of whitespace? That's the minification we taked about earlier. This is great for production use but it's a bit hard to read. This is why when we are in development mode, we get individual, unminified files instead.
+RESOURCES
+https://github.com/rails/sprockets#sprockets-directives
+http://guides.rubyonrails.org/asset_pipeline.html
