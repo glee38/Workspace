@@ -338,3 +338,98 @@ Notice the lack of whitespace? That's the minification we taked about earlier. T
 ####RESOURCES
 + https://github.com/rails/sprockets#sprockets-directives
 + http://guides.rubyonrails.org/asset_pipeline.html
+
+##External CSS Frameworks In Rails
+####OUTLINE
+Loading stylesheets into our application can be done a few different ways in Rails. We can use HTML link tags for CSS located on another server. We can place third party CSS files in our vendor folder. We can also use gems to load the CSS frameworks we need like Twitter Bootstrap.
+
+####EXTERNAL STYLESHEETS
+So far we have been loading CSS from our asset directories. You aren't required to do it this way but it does allow us to easily manage our CSS. The other way to load CSS is by using standard HTML `<style>` tags placed in the `<head>` tag of our application layout. There are benefits to using this approach. We can load stylesheets from other peoples CDNs without having to set one up ourselves. This can save us bandwidth and help with download speeds for users throughout the world. To load CSS like this, we create HTML link tags in the `<head>` of our application layout file.
+
+```html
+<head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+</head>
+```
+
+####VENDOR ASSETS
+Managing a lot of different third party CSS files can be hard. We may lose track which files are for which CSS frameworks. Also, separate link tags mean these files will need to be downloaded one by one on the browser and this will slow page load times. At some point, we will probably decide to have these external CSS files be internal CSS files.
+
+We don't really want to clutter our main `assets/stylesheets` folder with CSS files maintained by others. Rails provides the `vendor/assets/stylesheets` folder for these types of CSS files. We can place our third party CSS frameworks in here and add them to our CSS manifest file. We get the added benefit of having all external CSS files combined into one file with all our application CSS files.
+
+####GEMS
+Manually adding CSS to our vendor directory can also be cumbersome and hard to maintain. New version of CSS frameworks are released and it's easy to fall behind. Luckily for us, many of the popular CSS frameworks have gems. These gems package up these CSS frameworks and when installed, add them to our asset path allowing us to require them inside of our CSS manifest file.
+
+To install the Twitter Bootstrap gem in our Gemfile, you will need to add `gem "bootstrap-sass"` to your Gemfile and run `bundle install`. Once that completes you are able to add `*= require bootstrap` to the CSS manifest file. Now Bootstrap will be loaded by Rails. We can also use bundler to update Twitter Bootstrap when new versions are released. Handling updating is particular helpful for bigger CSS frameworks like Bootstrap that have many CSS files.
+
+####REFERENCES
++ [Bootstrap SASS Gem](https://github.com/twbs/bootstrap-sass)
+
+##Asset Preprocessors In Rails
+OUTLINE
+The Asset Pipeline is very powerful. We have seen this with just asset concatentation alone. Imagine having to manually combine dozens of JS and CSS files and updating the layouts everytime we want to make a change and deploy our application. The Asset Pipeline just does this for us. On top of that, it also allows us to use preprocessors like Coffeescript, SASS and erb. But what is a preprocessor?
+PREPROCESSORS
+CSS and JavaScript have been around awhile. They do a good job styling our pages and creating cool client-side behavior. They aren't always the easiest to work with, though. There have been a lot of improvements to these languages, but because those upgrades require people to upgrade their browsers, we can't always use them. Wouldn't it be great if we could write CSS and JS the way we wanted and have a program turn it into the correct syntax? This is why we have preprocessors.
+Because the asset pipeline parses all of our asset files, we are able to write CSS and JS in a language that isn't exactly CSS and JS. By using file extensions, the asset pipeline can recognize these files as not normal CSS and JS and run it through a preprocessor, which compiles to valid CSS and JS. If the Asset Pipeline sees main.js.coffee it knows this is a Coffeescript file and will run it through the Coffeescript preprocessor. The asset pipeline runs through each file extension in reverse order running the preprocessor for that extension. For example, a file that ends in .js.erb will have the erb preprocessor run on it first, the goal being a file that is purely valid javascript. You can use Ruby to programatically write JS and even use variables from your controller in your JS!
+In development mode, the asset pipeline will run the preprocessor on any file that needs to be processed every time it's requested, SLOW! In production you might have had to run rake assets:precompile. This runs the preprocessors once, outputs all the now-static JS and CSS and then allows the webserver to serve them without ever touching Rails, much faster!
+COFFEESCRIPT
+If you have written any JavaScript, you know it has many quirks. For example, the difference between == vs === when testing equality or how to use Inheritance. Coffeescript takes all of these things that make using JavaScript hard and abstracts them away. What we are left with is a very Ruby like syntax. Take the following pulled from the Coffeescript documentation.
+launch() if ignition is on
+ 
+volume = 10 if band isnt SpinalTap
+ 
+letTheWildRumpusBegin() unless answer is no
+ 
+if car.speed < limit then accelerate()
+ 
+winner = yes if pick in [47, 92, 13]
+ 
+print inspect "My name is #{@name}"
+If you look closely you can see this syntax looks a lot like Ruby. Once we run it through the preproccesor, we get to following.
+var volume, winner;
+ 
+if (ignition === true) {
+  launch();
+}
+ 
+if (band !== SpinalTap) {
+  volume = 10;
+}
+ 
+if (answer !== false) {
+  letTheWildRumpusBegin();
+}
+ 
+if (car.speed < limit) {
+  accelerate();
+}
+ 
+if (pick === 47 || pick === 92 || pick === 13) {
+  winner = true;
+}
+ 
+print(inspect("My name is " + this.name));
+That's plain old JS with all of it's quirks but we didn't have to write it.
+SASS
+While CSS might not be as complex as JavaScript, it still has its problems. Without language features like selector nesting, basic inheritance and variables it can be hard to keep CSS manageable. CSS3 promises to provide much needed enhancements to the aging CSS 2.1 standard but just like JS, we can only use these new features once browsers support them and a majority of people upgrade to that browser version. This is where SASS comes in. SASS is a sort of enhanced CSS that, once run through the preprocessor, turns into plain CSS.
+Here is a simple example of nesting which SASS provides.
+.error {
+  a {
+    color: red;
+    text-decoration: none;
+  }
+  span {
+    color: #ff1a1a;
+    text-decoration: underline;
+  }
+}
+The code above will turn into the following once run through the preprocessor.
+.error a {
+  color: red;
+  text-decoration: none;
+}
+.error span {
+  color: #ff1a1a;
+  text-decoration: underline;
+}
+Notice how we avoided having to repeat .error. In SASS, if we need to change .error to .error-text we only have to change it in one place. In big applications that can save us from making a lot of mistakes.
